@@ -7,7 +7,7 @@ import { useQuery } from "@tanstack/react-query";
 import { CheckCircle2, Music2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -32,7 +32,7 @@ const FEATURES = [
   "14 días de prueba Pro gratis",
 ];
 
-export default function RegisterPage() {
+function RegisterPageContent() {
   const { register: authRegister } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -261,5 +261,15 @@ export default function RegisterPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function RegisterPage() {
+  return (
+    <Suspense
+      fallback={<div className="min-h-screen bg-slate-50 dark:bg-slate-950" />}
+    >
+      <RegisterPageContent />
+    </Suspense>
   );
 }
