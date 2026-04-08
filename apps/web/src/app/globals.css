@@ -126,13 +126,11 @@
   }
 
   .music-notes-bg {
-    background-image: url("data:image/svg+xml,%3Csvg width='220' height='220' viewBox='0 0 220 220' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cg opacity='0.08'%3E%3Cpath d='M70 52v66.5C66.9 116.7 62.9 116 58.5 116C47.7 116 39 121.6 39 128.5C39 135.4 47.7 141 58.5 141C69.3 141 78 135.4 78 128.5V73l70-15v45.5C144.9 101.7 140.9 101 136.5 101C125.7 101 117 106.6 117 113.5C117 120.4 125.7 126 136.5 126C147.3 126 156 120.4 156 113.5V41L70 52Z' fill='%231f4d8f'/%3E%3Cpath d='M162 132c-8.3 0-15 4.5-15 10s6.7 10 15 10 15-4.5 15-10v-34l-54 11v18c-2.3-.6-4.8-1-7.5-1-8.3 0-15 4.5-15 10s6.7 10 15 10 15-4.5 15-10v-19l46-9v14c-2.3-.6-4.8-1-7.5-1Z' fill='%23bc842f'/%3E%3C/g%3E%3C/svg%3E");
-    background-repeat: repeat;
-    background-size: 220px 220px;
+    background: none;
   }
 
   html.dark .music-notes-bg {
-    background-image: url("data:image/svg+xml,%3Csvg width='220' height='220' viewBox='0 0 220 220' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cg opacity='0.06'%3E%3Cpath d='M70 52v66.5C66.9 116.7 62.9 116 58.5 116C47.7 116 39 121.6 39 128.5C39 135.4 47.7 141 58.5 141C69.3 141 78 135.4 78 128.5V73l70-15v45.5C144.9 101.7 140.9 101 136.5 101C125.7 101 117 106.6 117 113.5C117 120.4 125.7 126 136.5 126C147.3 126 156 120.4 156 113.5V41L70 52Z' fill='%2394c2f4'/%3E%3Cpath d='M162 132c-8.3 0-15 4.5-15 10s6.7 10 15 10 15-4.5 15-10v-34l-54 11v18c-2.3-.6-4.8-1-7.5-1-8.3 0-15 4.5-15 10s6.7 10 15 10 15-4.5 15-10v-19l46-9v14c-2.3-.6-4.8-1-7.5-1Z' fill='%23d4a64d'/%3E%3C/g%3E%3C/svg%3E");
+    background: none;
   }
 
   /* Acordes resaltados en ChordSheet */
