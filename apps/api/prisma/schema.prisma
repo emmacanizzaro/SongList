@@ -1,0 +1,284 @@
+// ============================================================
+// SONGLIST SAAS - SCHEMA PRISMA COMPLETO
+// Multi-tenant SaaS para equipos de alabanza de iglesias
+// ============================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// =================== TENANTS (IGLESIAS) ===================
+
+model Church {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique  // subdomain: myiglesia.songlist.app
+  logoUrl     String?
+  description String?
+  timezone    String   @default("America/Argentina/Buenos_Aires")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  memberships  Membership[]
+  songs        Song[]
+  meetings     Meeting[]
+  instruments  Instrument[]
+  subscription Subscription?
+  teams        Team[]
+  invites      ChurchInvite[]
+
+  @@map("churches")
+}
+
+// =================== USUARIOS ===================
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  avatarUrl    String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  memberships   Membership[]
+  assignments   Assignment[]
+  refreshTokens RefreshToken[]
+  sentInvites   ChurchInvite[] @relation("InviteSender")
+
+  @@map("users")
+}
+
+// =================== MEMBERSHIP (Usuario <> Iglesia) ===================
+
+enum MemberRole {
+  ADMIN   // Gestiona la iglesia, suscripción, usuarios
+  EDITOR  // Crea/edita canciones y reuniones
+  READER  // Solo lectura
+}
+
+model Membership {
+  id       String     @id @default(cuid())
+  userId   String
+  churchId String
+  role     MemberRole @default(READER)
+  joinedAt DateTime   @default(now())
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  church Church @relation(fields: [churchId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, churchId])
+  @@index([churchId])
+  @@map("memberships")
+}
+
+// =================== CANCIONES ===================
+
+model Song {
+  id          String   @id @default(cuid())
+  churchId    String
+  title       String
+  artist      String?
+  originalKey String   // "C", "F#", "Bb" etc.
+  bpm         Int?
+  tags        String[] // ["navidad", "adoracion", "poderosa"]
+  createdById String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  church       Church        @relation(fields: [churchId], references: [id], onDelete: Cascade)
+  versions     SongVersion[]
+  meetingSongs MeetingSong[]
+
+  @@index([churchId])
+  @@index([churchId, title])
+  @@map("songs")
+}
+
+enum VersionType {
+  ORIGINAL    // Versión original de la canción
+  MALE_KEY    // Tono hombre (transpuesto)
+  FEMALE_KEY  // Tono mujer (transpuesto)
+  CUSTOM      // Versión personalizada
+}
+
+model SongVersion {
+  id           String      @id @default(cuid())
+  songId       String
+  type         VersionType @default(ORIGINAL)
+  key          String      // "C", "F#", "Bb"
+  lyricsChords String      // Formato ChordPro: [C]Amazing [G]grace...
+  notes        String?     // Notas internas del arreglista
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  song Song @relation(fields: [songId], references: [id], onDelete: Cascade)
+
+  @@unique([songId, type])
+  @@map("song_versions")
+}
+
+// =================== REUNIONES ===================
+
+model Meeting {
+  id          String   @id @default(cuid())
+  churchId    String
+  title       String
+  date        DateTime
+  notes       String?
+  isPublic    Boolean  @default(false) // Link de solo lectura
+  shareToken  String?  @unique         // Token para compartir sin auth
+  createdById String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  church       Church        @relation(fields: [churchId], references: [id], onDelete: Cascade)
+  meetingSongs MeetingSong[]
+  assignments  Assignment[]
+
+  @@index([churchId, date])
+  @@map("meetings")
+}
+
+model MeetingSong {
+  id          String  @id @default(cuid())
+  meetingId   String
+  songId      String
+  order       Int     // Posición en la lista
+  keyOverride String? // Override del tono base para esta reunión
+  notes       String? // "Acortar estrofa 2", "A capella"
+
+  meeting Meeting @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+  song    Song    @relation(fields: [songId], references: [id])
+
+  @@unique([meetingId, songId])
+  @@index([meetingId, order])
+  @@map("meeting_songs")
+}
+
+// =================== INSTRUMENTOS Y ASIGNACIONES ===================
+
+model Instrument {
+  id        String @id @default(cuid())
+  churchId  String
+  name      String // "Guitarra", "Piano", "Batería", "Bajo", "Voz"
+  icon      String? // emoji o nombre de icono: "🎸"
+  sortOrder Int    @default(0)
+
+  church      Church       @relation(fields: [churchId], references: [id], onDelete: Cascade)
+  assignments Assignment[]
+
+  @@unique([churchId, name])
+  @@map("instruments")
+}
+
+model Assignment {
+  id           String  @id @default(cuid())
+  meetingId    String
+  userId       String
+  instrumentId String
+  notes        String? // "primer tiempo", "coro"
+
+  meeting    Meeting    @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+  user       User       @relation(fields: [userId], references: [id])
+  instrument Instrument @relation(fields: [instrumentId], references: [id])
+
+  @@unique([meetingId, userId, instrumentId])
+  @@map("assignments")
+}
+
+// =================== EQUIPOS (Plan Pro/Enterprise) ===================
+
+model Team {
+  id       String @id @default(cuid())
+  churchId String
+  name     String // "Equipo Principal", "Equipo Jóvenes"
+
+  church Church @relation(fields: [churchId], references: [id], onDelete: Cascade)
+
+  @@unique([churchId, name])
+  @@map("teams")
+}
+
+// =================== SUSCRIPCIONES & PLANES ===================
+
+enum PlanType {
+  FREE        // Gratuito: hasta 5 usuarios, 50 canciones
+  PRO         // $9.99/mes: usuarios ilimitados, historial, export PDF
+  ENTERPRISE  // $29.99/mes: multi-equipos, soporte prioritario
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  TRIALING
+  PAST_DUE
+  CANCELED
+  INCOMPLETE
+}
+
+model Subscription {
+  id                   String             @id @default(cuid())
+  churchId             String             @unique
+  plan                 PlanType           @default(FREE)
+  status               SubscriptionStatus @default(ACTIVE)
+
+  // Stripe
+  stripeCustomerId     String?
+  stripeSubscriptionId String?
+  currentPeriodStart   DateTime?
+  currentPeriodEnd     DateTime?
+  cancelAtPeriodEnd    Boolean            @default(false)
+
+  // Mercado Pago (LATAM)
+  mpSubscriptionId     String?
+  mpCustomerEmail      String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  church Church @relation(fields: [churchId], references: [id], onDelete: Cascade)
+
+  @@map("subscriptions")
+}
+
+// =================== REFRESH TOKENS ===================
+
+model RefreshToken {
+  id        String   @id @default(cuid())
+  userId    String
+  tokenHash String   @unique // SHA-256 del token, nunca en texto plano
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("refresh_tokens")
+}
+
+model ChurchInvite {
+  id             String     @id @default(cuid())
+  churchId        String
+  email           String
+  role            MemberRole @default(READER)
+  token           String     @unique
+  invitedByUserId String?
+  expiresAt       DateTime
+  acceptedAt      DateTime?
+  createdAt       DateTime   @default(now())
+
+  church    Church @relation(fields: [churchId], references: [id], onDelete: Cascade)
+  invitedBy User?  @relation("InviteSender", fields: [invitedByUserId], references: [id], onDelete: SetNull)
+
+  @@index([churchId])
+  @@index([email])
+  @@index([token, expiresAt])
+  @@map("church_invites")
+}

@@ -1,0 +1,239 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --color-bg: #f6f4ef;
+    --color-bg-soft: #fbfaf7;
+    --color-surface: rgba(255, 255, 255, 0.82);
+    --color-surface-strong: rgba(255, 255, 255, 0.94);
+    --color-border: rgba(22, 43, 73, 0.12);
+    --color-text: #132033;
+    --color-muted: #64748b;
+    --shadow-card: 0 18px 40px rgba(22, 43, 73, 0.08);
+    --shadow-soft: 0 10px 25px rgba(18, 32, 51, 0.06);
+  }
+
+  html.dark {
+    --color-bg: #0f1419;
+    --color-bg-soft: #131820;
+    --color-surface: rgba(15, 20, 25, 0.92);
+    --color-surface-strong: rgba(20, 26, 33, 0.95);
+    --color-border: rgba(255, 255, 255, 0.08);
+    --color-text: #e2e8f0;
+    --color-muted: #94a3b8;
+    --shadow-card: 0 18px 40px rgba(0, 0, 0, 0.36);
+    --shadow-soft: 0 10px 25px rgba(0, 0, 0, 0.3);
+  }
+
+  * {
+    @apply border-gray-200 dark:border-slate-700;
+  }
+
+  html {
+    color-scheme: light;
+  }
+
+  html.dark {
+    color-scheme: dark;
+  }
+
+  body {
+    font-family: var(--font-sans), system-ui, sans-serif;
+    color: var(--color-text);
+    background:
+      radial-gradient(
+        circle at top left,
+        rgba(31, 77, 143, 0.12),
+        transparent 28%
+      ),
+      radial-gradient(
+        circle at top right,
+        rgba(188, 132, 47, 0.11),
+        transparent 22%
+      ),
+      linear-gradient(180deg, var(--color-bg-soft) 0%, var(--color-bg) 100%);
+    min-height: 100vh;
+  }
+
+  html.dark body {
+    background:
+      radial-gradient(
+        circle at top left,
+        rgba(31, 77, 143, 0.08),
+        transparent 32%
+      ),
+      radial-gradient(
+        circle at top right,
+        rgba(188, 132, 47, 0.06),
+        transparent 28%
+      ),
+      linear-gradient(180deg, var(--color-bg-soft) 0%, var(--color-bg) 100%);
+  }
+
+  ::selection {
+    background: rgba(31, 77, 143, 0.16);
+    color: #162b49;
+  }
+
+  html.dark ::selection {
+    background: rgba(31, 77, 143, 0.3);
+    color: #e2e8f0;
+  }
+
+  input,
+  textarea,
+  button {
+    font: inherit;
+  }
+}
+
+@layer components {
+  .app-shell {
+    @apply relative min-h-screen;
+  }
+
+  .page-section {
+    @apply relative overflow-hidden rounded-[28px] border;
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.9),
+      rgba(255, 255, 255, 0.76)
+    );
+    border-color: var(--color-border);
+    box-shadow: var(--shadow-soft);
+    backdrop-filter: blur(18px);
+  }
+
+  html.dark .page-section {
+    background: linear-gradient(
+      180deg,
+      rgba(20, 26, 33, 0.92),
+      rgba(15, 20, 25, 0.88)
+    );
+  }
+
+  .eyebrow {
+    @apply inline-flex items-center gap-2 rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em];
+    color: #1f4d8f;
+    background: rgba(31, 77, 143, 0.08);
+  }
+
+  html.dark .eyebrow {
+    color: #94c2f4;
+    background: rgba(31, 77, 143, 0.16);
+  }
+
+  .music-notes-bg {
+    background-image: url("data:image/svg+xml,%3Csvg width='220' height='220' viewBox='0 0 220 220' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cg opacity='0.08'%3E%3Cpath d='M70 52v66.5C66.9 116.7 62.9 116 58.5 116C47.7 116 39 121.6 39 128.5C39 135.4 47.7 141 58.5 141C69.3 141 78 135.4 78 128.5V73l70-15v45.5C144.9 101.7 140.9 101 136.5 101C125.7 101 117 106.6 117 113.5C117 120.4 125.7 126 136.5 126C147.3 126 156 120.4 156 113.5V41L70 52Z' fill='%231f4d8f'/%3E%3Cpath d='M162 132c-8.3 0-15 4.5-15 10s6.7 10 15 10 15-4.5 15-10v-34l-54 11v18c-2.3-.6-4.8-1-7.5-1-8.3 0-15 4.5-15 10s6.7 10 15 10 15-4.5 15-10v-19l46-9v14c-2.3-.6-4.8-1-7.5-1Z' fill='%23bc842f'/%3E%3C/g%3E%3C/svg%3E");
+    background-repeat: repeat;
+    background-size: 220px 220px;
+  }
+
+  html.dark .music-notes-bg {
+    background-image: url("data:image/svg+xml,%3Csvg width='220' height='220' viewBox='0 0 220 220' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cg opacity='0.06'%3E%3Cpath d='M70 52v66.5C66.9 116.7 62.9 116 58.5 116C47.7 116 39 121.6 39 128.5C39 135.4 47.7 141 58.5 141C69.3 141 78 135.4 78 128.5V73l70-15v45.5C144.9 101.7 140.9 101 136.5 101C125.7 101 117 106.6 117 113.5C117 120.4 125.7 126 136.5 126C147.3 126 156 120.4 156 113.5V41L70 52Z' fill='%2394c2f4'/%3E%3Cpath d='M162 132c-8.3 0-15 4.5-15 10s6.7 10 15 10 15-4.5 15-10v-34l-54 11v18c-2.3-.6-4.8-1-7.5-1-8.3 0-15 4.5-15 10s6.7 10 15 10 15-4.5 15-10v-19l46-9v14c-2.3-.6-4.8-1-7.5-1Z' fill='%23d4a64d'/%3E%3C/g%3E%3C/svg%3E");
+  }
+
+  /* Acordes resaltados en ChordSheet */
+  .chord {
+    @apply font-bold font-mono text-sm cursor-pointer;
+    color: #1f4d8f;
+  }
+
+  html.dark .chord {
+    color: #94c2f4;
+  }
+
+  /* Contenedor de línea de acordes */
+  .chord-line {
+    @apply font-mono text-sm leading-relaxed whitespace-pre;
+  }
+
+  /* Línea de letra */
+  .lyric-line {
+    @apply text-base leading-relaxed mb-3;
+  }
+
+  /* Card estándar */
+  .card {
+    @apply rounded-2xl border;
+    background: var(--color-surface-strong);
+    border-color: var(--color-border);
+    box-shadow: var(--shadow-card);
+    backdrop-filter: blur(16px);
+  }
+
+  .input {
+    @apply w-full rounded-xl border px-4 py-3 text-sm outline-none transition;
+    border-color: rgba(22, 43, 73, 0.14);
+    background: rgba(255, 255, 255, 0.92);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  }
+
+  html.dark .input {
+    border-color: rgba(255, 255, 255, 0.12);
+    background: rgba(15, 20, 25, 0.88);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    color: #e2e8f0;
+  }
+
+  .input:focus {
+    border-color: rgba(31, 77, 143, 0.55);
+    box-shadow: 0 0 0 4px rgba(31, 77, 143, 0.12);
+  }
+
+  html.dark .input:focus {
+    border-color: rgba(148, 194, 244, 0.55);
+    box-shadow: 0 0 0 4px rgba(31, 77, 143, 0.2);
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-white transition;
+    background: linear-gradient(135deg, #1f4d8f 0%, #3268ad 100%);
+    box-shadow: 0 10px 22px rgba(31, 77, 143, 0.22);
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 14px 26px rgba(31, 77, 143, 0.26);
+  }
+
+  html.dark .btn-primary {
+    background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%);
+    box-shadow: 0 10px 22px rgba(30, 64, 175, 0.3);
+  }
+
+  html.dark .btn-primary:hover {
+    box-shadow: 0 14px 26px rgba(30, 64, 175, 0.36);
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition;
+    color: #183d71;
+    background: rgba(255, 255, 255, 0.72);
+    border: 1px solid rgba(22, 43, 73, 0.12);
+  }
+
+  html.dark .btn-secondary {
+    color: #94c2f4;
+    background: rgba(30, 64, 175, 0.1);
+    border: 1px solid rgba(30, 64, 175, 0.3);
+  }
+
+  html.dark .btn-secondary:hover {
+    background: rgba(30, 64, 175, 0.15);
+    border-color: rgba(30, 64, 175, 0.4);
+  }
+
+  /* Badge de plan */
+  .badge-free {
+    @apply bg-gray-100 text-gray-700 dark:bg-slate-700 dark:text-slate-200;
+  }
+  .badge-pro {
+    @apply bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200;
+  }
+  .badge-enterprise {
+    @apply bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-200;
+  }
+}

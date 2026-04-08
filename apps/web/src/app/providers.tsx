@@ -1,0 +1,28 @@
+"use client";
+
+import { AuthProvider } from "@/hooks/useAuth";
+import { DarkModeProvider } from "@/hooks/useDarkMode.tsx";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { useState } from "react";
+
+export function Providers({ children }: { children: React.ReactNode }) {
+  const [queryClient] = useState(
+    () =>
+      new QueryClient({
+        defaultOptions: {
+          queries: {
+            staleTime: 60 * 1000, // 1 minuto
+            retry: 1,
+          },
+        },
+      }),
+  );
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <DarkModeProvider>
+        <AuthProvider>{children}</AuthProvider>
+      </DarkModeProvider>
+    </QueryClientProvider>
+  );
+}
