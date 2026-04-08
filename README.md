@@ -2,8 +2,14 @@
 
 > Plataforma SaaS multi-tenant para equipos de alabanza de iglesias.
 
-[![Stack](https://img.shields.io/badge/Stack-Next.js%20%2B%20NestJS%20%2B%20PostgreSQL-blue)](#stack)
-[![License](https://img.shields.io/badge/License-MIT-green)](#)
+[![Stack](https://img.shields.io/badge/Stack-Next.js%20%2B%20NestJS%20%2B%20PostgreSQL-blue)](#stack-tecnologico)
+[![License](https://img.shields.io/badge/License-MIT-green)](https://opensource.org/licenses/MIT)
+
+## Estado actual
+
+- Monorepo publicado y versionado en GitHub
+- Frontend con UI moderna, dark mode y flujos de canciones/reuniones
+- Backend NestJS con multi-tenant, roles e invitaciones por enlace
 
 ---
 
