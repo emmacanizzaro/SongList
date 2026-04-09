@@ -2,6 +2,7 @@
 
 import { useAuth } from "@/hooks/useAuth";
 import { churchApi, instrumentsApi, meetingsApi, songsApi } from "@/lib/api";
+import { SongChordsDrawer } from "@/components/songs/SongChordsDrawer";
 import { Instrument, Meeting, MeetingSong, Membership } from "@/types";
 import {
   DndContext,
@@ -26,6 +27,7 @@ import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import {
   ArrowLeft,
+  BookOpen,
   GripVertical,
   Loader2,
   Plus,
@@ -49,6 +51,7 @@ export default function MeetingDetailPage() {
   const [songNotes, setSongNotes] = useState("");
   const [assignUserId, setAssignUserId] = useState("");
   const [assignInstrumentId, setAssignInstrumentId] = useState("");
+  const [chordsDrawer, setChordsDrawer] = useState<{ songId: string; defaultKey?: string } | null>(null);
 
   const { data: meeting, isLoading } = useQuery<Meeting>({
     queryKey: ["meeting", id],
@@ -214,6 +217,14 @@ export default function MeetingDetailPage() {
   if (!meeting) return <div>Reunión no encontrada</div>;
 
   return (
+    <>
+    {chordsDrawer && (
+      <SongChordsDrawer
+        songId={chordsDrawer.songId}
+        defaultKey={chordsDrawer.defaultKey}
+        onClose={() => setChordsDrawer(null)}
+      />
+    )}
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-6">
       <Link
         href="/meetings"
@@ -360,6 +371,12 @@ export default function MeetingDetailPage() {
                       canEdit={canEditMeetings}
                       onRemove={() => removeSongMutation.mutate(ms.id)}
                       isRemoving={removeSongMutation.isPending}
+                      onViewChords={() =>
+                        setChordsDrawer({
+                          songId: ms.songId,
+                          defaultKey: ms.keyOverride ?? ms.song.originalKey,
+                        })
+                      }
                     />
                   ))}
                 </div>
@@ -474,6 +491,7 @@ export default function MeetingDetailPage() {
         </div>
       </div>
     </div>
+    </>
   );
 }
 
@@ -485,6 +503,7 @@ interface SortableSongRowProps {
   canEdit: boolean;
   onRemove: () => void;
   isRemoving: boolean;
+  onViewChords: () => void;
 }
 
 function SortableSongRow({
@@ -493,6 +512,7 @@ function SortableSongRow({
   canEdit,
   onRemove,
   isRemoving,
+  onViewChords,
 }: SortableSongRowProps) {
   const {
     attributes,
@@ -546,6 +566,13 @@ function SortableSongRow({
           {ms.notes && ` · ${ms.notes}`}
         </p>
       </div>
+      <button
+        onClick={onViewChords}
+        className="rounded-lg p-2 text-slate-400 transition-colors hover:bg-brand-50 hover:text-brand-600 shrink-0"
+        title="Ver acordes"
+      >
+        <BookOpen className="h-4 w-4" />
+      </button>
       <button
         onClick={onRemove}
         disabled={isRemoving || !canEdit}
