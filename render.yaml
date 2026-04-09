@@ -4,7 +4,7 @@ services:
     runtime: node
     region: oregon
     plan: free
-    buildCommand: npm install && npm run db:generate && npx tsc -p apps/api/tsconfig.json
+    buildCommand: npm install --workspaces --include-workspace-root && npm run db:generate && ./node_modules/.bin/tsc -p apps/api/tsconfig.json
     startCommand: npm run start --workspace=@songlist/api
     healthCheckPath: /health
     envVars:
