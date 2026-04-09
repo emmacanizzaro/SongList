@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "nest start --watch",
-    "build": "nest build",
+    "build": "tsc -p tsconfig.json",
     "start": "node dist/main",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
@@ -14,7 +14,7 @@
     "db:migrate": "prisma migrate dev",
     "db:generate": "prisma generate",
     "db:studio": "prisma studio",
-    "db:seed": "ts-node prisma/seed.ts"
+    "db:seed": "node prisma/seed.js"
   },
   "dependencies": {
     "@nestjs/common": "^10.3.0",
