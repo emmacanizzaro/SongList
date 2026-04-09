@@ -8,6 +8,7 @@ export function middleware(request: NextRequest) {
   // Rutas públicas: no requieren auth
   const isPublic =
     pathname === "/" ||
+    pathname.startsWith("/api") ||
     PUBLIC_PREFIXES.some((prefix) => pathname.startsWith(prefix));
   if (isPublic) return NextResponse.next();
 
@@ -26,6 +27,6 @@ export function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     // Protege todas las rutas excepto archivos estáticos y API internas
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    "/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };
