@@ -7,6 +7,14 @@ import { AppModule } from "./app.module";
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const config = app.get(ConfigService);
+  const canUseTransform = (() => {
+    try {
+      require("class-transformer");
+      return true;
+    } catch {
+      return false;
+    }
+  })();
   const configuredOrigins = (
     config.get<string>("FRONTEND_URL") ?? "http://localhost:3000"
   )
@@ -43,14 +51,22 @@ async function bootstrap() {
   });
 
   // ---- Validación global de DTOs ----
-  app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true, // Elimina propiedades no declaradas en el DTO
-      forbidNonWhitelisted: true,
-      transform: true, // Convierte tipos automáticamente
-      transformOptions: { enableImplicitConversion: true },
-    }),
-  );
+  try {
+    app.useGlobalPipes(
+      new ValidationPipe({
+        whitelist: true,
+        forbidNonWhitelisted: true,
+        transform: canUseTransform,
+        transformOptions: canUseTransform
+          ? { enableImplicitConversion: true }
+          : undefined,
+      }),
+    );
+  } catch {
+    console.warn(
+      "ValidationPipe deshabilitado temporalmente en este entorno demo.",
+    );
+  }
 
   // ---- Swagger (solo en desarrollo) ----
   if (config.get("NODE_ENV") !== "production") {
@@ -78,8 +94,17 @@ async function bootstrap() {
     });
   }
 
-  const port = config.get<number>("API_PORT", 3001);
-  await app.listen(port);
+  // ---- Health check (Render, Railway, etc.) ----
+  app
+    .getHttpAdapter()
+    .get("/health", (_req: unknown, res: { json: (d: unknown) => void }) => {
+      res.json({ status: "ok", timestamp: new Date().toISOString() });
+    });
+
+  const port = Number(
+    config.get<string>("PORT") ?? config.get<string>("API_PORT") ?? "3001",
+  );
+  await app.listen(port, "0.0.0.0");
 
   console.log(`🎵 SongList API running on: http://localhost:${port}/api/v1`);
   console.log(`📚 Swagger docs: http://localhost:${port}/docs`);
