@@ -4,7 +4,7 @@ services:
     runtime: node
     region: oregon
     plan: free
-    buildCommand: npm ci --include=dev && npm run db:generate && npx tsc -p apps/api/tsconfig.json
+    buildCommand: npm install && npm run db:generate && npx tsc -p apps/api/tsconfig.json
     startCommand: npm run start --workspace=@songlist/api
     healthCheckPath: /health
     envVars:
@@ -12,6 +12,8 @@ services:
         value: 20.11.0
       - key: NODE_ENV
         value: production
+      - key: NPM_CONFIG_PRODUCTION
+        value: "false"
       - key: PORT
         value: 10000
       - key: FRONTEND_URL
