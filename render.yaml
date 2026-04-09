@@ -4,7 +4,7 @@ services:
     runtime: node
     region: oregon
     plan: free
-    buildCommand: npm install --workspaces --include-workspace-root && npm run db:generate && npm run build --workspace=@songlist/api
+    buildCommand: npm install --workspaces --include-workspace-root --production=false && npm run db:generate && npm run build --workspace=@songlist/api
     startCommand: npm run start --workspace=@songlist/api
     healthCheckPath: /health
     envVars:
