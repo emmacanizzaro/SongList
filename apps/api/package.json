@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "nest start --watch",
-    "build": "npm exec tsc -- -p tsconfig.json",
+    "build": "tsc -p tsconfig.json",
     "start": "node dist/main",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
