@@ -66,14 +66,20 @@ export default function BillingPage() {
 
   useEffect(() => {
     if (searchParams.get("success") === "true") {
-      toast.success("Checkout completado. Stripe actualizará tu plan en breve.");
+      toast.success(
+        "Checkout completado. Stripe actualizará tu plan en breve.",
+      );
     }
     if (searchParams.get("canceled") === "true") {
       toast("Checkout cancelado.");
     }
   }, [searchParams]);
 
-  const { data: subscription, isLoading, isError } = useQuery<Subscription>({
+  const {
+    data: subscription,
+    isLoading,
+    isError,
+  } = useQuery<Subscription>({
     queryKey: ["subscription"],
     queryFn: () => subscriptionsApi.get().then((r) => r.data),
     enabled: Boolean(user),
@@ -98,7 +104,8 @@ export default function BillingPage() {
     },
     onError: (error: any) => {
       const message =
-        error?.response?.data?.message || "No se pudo abrir el portal de Stripe";
+        error?.response?.data?.message ||
+        "No se pudo abrir el portal de Stripe";
       toast.error(message);
     },
   });
@@ -174,7 +181,9 @@ export default function BillingPage() {
                 label="Renovación"
                 value={
                   subscription.currentPeriodEnd
-                    ? new Date(subscription.currentPeriodEnd).toLocaleDateString("es-ES")
+                    ? new Date(
+                        subscription.currentPeriodEnd,
+                      ).toLocaleDateString("es-ES")
                     : "No disponible"
                 }
               />
@@ -217,7 +226,8 @@ export default function BillingPage() {
         <section className="grid gap-4 xl:grid-cols-3">
           {PLAN_CARDS.map((card) => {
             const isCurrent = subscription.plan === card.plan;
-            const isUpgradeBlocked = card.plan === "FREE" || !isAdmin || isCurrent;
+            const isUpgradeBlocked =
+              card.plan === "FREE" || !isAdmin || isCurrent;
 
             return (
               <article
@@ -245,7 +255,9 @@ export default function BillingPage() {
                 <p className="mt-6 text-3xl font-semibold text-slate-900 dark:text-white">
                   {card.price}
                   {card.plan !== "ENTERPRISE" && (
-                    <span className="text-sm font-medium text-slate-400">/mes</span>
+                    <span className="text-sm font-medium text-slate-400">
+                      /mes
+                    </span>
                   )}
                 </p>
 
@@ -268,7 +280,8 @@ export default function BillingPage() {
                         : "btn-primary w-full disabled:translate-y-0 disabled:cursor-not-allowed disabled:opacity-60"
                     }
                   >
-                    {checkoutMutation.isPending && checkoutMutation.variables === card.plan ? (
+                    {checkoutMutation.isPending &&
+                    checkoutMutation.variables === card.plan ? (
                       <>
                         <Loader2 className="h-4 w-4 animate-spin" />
                         Redirigiendo...
@@ -304,7 +317,9 @@ function Metric({
 }) {
   return (
     <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 dark:border-slate-800 dark:bg-slate-900">
-      <p className="text-xs uppercase tracking-[0.2em] text-slate-400">{label}</p>
+      <p className="text-xs uppercase tracking-[0.2em] text-slate-400">
+        {label}
+      </p>
       <p
         className={`mt-1 font-medium ${
           accent

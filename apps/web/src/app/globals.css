@@ -235,3 +235,47 @@
     @apply bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-200;
   }
 }
+
+/* ── Estilos de impresión ────────────────────────────────── */
+@media print {
+  /* Ocultar la shell del dashboard */
+  aside {
+    display: none !important;
+  }
+
+  [data-print-hide] {
+    display: none !important;
+  }
+
+  /* Fondo limpio */
+  body,
+  .app-shell {
+    background: white !important;
+  }
+
+  main {
+    overflow: visible !important;
+  }
+
+  /* Quitar decoraciones de la page-section */
+  .page-section {
+    background: white !important;
+    box-shadow: none !important;
+    border: none !important;
+    min-height: unset !important;
+    padding: 0 !important;
+    backdrop-filter: none !important;
+  }
+
+  /* Quitar gradientes y patrones de fondo */
+  .music-notes-bg {
+    display: none !important;
+  }
+
+  /* Colores de texto y key badge para impresión */
+  .setlist-print .chord-key-badge {
+    border: 1px solid #1f4d8f !important;
+    color: #1f4d8f !important;
+    background: transparent !important;
+  }
+}

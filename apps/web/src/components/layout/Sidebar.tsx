@@ -161,7 +161,7 @@ export function MobileNavigation() {
 
   return (
     <>
-      <div className="sticky top-0 z-30 border-b border-white/40 bg-[rgba(251,250,247,0.82)] backdrop-blur-xl lg:hidden">
+      <div data-print-hide className="sticky top-0 z-30 border-b border-white/40 bg-[rgba(251,250,247,0.82)] backdrop-blur-xl lg:hidden">
         <div className="flex items-center justify-between px-4 py-3">
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400">

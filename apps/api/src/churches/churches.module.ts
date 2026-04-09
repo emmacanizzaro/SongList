@@ -4,8 +4,8 @@ import {
   ChurchesController,
   PublicChurchInvitesController,
 } from "./churches.controller";
-import { InviteEmailService } from "./invite-email.service";
 import { ChurchesService } from "./churches.service";
+import { InviteEmailService } from "./invite-email.service";
 
 @Module({
   imports: [SubscriptionsModule],

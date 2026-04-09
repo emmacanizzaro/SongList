@@ -29,6 +29,7 @@ import {
   GripVertical,
   Loader2,
   Plus,
+  Printer,
   Share2,
   Trash2,
   UserPlus,
@@ -238,23 +239,34 @@ export default function MeetingDetailPage() {
             </p>
           </div>
           {canEditMeetings ? (
-            <button
-              onClick={() => shareMutation.mutate()}
-              disabled={shareMutation.isPending}
-              className="btn-secondary self-start border-white/10 bg-white/8 text-white hover:bg-white/12 lg:self-auto"
-            >
-              {shareMutation.isPending ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  Compartiendo...
-                </>
-              ) : (
-                <>
-                  <Share2 className="h-4 w-4" />
-                  {meeting.shareToken ? "Copiar link" : "Compartir"}
-                </>
-              )}
-            </button>
+            <div className="flex flex-wrap items-center gap-2 self-start lg:self-auto">
+              <Link
+                href={`/meetings/${id}/print`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-secondary border-white/10 bg-white/8 text-white hover:bg-white/12"
+              >
+                <Printer className="h-4 w-4" />
+                Imprimir setlist
+              </Link>
+              <button
+                onClick={() => shareMutation.mutate()}
+                disabled={shareMutation.isPending}
+                className="btn-secondary border-white/10 bg-white/8 text-white hover:bg-white/12"
+              >
+                {shareMutation.isPending ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Compartiendo...
+                  </>
+                ) : (
+                  <>
+                    <Share2 className="h-4 w-4" />
+                    {meeting.shareToken ? "Copiar link" : "Compartir"}
+                  </>
+                )}
+              </button>
+            </div>
           ) : (
             <span className="rounded-xl border border-white/20 bg-white/10 px-3 py-2 text-xs font-medium text-slate-200">
               Visualizador

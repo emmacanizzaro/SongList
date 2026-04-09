@@ -22,8 +22,14 @@ export class InviteEmailService {
     role,
     token,
     expiresAt,
-  }: SendInviteEmailParams): Promise<{ emailSent: boolean; inviteUrl: string }> {
-    const frontendUrl = this.config.get<string>("FRONTEND_URL", "http://localhost:3000");
+  }: SendInviteEmailParams): Promise<{
+    emailSent: boolean;
+    inviteUrl: string;
+  }> {
+    const frontendUrl = this.config.get<string>(
+      "FRONTEND_URL",
+      "http://localhost:3000",
+    );
     const inviteUrl = `${frontendUrl.replace(/\/$/, "")}/register?invite=${token}`;
 
     const apiKey = this.config.get<string>("RESEND_API_KEY");
@@ -83,13 +89,17 @@ export class InviteEmailService {
       });
 
       if (!response.ok) {
-        this.logger.warn(`No se pudo enviar invitación a ${email}: ${response.status}`);
+        this.logger.warn(
+          `No se pudo enviar invitación a ${email}: ${response.status}`,
+        );
         return { emailSent: false, inviteUrl };
       }
 
       return { emailSent: true, inviteUrl };
     } catch (error) {
-      this.logger.warn(`Error enviando invitación a ${email}: ${String(error)}`);
+      this.logger.warn(
+        `Error enviando invitación a ${email}: ${String(error)}`,
+      );
       return { emailSent: false, inviteUrl };
     }
   }

@@ -1,7 +1,7 @@
 "use client";
 
-import Link from "next/link";
 import { AlertTriangle, RefreshCw } from "lucide-react";
+import Link from "next/link";
 import { useEffect } from "react";
 
 export default function GlobalError({
@@ -33,8 +33,8 @@ export default function GlobalError({
                   Algo se rompió en esta vista
                 </h1>
                 <p className="mx-auto mt-3 max-w-xl text-sm leading-6 text-slate-500 dark:text-slate-400 sm:text-base">
-                  Puedes reintentar la acción o volver al dashboard. Si el problema
-                  persiste, revisa la consola y el backend.
+                  Puedes reintentar la acción o volver al dashboard. Si el
+                  problema persiste, revisa la consola y el backend.
                 </p>
                 <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
                   <button onClick={() => reset()} className="btn-primary">
