@@ -40,10 +40,7 @@ export default function MeetingPrintPage() {
   return (
     <>
       {/* Barra de acciones — se oculta al imprimir */}
-      <div
-        data-print-hide
-        className="mb-8 flex flex-wrap items-center gap-3"
-      >
+      <div data-print-hide className="mb-8 flex flex-wrap items-center gap-3">
         <Link
           href={`/meetings/${id}`}
           className="inline-flex items-center gap-1.5 text-sm text-slate-500 transition-colors hover:text-brand-700"
@@ -51,10 +48,7 @@ export default function MeetingPrintPage() {
           <ArrowLeft className="h-4 w-4" />
           Volver a la reunión
         </Link>
-        <button
-          onClick={() => window.print()}
-          className="btn-primary ml-auto"
-        >
+        <button onClick={() => window.print()} className="btn-primary ml-auto">
           <Printer className="h-4 w-4" />
           Imprimir / Guardar PDF
         </button>
@@ -164,7 +158,9 @@ export default function MeetingPrintPage() {
                     <p className="truncate text-sm font-semibold text-slate-900">
                       {a.user.name}
                     </p>
-                    <p className="text-xs text-slate-400">{a.instrument.name}</p>
+                    <p className="text-xs text-slate-400">
+                      {a.instrument.name}
+                    </p>
                   </div>
                 </div>
               ))}

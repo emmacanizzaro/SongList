@@ -1,8 +1,8 @@
 "use client";
 
+import { SongChordsDrawer } from "@/components/songs/SongChordsDrawer";
 import { useAuth } from "@/hooks/useAuth";
 import { churchApi, instrumentsApi, meetingsApi, songsApi } from "@/lib/api";
-import { SongChordsDrawer } from "@/components/songs/SongChordsDrawer";
 import { Instrument, Meeting, MeetingSong, Membership } from "@/types";
 import {
   DndContext,
@@ -51,7 +51,10 @@ export default function MeetingDetailPage() {
   const [songNotes, setSongNotes] = useState("");
   const [assignUserId, setAssignUserId] = useState("");
   const [assignInstrumentId, setAssignInstrumentId] = useState("");
-  const [chordsDrawer, setChordsDrawer] = useState<{ songId: string; defaultKey?: string } | null>(null);
+  const [chordsDrawer, setChordsDrawer] = useState<{
+    songId: string;
+    defaultKey?: string;
+  } | null>(null);
 
   const { data: meeting, isLoading } = useQuery<Meeting>({
     queryKey: ["meeting", id],
@@ -218,279 +221,279 @@ export default function MeetingDetailPage() {
 
   return (
     <>
-    {chordsDrawer && (
-      <SongChordsDrawer
-        songId={chordsDrawer.songId}
-        defaultKey={chordsDrawer.defaultKey}
-        onClose={() => setChordsDrawer(null)}
-      />
-    )}
-    <div className="mx-auto flex w-full max-w-6xl flex-col gap-6">
-      <Link
-        href="/meetings"
-        className="inline-flex items-center gap-1.5 text-sm text-slate-500 transition-colors hover:text-brand-700 dark:text-slate-400 dark:hover:text-brand-300"
-      >
-        <ArrowLeft className="h-4 w-4" />
-        Volver a reuniones
-      </Link>
+      {chordsDrawer && (
+        <SongChordsDrawer
+          songId={chordsDrawer.songId}
+          defaultKey={chordsDrawer.defaultKey}
+          onClose={() => setChordsDrawer(null)}
+        />
+      )}
+      <div className="mx-auto flex w-full max-w-6xl flex-col gap-6">
+        <Link
+          href="/meetings"
+          className="inline-flex items-center gap-1.5 text-sm text-slate-500 transition-colors hover:text-brand-700 dark:text-slate-400 dark:hover:text-brand-300"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Volver a reuniones
+        </Link>
 
-      <section className="relative overflow-hidden rounded-[32px] bg-slate-950 px-6 py-8 text-white shadow-[0_28px_60px_rgba(15,23,42,0.22)] sm:px-8 lg:px-10">
-        <div className="pointer-events-none absolute inset-0 music-notes-bg opacity-20" />
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(188,132,47,0.22),transparent_24%),radial-gradient(circle_at_bottom_left,rgba(31,77,143,0.28),transparent_30%)]" />
-        <div className="relative flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-          <div>
-            <p className="eyebrow bg-white/10 text-slate-200">Reunión</p>
-            <h1 className="mt-5 text-3xl font-semibold tracking-tight sm:text-4xl">
-              {meeting.title}
-            </h1>
-            <p className="mt-2 text-sm text-slate-300 sm:text-base">
-              {format(new Date(meeting.date), "EEEE d 'de' MMMM 'de' yyyy", {
-                locale: es,
-              })}
-            </p>
-          </div>
-          {canEditMeetings ? (
-            <div className="flex flex-wrap items-center gap-2 self-start lg:self-auto">
-              <Link
-                href={`/meetings/${id}/print`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn-secondary border-white/10 bg-white/8 text-white hover:bg-white/12"
-              >
-                <Printer className="h-4 w-4" />
-                Imprimir setlist
-              </Link>
-              <button
-                onClick={() => shareMutation.mutate()}
-                disabled={shareMutation.isPending}
-                className="btn-secondary border-white/10 bg-white/8 text-white hover:bg-white/12"
-              >
-                {shareMutation.isPending ? (
-                  <>
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    Compartiendo...
-                  </>
-                ) : (
-                  <>
-                    <Share2 className="h-4 w-4" />
-                    {meeting.shareToken ? "Copiar link" : "Compartir"}
-                  </>
-                )}
-              </button>
-            </div>
-          ) : (
-            <span className="rounded-xl border border-white/20 bg-white/10 px-3 py-2 text-xs font-medium text-slate-200">
-              Visualizador
-            </span>
-          )}
-        </div>
-      </section>
-
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        <div className="space-y-3 lg:col-span-2">
-          <div className="flex items-center justify-between">
-            <h2 className="font-semibold text-slate-900 dark:text-white">
-              Lista de canciones
-            </h2>
-          </div>
-
-          <div className="card p-4 sm:p-5">
-            <p className="text-sm font-medium text-slate-700 dark:text-slate-200">
-              Agregar canción
-            </p>
-            <div className="mt-3 grid gap-3 sm:grid-cols-2">
-              <select
-                className="input"
-                value={songId}
-                onChange={(event) => setSongId(event.target.value)}
-                disabled={!canEditMeetings}
-              >
-                <option value="">Selecciona una canción...</option>
-                {availableSongs.map((song: any) => (
-                  <option key={song.id} value={song.id}>
-                    {song.title}
-                  </option>
-                ))}
-              </select>
-              <input
-                className="input"
-                placeholder="Tonalidad opcional (ej: D)"
-                value={keyOverride}
-                onChange={(event) => setKeyOverride(event.target.value)}
-                disabled={!canEditMeetings}
-              />
-              <input
-                className="input sm:col-span-2"
-                placeholder="Nota opcional para esta reunión"
-                value={songNotes}
-                onChange={(event) => setSongNotes(event.target.value)}
-                disabled={!canEditMeetings}
-              />
-            </div>
-            <button
-              disabled={
-                !songId || addSongMutation.isPending || !canEditMeetings
-              }
-              onClick={() => addSongMutation.mutate()}
-              className="btn-primary mt-3 w-full disabled:translate-y-0 disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {addSongMutation.isPending ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  Agregando...
-                </>
-              ) : (
-                <>
-                  <Plus className="h-4 w-4" />
-                  {canEditMeetings ? "Agregar a la reunión" : "Solo lectura"}
-                </>
-              )}
-            </button>
-          </div>
-
-          {meeting.meetingSongs.length === 0 ? (
-            <div className="card p-8 text-center text-sm text-gray-400 dark:text-slate-400">
-              No hay canciones. Agrega la primera.
-            </div>
-          ) : (
-            <DndContext
-              sensors={sensors}
-              collisionDetection={closestCenter}
-              onDragEnd={canEditMeetings ? handleDragEnd : undefined}
-            >
-              <SortableContext
-                items={orderedSongs.map((ms) => ms.id)}
-                strategy={verticalListSortingStrategy}
-              >
-                <div className="space-y-2">
-                  {orderedSongs.map((ms, idx) => (
-                    <SortableSongRow
-                      key={ms.id}
-                      ms={ms}
-                      index={idx + 1}
-                      canEdit={canEditMeetings}
-                      onRemove={() => removeSongMutation.mutate(ms.id)}
-                      isRemoving={removeSongMutation.isPending}
-                      onViewChords={() =>
-                        setChordsDrawer({
-                          songId: ms.songId,
-                          defaultKey: ms.keyOverride ?? ms.song.originalKey,
-                        })
-                      }
-                    />
-                  ))}
-                </div>
-              </SortableContext>
-            </DndContext>
-          )}
-        </div>
-
-        <div className="space-y-3">
-          <div className="flex items-center gap-2">
-            <Users2 className="h-4 w-4 text-brand-600 dark:text-brand-400" />
-            <h2 className="font-semibold text-slate-900 dark:text-white">
-              Músicos asignados
-            </h2>
-            <span className="ml-auto rounded-full bg-slate-100 dark:bg-slate-800 px-2 py-0.5 text-xs font-medium text-slate-500 dark:text-slate-400">
-              {meeting.assignments.length}
-            </span>
-          </div>
-
-          {/* Formulario de asignación */}
-          {canEditMeetings && (
-            <div className="card p-4 sm:p-5">
-              <p className="flex items-center gap-1.5 text-sm font-medium text-slate-700 dark:text-slate-200">
-                <UserPlus className="h-4 w-4 text-brand-600" />
-                Asignar músico
+        <section className="relative overflow-hidden rounded-[32px] bg-slate-950 px-6 py-8 text-white shadow-[0_28px_60px_rgba(15,23,42,0.22)] sm:px-8 lg:px-10">
+          <div className="pointer-events-none absolute inset-0 music-notes-bg opacity-20" />
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(188,132,47,0.22),transparent_24%),radial-gradient(circle_at_bottom_left,rgba(31,77,143,0.28),transparent_30%)]" />
+          <div className="relative flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+            <div>
+              <p className="eyebrow bg-white/10 text-slate-200">Reunión</p>
+              <h1 className="mt-5 text-3xl font-semibold tracking-tight sm:text-4xl">
+                {meeting.title}
+              </h1>
+              <p className="mt-2 text-sm text-slate-300 sm:text-base">
+                {format(new Date(meeting.date), "EEEE d 'de' MMMM 'de' yyyy", {
+                  locale: es,
+                })}
               </p>
-              <div className="mt-3 space-y-2">
-                <select
-                  className="input"
-                  value={assignUserId}
-                  onChange={(e) => setAssignUserId(e.target.value)}
+            </div>
+            {canEditMeetings ? (
+              <div className="flex flex-wrap items-center gap-2 self-start lg:self-auto">
+                <Link
+                  href={`/meetings/${id}/print`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn-secondary border-white/10 bg-white/8 text-white hover:bg-white/12"
                 >
-                  <option value="">Selecciona un miembro...</option>
-                  {availableMembers.map((m) => (
-                    <option key={m.userId} value={m.userId}>
-                      {m.user.name}
-                    </option>
-                  ))}
-                </select>
-                <select
-                  className="input"
-                  value={assignInstrumentId}
-                  onChange={(e) => setAssignInstrumentId(e.target.value)}
-                >
-                  <option value="">Selecciona un instrumento...</option>
-                  {instruments.map((inst) => (
-                    <option key={inst.id} value={inst.id}>
-                      {inst.icon ? `${inst.icon} ` : ""}
-                      {inst.name}
-                    </option>
-                  ))}
-                </select>
+                  <Printer className="h-4 w-4" />
+                  Imprimir setlist
+                </Link>
                 <button
-                  disabled={
-                    !assignUserId ||
-                    !assignInstrumentId ||
-                    assignMutation.isPending
-                  }
-                  onClick={() => assignMutation.mutate()}
-                  className="btn-primary w-full disabled:translate-y-0 disabled:cursor-not-allowed disabled:opacity-60"
+                  onClick={() => shareMutation.mutate()}
+                  disabled={shareMutation.isPending}
+                  className="btn-secondary border-white/10 bg-white/8 text-white hover:bg-white/12"
                 >
-                  {assignMutation.isPending ? (
+                  {shareMutation.isPending ? (
                     <>
                       <Loader2 className="h-4 w-4 animate-spin" />
-                      Asignando...
+                      Compartiendo...
                     </>
                   ) : (
                     <>
-                      <Plus className="h-4 w-4" />
-                      Asignar
+                      <Share2 className="h-4 w-4" />
+                      {meeting.shareToken ? "Copiar link" : "Compartir"}
                     </>
                   )}
                 </button>
               </div>
-            </div>
-          )}
+            ) : (
+              <span className="rounded-xl border border-white/20 bg-white/10 px-3 py-2 text-xs font-medium text-slate-200">
+                Visualizador
+              </span>
+            )}
+          </div>
+        </section>
 
-          {/* Lista de asignaciones */}
-          {meeting.assignments.length === 0 ? (
-            <div className="card p-6 text-center text-sm text-slate-400 dark:text-slate-500">
-              Sin músicos asignados aún
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+          <div className="space-y-3 lg:col-span-2">
+            <div className="flex items-center justify-between">
+              <h2 className="font-semibold text-slate-900 dark:text-white">
+                Lista de canciones
+              </h2>
             </div>
-          ) : (
-            <div className="space-y-2">
-              {meeting.assignments.map((a) => (
-                <div key={a.id} className="card flex items-center gap-3 p-3">
-                  <span className="text-xl shrink-0">
-                    {a.instrument.icon ?? "🎵"}
-                  </span>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-slate-900 dark:text-white truncate">
-                      {a.user.name}
-                    </p>
-                    <p className="text-xs text-slate-400 dark:text-slate-500">
-                      {a.instrument.name}
-                    </p>
+
+            <div className="card p-4 sm:p-5">
+              <p className="text-sm font-medium text-slate-700 dark:text-slate-200">
+                Agregar canción
+              </p>
+              <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                <select
+                  className="input"
+                  value={songId}
+                  onChange={(event) => setSongId(event.target.value)}
+                  disabled={!canEditMeetings}
+                >
+                  <option value="">Selecciona una canción...</option>
+                  {availableSongs.map((song: any) => (
+                    <option key={song.id} value={song.id}>
+                      {song.title}
+                    </option>
+                  ))}
+                </select>
+                <input
+                  className="input"
+                  placeholder="Tonalidad opcional (ej: D)"
+                  value={keyOverride}
+                  onChange={(event) => setKeyOverride(event.target.value)}
+                  disabled={!canEditMeetings}
+                />
+                <input
+                  className="input sm:col-span-2"
+                  placeholder="Nota opcional para esta reunión"
+                  value={songNotes}
+                  onChange={(event) => setSongNotes(event.target.value)}
+                  disabled={!canEditMeetings}
+                />
+              </div>
+              <button
+                disabled={
+                  !songId || addSongMutation.isPending || !canEditMeetings
+                }
+                onClick={() => addSongMutation.mutate()}
+                className="btn-primary mt-3 w-full disabled:translate-y-0 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {addSongMutation.isPending ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Agregando...
+                  </>
+                ) : (
+                  <>
+                    <Plus className="h-4 w-4" />
+                    {canEditMeetings ? "Agregar a la reunión" : "Solo lectura"}
+                  </>
+                )}
+              </button>
+            </div>
+
+            {meeting.meetingSongs.length === 0 ? (
+              <div className="card p-8 text-center text-sm text-gray-400 dark:text-slate-400">
+                No hay canciones. Agrega la primera.
+              </div>
+            ) : (
+              <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragEnd={canEditMeetings ? handleDragEnd : undefined}
+              >
+                <SortableContext
+                  items={orderedSongs.map((ms) => ms.id)}
+                  strategy={verticalListSortingStrategy}
+                >
+                  <div className="space-y-2">
+                    {orderedSongs.map((ms, idx) => (
+                      <SortableSongRow
+                        key={ms.id}
+                        ms={ms}
+                        index={idx + 1}
+                        canEdit={canEditMeetings}
+                        onRemove={() => removeSongMutation.mutate(ms.id)}
+                        isRemoving={removeSongMutation.isPending}
+                        onViewChords={() =>
+                          setChordsDrawer({
+                            songId: ms.songId,
+                            defaultKey: ms.keyOverride ?? ms.song.originalKey,
+                          })
+                        }
+                      />
+                    ))}
                   </div>
-                  {canEditMeetings && (
-                    <button
-                      onClick={() => unassignMutation.mutate(a.id)}
-                      disabled={unassignMutation.isPending}
-                      className="rounded-lg p-2 text-slate-400 transition-colors hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950 dark:hover:text-red-300 shrink-0"
-                      title="Remover músico"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </button>
-                  )}
-                </div>
-              ))}
+                </SortableContext>
+              </DndContext>
+            )}
+          </div>
+
+          <div className="space-y-3">
+            <div className="flex items-center gap-2">
+              <Users2 className="h-4 w-4 text-brand-600 dark:text-brand-400" />
+              <h2 className="font-semibold text-slate-900 dark:text-white">
+                Músicos asignados
+              </h2>
+              <span className="ml-auto rounded-full bg-slate-100 dark:bg-slate-800 px-2 py-0.5 text-xs font-medium text-slate-500 dark:text-slate-400">
+                {meeting.assignments.length}
+              </span>
             </div>
-          )}
+
+            {/* Formulario de asignación */}
+            {canEditMeetings && (
+              <div className="card p-4 sm:p-5">
+                <p className="flex items-center gap-1.5 text-sm font-medium text-slate-700 dark:text-slate-200">
+                  <UserPlus className="h-4 w-4 text-brand-600" />
+                  Asignar músico
+                </p>
+                <div className="mt-3 space-y-2">
+                  <select
+                    className="input"
+                    value={assignUserId}
+                    onChange={(e) => setAssignUserId(e.target.value)}
+                  >
+                    <option value="">Selecciona un miembro...</option>
+                    {availableMembers.map((m) => (
+                      <option key={m.userId} value={m.userId}>
+                        {m.user.name}
+                      </option>
+                    ))}
+                  </select>
+                  <select
+                    className="input"
+                    value={assignInstrumentId}
+                    onChange={(e) => setAssignInstrumentId(e.target.value)}
+                  >
+                    <option value="">Selecciona un instrumento...</option>
+                    {instruments.map((inst) => (
+                      <option key={inst.id} value={inst.id}>
+                        {inst.icon ? `${inst.icon} ` : ""}
+                        {inst.name}
+                      </option>
+                    ))}
+                  </select>
+                  <button
+                    disabled={
+                      !assignUserId ||
+                      !assignInstrumentId ||
+                      assignMutation.isPending
+                    }
+                    onClick={() => assignMutation.mutate()}
+                    className="btn-primary w-full disabled:translate-y-0 disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    {assignMutation.isPending ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Asignando...
+                      </>
+                    ) : (
+                      <>
+                        <Plus className="h-4 w-4" />
+                        Asignar
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Lista de asignaciones */}
+            {meeting.assignments.length === 0 ? (
+              <div className="card p-6 text-center text-sm text-slate-400 dark:text-slate-500">
+                Sin músicos asignados aún
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {meeting.assignments.map((a) => (
+                  <div key={a.id} className="card flex items-center gap-3 p-3">
+                    <span className="text-xl shrink-0">
+                      {a.instrument.icon ?? "🎵"}
+                    </span>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold text-slate-900 dark:text-white truncate">
+                        {a.user.name}
+                      </p>
+                      <p className="text-xs text-slate-400 dark:text-slate-500">
+                        {a.instrument.name}
+                      </p>
+                    </div>
+                    {canEditMeetings && (
+                      <button
+                        onClick={() => unassignMutation.mutate(a.id)}
+                        disabled={unassignMutation.isPending}
+                        className="rounded-lg p-2 text-slate-400 transition-colors hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950 dark:hover:text-red-300 shrink-0"
+                        title="Remover músico"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
-    </div>
     </>
   );
 }

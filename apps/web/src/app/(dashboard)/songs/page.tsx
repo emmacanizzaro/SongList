@@ -238,12 +238,6 @@ export default function SongsPage() {
   );
 }
 
-
-  const { data: songs = [], isLoading } = useQuery<Song[]>({
-    queryKey: ["songs", search],
-    queryFn: () => songsApi.list(search || undefined).then((r) => r.data),
-  });
-
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-6">
       <section className="relative overflow-hidden rounded-[32px] bg-slate-950 px-6 py-8 text-white shadow-[0_28px_60px_rgba(15,23,42,0.22)] sm:px-8 lg:px-10">

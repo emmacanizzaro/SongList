@@ -3,11 +3,11 @@
 import { ChordSheet } from "@/components/songs/ChordSheet";
 import { TranspositionControl } from "@/components/songs/TranspositionControl";
 import { songsApi } from "@/lib/api";
+import { transposeLyrics } from "@/lib/transposition";
 import { Song } from "@/types";
 import { useQuery } from "@tanstack/react-query";
 import { X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { transposeLyrics, ALL_KEYS } from "@/lib/transposition";
 
 interface Props {
   songId: string;
@@ -36,7 +36,7 @@ export function SongChordsDrawer({ songId, defaultKey, onClose }: Props) {
     if (song) {
       setCurrentKey(defaultKey ?? originalKey);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [song?.id]);
 
   const originalVersion = song?.versions?.find((v) => v.type === "ORIGINAL");
@@ -44,7 +44,11 @@ export function SongChordsDrawer({ songId, defaultKey, onClose }: Props) {
   const lyricsToShow = useMemo(() => {
     if (!originalVersion) return null;
     if (currentKey === originalKey) return originalVersion.lyricsChords;
-    return transposeLyrics(originalVersion.lyricsChords, originalKey, currentKey);
+    return transposeLyrics(
+      originalVersion.lyricsChords,
+      originalKey,
+      currentKey,
+    );
   }, [originalVersion, originalKey, currentKey]);
 
   // Cerrar con Escape
