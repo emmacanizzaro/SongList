@@ -1,23 +1,42 @@
 "use client";
 
 import { useAuth } from "@/hooks/useAuth";
-import { meetingsApi, songsApi } from "@/lib/api";
-import { Meeting } from "@/types";
+import { churchApi, instrumentsApi, meetingsApi, songsApi } from "@/lib/api";
+import { Instrument, Meeting, MeetingSong, Membership } from "@/types";
+import {
+  DndContext,
+  DragEndEvent,
+  KeyboardSensor,
+  PointerSensor,
+  closestCenter,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  arrayMove,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import clsx from "clsx";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import {
   ArrowLeft,
-  Calendar,
   GripVertical,
   Loader2,
   Plus,
   Share2,
   Trash2,
+  UserPlus,
+  Users2,
 } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
 
 export default function MeetingDetailPage() {
@@ -27,6 +46,8 @@ export default function MeetingDetailPage() {
   const [songId, setSongId] = useState("");
   const [keyOverride, setKeyOverride] = useState("");
   const [songNotes, setSongNotes] = useState("");
+  const [assignUserId, setAssignUserId] = useState("");
+  const [assignInstrumentId, setAssignInstrumentId] = useState("");
 
   const { data: meeting, isLoading } = useQuery<Meeting>({
     queryKey: ["meeting", id],
@@ -38,6 +59,26 @@ export default function MeetingDetailPage() {
     queryFn: () => songsApi.list().then((r) => r.data),
   });
 
+  const { data: members = [] } = useQuery<Membership[]>({
+    queryKey: ["church-members"],
+    queryFn: () => churchApi.getMembers().then((r) => r.data),
+  });
+
+  const { data: instruments = [] } = useQuery<Instrument[]>({
+    queryKey: ["instruments"],
+    queryFn: () => instrumentsApi.list().then((r) => r.data),
+  });
+
+  const assignedUserIds = useMemo(
+    () => new Set(meeting?.assignments.map((a) => a.userId) ?? []),
+    [meeting],
+  );
+
+  const availableMembers = useMemo(
+    () => members.filter((m) => !assignedUserIds.has(m.userId)),
+    [members, assignedUserIds],
+  );
+
   const availableSongs = useMemo(() => {
     if (!meeting) return songs;
     const includedIds = new Set(
@@ -47,6 +88,41 @@ export default function MeetingDetailPage() {
   }, [meeting, songs]);
 
   const canEditMeetings = user?.currentRole !== "READER";
+
+  // ── Drag & Drop ───────────────────────────────────────────
+  const [orderedSongs, setOrderedSongs] = useState<MeetingSong[]>([]);
+
+  useEffect(() => {
+    if (meeting) setOrderedSongs(meeting.meetingSongs);
+  }, [meeting]);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    }),
+  );
+
+  const reorderMutation = useMutation({
+    mutationFn: (orderedSongIds: string[]) =>
+      meetingsApi.reorderSongs(id, orderedSongIds),
+    onError: () => {
+      if (meeting) setOrderedSongs(meeting.meetingSongs);
+      toast.error("No se pudo reordenar");
+    },
+  });
+
+  function handleDragEnd(event: DragEndEvent) {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    setOrderedSongs((prev) => {
+      const oldIndex = prev.findIndex((ms) => ms.id === active.id);
+      const newIndex = prev.findIndex((ms) => ms.id === over.id);
+      const next = arrayMove(prev, oldIndex, newIndex);
+      reorderMutation.mutate(next.map((ms) => ms.songId));
+      return next;
+    });
+  }
 
   const shareMutation = useMutation({
     mutationFn: () => meetingsApi.generateShare(id),
@@ -94,6 +170,37 @@ export default function MeetingDetailPage() {
     },
   });
 
+  const assignMutation = useMutation({
+    mutationFn: () =>
+      meetingsApi.assign(id, {
+        userId: assignUserId,
+        instrumentId: assignInstrumentId,
+      }),
+    onSuccess: async () => {
+      toast.success("Músico asignado");
+      setAssignUserId("");
+      setAssignInstrumentId("");
+      await queryClient.invalidateQueries({ queryKey: ["meeting", id] });
+    },
+    onError: (error: any) => {
+      const message =
+        error?.response?.data?.message || "No se pudo asignar el músico";
+      toast.error(message);
+    },
+  });
+
+  const unassignMutation = useMutation({
+    mutationFn: (assignmentId: string) =>
+      meetingsApi.unassign(id, assignmentId),
+    onSuccess: async () => {
+      toast.success("Músico removido de la reunión");
+      await queryClient.invalidateQueries({ queryKey: ["meeting", id] });
+    },
+    onError: () => {
+      toast.error("No se pudo remover el músico");
+    },
+  });
+
   if (isLoading) {
     return (
       <div className="animate-pulse space-y-4">
@@ -104,11 +211,6 @@ export default function MeetingDetailPage() {
   }
 
   if (!meeting) return <div>Reunión no encontrada</div>;
-
-  const worshipLeader = (() => {
-    const match = meeting.notes?.match(/Worship Leader:\s*(.+)/i);
-    return match?.[1]?.trim() || "Sin definir";
-  })();
 
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-6">
@@ -228,77 +330,218 @@ export default function MeetingDetailPage() {
               No hay canciones. Agrega la primera.
             </div>
           ) : (
-            <div className="space-y-2">
-              {meeting.meetingSongs.map((ms, idx) => (
-                <div key={ms.id} className="card flex items-center gap-3 p-3">
-                  <GripVertical className="h-4 w-4 cursor-grab text-slate-300" />
-                  <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-brand-700 text-xs font-bold text-white">
-                    {idx + 1}
-                  </span>
-                  <div className="flex-1">
-                    <Link
-                      href={`/songs/${ms.songId}`}
-                      className="text-sm font-medium text-slate-900 transition-colors hover:text-brand-700 dark:text-white dark:hover:text-brand-300"
-                    >
-                      {ms.song.title}
-                    </Link>
-                    <p className="text-xs text-slate-400 dark:text-slate-500">
-                      Tono: {ms.keyOverride ?? ms.song.originalKey}
-                      {ms.notes && ` · ${ms.notes}`}
-                    </p>
-                  </div>
-                  <button
-                    onClick={() => removeSongMutation.mutate(ms.id)}
-                    disabled={removeSongMutation.isPending || !canEditMeetings}
-                    className="rounded-lg p-2 text-slate-400 transition-colors hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950 dark:hover:text-red-300"
-                    title="Quitar canción"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={canEditMeetings ? handleDragEnd : undefined}
+            >
+              <SortableContext
+                items={orderedSongs.map((ms) => ms.id)}
+                strategy={verticalListSortingStrategy}
+              >
+                <div className="space-y-2">
+                  {orderedSongs.map((ms, idx) => (
+                    <SortableSongRow
+                      key={ms.id}
+                      ms={ms}
+                      index={idx + 1}
+                      canEdit={canEditMeetings}
+                      onRemove={() => removeSongMutation.mutate(ms.id)}
+                      isRemoving={removeSongMutation.isPending}
+                    />
+                  ))}
                 </div>
-              ))}
-            </div>
+              </SortableContext>
+            </DndContext>
           )}
         </div>
 
         <div className="space-y-3">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Users2 className="h-4 w-4 text-brand-600 dark:text-brand-400" />
             <h2 className="font-semibold text-slate-900 dark:text-white">
               Músicos asignados
             </h2>
+            <span className="ml-auto rounded-full bg-slate-100 dark:bg-slate-800 px-2 py-0.5 text-xs font-medium text-slate-500 dark:text-slate-400">
+              {meeting.assignments.length}
+            </span>
           </div>
 
-          <div className="card p-4 text-sm text-slate-500 dark:text-slate-400">
-            <p className="inline-flex items-center gap-2 font-medium text-slate-700 dark:text-slate-200">
-              <Calendar className="h-4 w-4 text-brand-600 dark:text-brand-300" />
-              Próximo paso
-            </p>
-            <p className="mt-2 leading-6">Worship Leader: {worshipLeader}</p>
-          </div>
+          {/* Formulario de asignación */}
+          {canEditMeetings && (
+            <div className="card p-4 sm:p-5">
+              <p className="flex items-center gap-1.5 text-sm font-medium text-slate-700 dark:text-slate-200">
+                <UserPlus className="h-4 w-4 text-brand-600" />
+                Asignar músico
+              </p>
+              <div className="mt-3 space-y-2">
+                <select
+                  className="input"
+                  value={assignUserId}
+                  onChange={(e) => setAssignUserId(e.target.value)}
+                >
+                  <option value="">Selecciona un miembro...</option>
+                  {availableMembers.map((m) => (
+                    <option key={m.userId} value={m.userId}>
+                      {m.user.name}
+                    </option>
+                  ))}
+                </select>
+                <select
+                  className="input"
+                  value={assignInstrumentId}
+                  onChange={(e) => setAssignInstrumentId(e.target.value)}
+                >
+                  <option value="">Selecciona un instrumento...</option>
+                  {instruments.map((inst) => (
+                    <option key={inst.id} value={inst.id}>
+                      {inst.icon ? `${inst.icon} ` : ""}
+                      {inst.name}
+                    </option>
+                  ))}
+                </select>
+                <button
+                  disabled={
+                    !assignUserId ||
+                    !assignInstrumentId ||
+                    assignMutation.isPending
+                  }
+                  onClick={() => assignMutation.mutate()}
+                  className="btn-primary w-full disabled:translate-y-0 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {assignMutation.isPending ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Asignando...
+                    </>
+                  ) : (
+                    <>
+                      <Plus className="h-4 w-4" />
+                      Asignar
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          )}
 
+          {/* Lista de asignaciones */}
           {meeting.assignments.length === 0 ? (
-            <div className="card p-6 text-center text-sm text-gray-400 dark:text-slate-400">
+            <div className="card p-6 text-center text-sm text-slate-400 dark:text-slate-500">
               Sin músicos asignados aún
             </div>
           ) : (
             <div className="space-y-2">
               {meeting.assignments.map((a) => (
                 <div key={a.id} className="card flex items-center gap-3 p-3">
-                  <span className="text-lg">{a.instrument.icon ?? "🎵"}</span>
-                  <div>
-                    <p className="text-sm font-semibold text-slate-900 dark:text-white">
+                  <span className="text-xl shrink-0">
+                    {a.instrument.icon ?? "🎵"}
+                  </span>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-slate-900 dark:text-white truncate">
                       {a.user.name}
                     </p>
                     <p className="text-xs text-slate-400 dark:text-slate-500">
                       {a.instrument.name}
                     </p>
                   </div>
+                  {canEditMeetings && (
+                    <button
+                      onClick={() => unassignMutation.mutate(a.id)}
+                      disabled={unassignMutation.isPending}
+                      className="rounded-lg p-2 text-slate-400 transition-colors hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950 dark:hover:text-red-300 shrink-0"
+                      title="Remover músico"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  )}
                 </div>
               ))}
             </div>
           )}
         </div>
       </div>
+    </div>
+  );
+}
+
+// ── Fila de canción con drag & drop ──────────────────────────
+
+interface SortableSongRowProps {
+  ms: MeetingSong;
+  index: number;
+  canEdit: boolean;
+  onRemove: () => void;
+  isRemoving: boolean;
+}
+
+function SortableSongRow({
+  ms,
+  index,
+  canEdit,
+  onRemove,
+  isRemoving,
+}: SortableSongRowProps) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: ms.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={clsx(
+        "card flex items-center gap-3 p-3 transition-shadow",
+        isDragging &&
+          "opacity-50 shadow-xl ring-2 ring-brand-400 dark:ring-brand-500",
+      )}
+    >
+      <button
+        {...(canEdit ? { ...attributes, ...listeners } : {})}
+        className={clsx(
+          "rounded p-1 touch-none transition-colors",
+          canEdit
+            ? "cursor-grab active:cursor-grabbing text-slate-300 hover:text-slate-500 dark:hover:text-slate-300"
+            : "invisible",
+        )}
+        tabIndex={-1}
+        aria-label="Arrastrar para reordenar"
+      >
+        <GripVertical className="h-4 w-4" />
+      </button>
+      <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-brand-700 text-xs font-bold text-white shrink-0">
+        {index}
+      </span>
+      <div className="flex-1 min-w-0">
+        <Link
+          href={`/songs/${ms.songId}`}
+          className="text-sm font-medium text-slate-900 transition-colors hover:text-brand-700 dark:text-white dark:hover:text-brand-300"
+        >
+          {ms.song.title}
+        </Link>
+        <p className="text-xs text-slate-400 dark:text-slate-500">
+          Tono: {ms.keyOverride ?? ms.song.originalKey}
+          {ms.notes && ` · ${ms.notes}`}
+        </p>
+      </div>
+      <button
+        onClick={onRemove}
+        disabled={isRemoving || !canEdit}
+        className="rounded-lg p-2 text-slate-400 transition-colors hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950 dark:hover:text-red-300 disabled:pointer-events-none disabled:opacity-40 shrink-0"
+        title="Quitar canción"
+      >
+        <Trash2 className="h-4 w-4" />
+      </button>
     </div>
   );
 }

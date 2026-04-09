@@ -1,7 +1,6 @@
 "use client";
 
 import { useAuth } from "@/hooks/useAuth";
-import { useDarkMode } from "@/hooks/useDarkMode.tsx";
 import { clsx } from "clsx";
 import {
   Calendar,
@@ -10,10 +9,8 @@ import {
   LayoutDashboard,
   LogOut,
   Menu,
-  Moon,
   Music2,
   Settings,
-  Sun,
   X,
 } from "lucide-react";
 import Link from "next/link";
@@ -101,10 +98,9 @@ function NavigationLinks({
 export function Sidebar() {
   const pathname = usePathname();
   const { user, logout } = useAuth();
-  const { isDark, toggleDarkMode } = useDarkMode();
 
   return (
-    <aside className="relative z-10 hidden w-72 shrink-0 flex-col border-r border-white/10 bg-slate-950 text-slate-100 lg:flex dark:bg-slate-900">
+    <aside className="relative z-10 hidden w-72 shrink-0 flex-col border-r border-white/10 bg-slate-950 text-slate-100 lg:flex">
       {/* Logo */}
       <div className="border-b border-white/10 px-6 py-6">
         <div className="flex items-center gap-3">
@@ -132,17 +128,6 @@ export function Sidebar() {
 
       <div className="space-y-1 border-t border-white/10 px-4 py-5">
         <button
-          onClick={toggleDarkMode}
-          className="flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium text-slate-300 transition hover:bg-white/8 hover:text-white"
-        >
-          {isDark ? (
-            <Sun className="w-4 h-4 shrink-0" />
-          ) : (
-            <Moon className="w-4 h-4 shrink-0" />
-          )}
-          {isDark ? "Modo claro" : "Modo oscuro"}
-        </button>
-        <button
           onClick={logout}
           className="flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium text-rose-300 transition hover:bg-rose-500/10 hover:text-rose-200"
         >
@@ -157,7 +142,6 @@ export function Sidebar() {
 export function MobileNavigation() {
   const pathname = usePathname();
   const { user, logout } = useAuth();
-  const { isDark, toggleDarkMode } = useDarkMode();
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
@@ -267,20 +251,6 @@ export function MobileNavigation() {
         />
 
         <div className="border-t border-white/10 px-4 py-5">
-          <button
-            onClick={() => {
-              setIsOpen(false);
-              toggleDarkMode();
-            }}
-            className="flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium text-slate-300 transition hover:bg-white/8 hover:text-white"
-          >
-            {isDark ? (
-              <Sun className="w-4 h-4 shrink-0" />
-            ) : (
-              <Moon className="w-4 h-4 shrink-0" />
-            )}
-            {isDark ? "Modo claro" : "Modo oscuro"}
-          </button>
           <button
             onClick={async () => {
               setIsOpen(false);

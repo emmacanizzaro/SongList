@@ -8,11 +8,17 @@ import { MemberRole } from "@prisma/client";
 import * as bcrypt from "bcryptjs";
 import * as crypto from "crypto";
 import { PrismaService } from "../prisma/prisma.service";
+import { SubscriptionsService } from "../subscriptions/subscriptions.service";
 import { CreateChurchDto } from "./dto/create-church.dto";
+import { InviteEmailService } from "./invite-email.service";
 
 @Injectable()
 export class ChurchesService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private subscriptions: SubscriptionsService,
+    private inviteEmail: InviteEmailService,
+  ) {}
 
   async findById(churchId: string) {
     const church = await this.prisma.church.findUnique({
@@ -59,6 +65,16 @@ export class ChurchesService {
       );
     }
 
+    const limits = await this.subscriptions.getLimits(churchId);
+    if (limits.maxMembers !== -1) {
+      const count = await this.prisma.membership.count({ where: { churchId } });
+      if (count >= limits.maxMembers) {
+        throw new ForbiddenException(
+          `Tu plan permite un máximo de ${limits.maxMembers} miembros. Actualiza tu plan para agregar más.`,
+        );
+      }
+    }
+
     const normalizedEmail = email.toLowerCase();
     let user = await this.prisma.user.findUnique({
       where: { email: normalizedEmail },
@@ -103,6 +119,16 @@ export class ChurchesService {
       );
     }
 
+    const limits = await this.subscriptions.getLimits(churchId);
+    if (limits.maxMembers !== -1) {
+      const count = await this.prisma.membership.count({ where: { churchId } });
+      if (count >= limits.maxMembers) {
+        throw new ForbiddenException(
+          `Tu plan permite un máximo de ${limits.maxMembers} miembros. Actualiza tu plan para agregar más.`,
+        );
+      }
+    }
+
     const normalizedEmail = email.toLowerCase();
     const token = crypto.randomBytes(24).toString("hex");
     const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
@@ -145,12 +171,22 @@ export class ChurchesService {
       },
     });
 
+    const { emailSent, inviteUrl } = await this.inviteEmail.sendInviteEmail({
+      email: invite.email,
+      churchName: invite.church.name,
+      role: invite.role,
+      token: invite.token,
+      expiresAt: invite.expiresAt,
+    });
+
     return {
       token: invite.token,
       email: invite.email,
       role: invite.role,
       churchName: invite.church.name,
       expiresAt: invite.expiresAt,
+      inviteUrl,
+      emailSent,
     };
   }
 

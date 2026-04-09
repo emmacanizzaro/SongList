@@ -21,13 +21,11 @@ import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { z } from "zod";
 
-const meetingTitleOptions = [
-  "Reunión Especial",
-  "Reunión de Fin de Semana",
-] as const;
-
 const createMeetingSchema = z.object({
-  title: z.enum(meetingTitleOptions),
+  title: z
+    .string()
+    .min(3, "El título debe tener al menos 3 caracteres")
+    .max(120, "El título no puede superar 120 caracteres"),
   worshipLeader: z.string().min(2, "Worship Leader es obligatorio").max(100),
   date: z.string().min(1, "La fecha es obligatoria"),
   notes: z.string().optional().default(""),
@@ -64,7 +62,7 @@ export default function NewMeetingPage() {
   } = useForm<CreateMeetingInput>({
     resolver: zodResolver(createMeetingSchema),
     defaultValues: {
-      title: "Reunión Especial",
+      title: "",
       worshipLeader: "",
       date: "",
       notes: "",
@@ -192,19 +190,15 @@ export default function NewMeetingPage() {
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             <div>
               <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">
-                TITULO
+                Título
               </label>
-              <select
+              <input
+                type="text"
+                placeholder="Ej. Ensayo domingo AM"
                 {...register("title")}
                 className="input"
                 disabled={!canEditMeetings}
-              >
-                {meetingTitleOptions.map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
+              />
               {errors.title && (
                 <p className="mt-1 text-sm text-red-600 dark:text-red-400">
                   {errors.title.message}

@@ -36,7 +36,7 @@ export default function RootLayout({
       suppressHydrationWarning
       className={`${plusJakartaSans.variable} ${jetBrainsMono.variable}`}
     >
-      <body className="text-slate-900 dark:text-slate-50 antialiased transition-colors duration-200">
+      <body className="text-slate-900 antialiased transition-colors duration-200">
         <Providers>
           {children}
           <Toaster

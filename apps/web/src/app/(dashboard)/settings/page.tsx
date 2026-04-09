@@ -65,10 +65,16 @@ export default function SettingsPage() {
       churchApi.createInviteLink(inviteEmail.trim().toLowerCase(), inviteRole),
     onSuccess: async (response) => {
       const token = response.data.token;
-      const link = `${window.location.origin}/register?invite=${token}`;
+      const link =
+        response.data.inviteUrl ??
+        `${window.location.origin}/register?invite=${token}`;
       setGeneratedInviteLink(link);
       await navigator.clipboard.writeText(link);
-      toast.success("Enlace de invitación copiado");
+      toast.success(
+        response.data.emailSent
+          ? "Correo enviado y enlace copiado"
+          : "Enlace de invitación copiado",
+      );
     },
     onError: (error: any) => {
       const message =
@@ -280,8 +286,9 @@ export default function SettingsPage() {
                 )}
 
                 <p className="text-xs text-slate-500 dark:text-slate-400">
-                  Si el email no tiene cuenta, quedará invitación pendiente y se
-                  activará cuando se registre con ese mismo correo.
+                  Si el backend tiene correo configurado, SongList enviará la
+                  invitación automáticamente. Si no, puedes compartir el enlace
+                  manualmente y seguirá funcionando igual.
                 </p>
               </div>
             ) : (

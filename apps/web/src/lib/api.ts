@@ -142,6 +142,12 @@ export const meetingsApi = {
     }),
   generateShare: (meetingId: string) =>
     api.post(`/api/v1/meetings/${meetingId}/share`),
+  assign: (
+    meetingId: string,
+    data: { userId: string; instrumentId: string; notes?: string },
+  ) => api.post(`/api/v1/meetings/${meetingId}/assignments`, data),
+  unassign: (meetingId: string, assignmentId: string) =>
+    api.delete(`/api/v1/meetings/${meetingId}/assignments/${assignmentId}`),
 };
 
 export const churchApi = {
@@ -165,4 +171,12 @@ export const subscriptionsApi = {
   checkout: (plan: string) =>
     api.post("/api/v1/subscriptions/checkout", { plan }),
   portal: () => api.post("/api/v1/subscriptions/portal"),
+};
+
+export const instrumentsApi = {
+  list: () => api.get("/api/v1/instruments"),
+};
+
+export const publicMeetingsApi = {
+  getByToken: (token: string) => api.get(`/api/v1/public/meetings/${token}`),
 };
