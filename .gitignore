@@ -4,7 +4,6 @@ node_modules/
 .pnp.js
 
 # Build outputs
-dist/
 build/
 .next/
 out/
@@ -41,3 +40,4 @@ apps/api/prisma/migrations/
 
 # Type checking
 *.tsbuildinfo
+.vercel

@@ -4,7 +4,7 @@ services:
     runtime: node
     region: oregon
     plan: free
-    buildCommand: NODE_ENV=development npm install --workspaces --include-workspace-root && npm run db:generate && npm exec tsc -- -p apps/api/tsconfig.json
+    buildCommand: npm install --workspaces --include-workspace-root --omit=dev && npm run db:generate
     startCommand: npm run start --workspace=@songlist/api
     healthCheckPath: /health
     envVars:

@@ -1,0 +1,26 @@
+"use strict";
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ChurchesModule = void 0;
+const common_1 = require("@nestjs/common");
+const subscriptions_module_1 = require("../subscriptions/subscriptions.module");
+const churches_controller_1 = require("./churches.controller");
+const churches_service_1 = require("./churches.service");
+const invite_email_service_1 = require("./invite-email.service");
+let ChurchesModule = class ChurchesModule {
+};
+exports.ChurchesModule = ChurchesModule;
+exports.ChurchesModule = ChurchesModule = __decorate([
+    (0, common_1.Module)({
+        imports: [subscriptions_module_1.SubscriptionsModule],
+        controllers: [churches_controller_1.ChurchesController, churches_controller_1.PublicChurchInvitesController],
+        providers: [churches_service_1.ChurchesService, invite_email_service_1.InviteEmailService],
+        exports: [churches_service_1.ChurchesService],
+    })
+], ChurchesModule);
+//# sourceMappingURL=churches.module.js.map
