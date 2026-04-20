@@ -1,5 +1,7 @@
 "use client";
 
+import { useAuth } from "@/hooks/useAuth";
+import { useEntitlements } from "@/hooks/useEntitlements";
 import { meetingsApi } from "@/lib/api";
 import {
   formatLongSpanishDateWithYear,
@@ -7,19 +9,24 @@ import {
 } from "@/lib/dates";
 import { Meeting } from "@/types";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, Loader2, Music2, Printer } from "lucide-react";
+import { ArrowLeft, Crown, Loader2, Music2, Printer } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 
 export default function MeetingPrintPage() {
+  const { user } = useAuth();
   const { id } = useParams<{ id: string }>();
+  const isAdmin = user?.currentRole === "ADMIN";
+  const { entitlements, isLoading: isLoadingEntitlements } = useEntitlements(
+    Boolean(user),
+  );
 
   const { data: meeting, isLoading } = useQuery<Meeting>({
     queryKey: ["meeting", id],
     queryFn: () => meetingsApi.get(id).then((r) => r.data),
   });
 
-  if (isLoading) {
+  if (isLoading || isLoadingEntitlements) {
     return (
       <div className="flex items-center justify-center py-16">
         <Loader2 className="h-8 w-8 animate-spin text-slate-400" />
@@ -31,6 +38,42 @@ export default function MeetingPrintPage() {
     return (
       <div className="py-16 text-center text-sm text-slate-400">
         Reunión no encontrada.
+      </div>
+    );
+  }
+
+  const canExportPdf = Boolean(entitlements?.features.canExportPdf);
+
+  if (!canExportPdf) {
+    return (
+      <div className="mx-auto flex w-full max-w-2xl flex-col gap-4 rounded-3xl border border-amber-200 bg-amber-50 p-8 text-amber-900 dark:border-amber-900/50 dark:bg-amber-950/30 dark:text-amber-200">
+        <div className="inline-flex w-fit items-center gap-2 rounded-full border border-amber-300/60 bg-white/70 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] dark:border-amber-800 dark:bg-amber-950/50">
+          <Crown className="h-3.5 w-3.5" />
+          Función Premium
+        </div>
+        <h1 className="text-2xl font-semibold tracking-tight">
+          Exportar e imprimir está disponible en plan Pro
+        </h1>
+        <p className="text-sm leading-6">
+          Puedes seguir gestionando la reunión normalmente. Para guardar PDF o
+          imprimir setlists, actualiza el plan de tu iglesia.
+        </p>
+        <div className="flex flex-wrap gap-3 pt-2">
+          <Link href={`/meetings/${id}`} className="btn-secondary">
+            <ArrowLeft className="h-4 w-4" />
+            Volver a la reunión
+          </Link>
+          {isAdmin ? (
+            <Link href="/settings/billing" className="btn-primary">
+              <Crown className="h-4 w-4" />
+              Ver planes y desbloquear
+            </Link>
+          ) : (
+            <span className="rounded-xl border border-amber-300/70 px-3 py-2 text-xs font-medium dark:border-amber-800">
+              Solo Admin puede cambiar el plan
+            </span>
+          )}
+        </div>
       </div>
     );
   }

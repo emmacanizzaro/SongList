@@ -2,7 +2,7 @@
 
 import { useAuth } from "@/hooks/useAuth";
 import { subscriptionsApi } from "@/lib/api";
-import { PlanType, Subscription } from "@/types";
+import { PlanType, SubscriptionEntitlements } from "@/types";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { Check, CreditCard, Loader2, Sparkles } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -76,12 +76,12 @@ function BillingPageContent() {
   }, [searchParams]);
 
   const {
-    data: subscription,
+    data: entitlements,
     isLoading,
     isError,
-  } = useQuery<Subscription>({
-    queryKey: ["subscription"],
-    queryFn: () => subscriptionsApi.get().then((r) => r.data),
+  } = useQuery<SubscriptionEntitlements>({
+    queryKey: ["subscription-entitlements"],
+    queryFn: () => subscriptionsApi.entitlements().then((r) => r.data),
     enabled: Boolean(user),
   });
 
@@ -118,7 +118,7 @@ function BillingPageContent() {
     );
   }
 
-  if (isError || !subscription) {
+  if (isError || !entitlements) {
     return (
       <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-900 dark:bg-red-950 dark:text-red-200">
         No se pudo cargar la información de billing.
@@ -175,21 +175,21 @@ function BillingPageContent() {
               Estado actual
             </div>
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
-              <Metric label="Plan" value={subscription.plan} accent />
-              <Metric label="Estado" value={subscription.status} />
+              <Metric label="Plan" value={entitlements.plan} accent />
+              <Metric label="Estado" value={entitlements.status} />
               <Metric
                 label="Renovación"
                 value={
-                  subscription.currentPeriodEnd
+                  entitlements.currentPeriodEnd
                     ? new Date(
-                        subscription.currentPeriodEnd,
+                        entitlements.currentPeriodEnd,
                       ).toLocaleDateString("es-ES")
                     : "No disponible"
                 }
               />
               <Metric
                 label="Export PDF"
-                value={subscription.limits.canExportPdf ? "Sí" : "No"}
+                value={entitlements.features.canExportPdf ? "Sí" : "No"}
               />
             </div>
           </div>
@@ -201,22 +201,59 @@ function BillingPageContent() {
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
               <Metric
                 label="Integrantes"
-                value={formatLimit(subscription.limits.maxMembers)}
+                value={formatLimit(entitlements.limits.maxMembers)}
               />
               <Metric
                 label="Canciones"
-                value={formatLimit(subscription.limits.maxSongs)}
+                value={formatLimit(entitlements.limits.maxSongs)}
               />
               <Metric
                 label="Instrumentos"
-                value={formatLimit(subscription.limits.maxInstruments)}
+                value={formatLimit(entitlements.limits.maxInstruments)}
               />
               <Metric
                 label="Historial"
                 value={
-                  subscription.limits.historyMonths === -1
+                  entitlements.limits.historyMonths === -1
                     ? "Ilimitado"
-                    : `${subscription.limits.historyMonths} meses`
+                    : `${entitlements.limits.historyMonths} meses`
+                }
+              />
+            </div>
+          </div>
+
+          <div className="card p-6">
+            <div className="text-sm font-semibold text-slate-900 dark:text-white">
+              Consumo actual
+            </div>
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+              <Metric
+                label="Integrantes"
+                value={formatQuota(
+                  entitlements.quotas.members.used,
+                  entitlements.quotas.members.limit,
+                )}
+              />
+              <Metric
+                label="Canciones"
+                value={formatQuota(
+                  entitlements.quotas.songs.used,
+                  entitlements.quotas.songs.limit,
+                )}
+              />
+              <Metric
+                label="Instrumentos"
+                value={formatQuota(
+                  entitlements.quotas.instruments.used,
+                  entitlements.quotas.instruments.limit,
+                )}
+              />
+              <Metric
+                label="Disponible"
+                value={
+                  entitlements.quotas.members.unlimited
+                    ? "Sin límite"
+                    : `${entitlements.quotas.members.remaining ?? 0} miembros`
                 }
               />
             </div>
@@ -225,7 +262,7 @@ function BillingPageContent() {
 
         <section className="grid gap-4 xl:grid-cols-3">
           {PLAN_CARDS.map((card) => {
-            const isCurrent = subscription.plan === card.plan;
+            const isCurrent = entitlements.plan === card.plan;
             const isUpgradeBlocked =
               card.plan === "FREE" || !isAdmin || isCurrent;
 
@@ -349,4 +386,9 @@ function Metric({
 
 function formatLimit(limit: number) {
   return limit === -1 ? "Ilimitado" : `${limit}`;
+}
+
+function formatQuota(used: number, limit: number) {
+  if (limit === -1) return `${used} / Ilimitado`;
+  return `${used} / ${limit}`;
 }

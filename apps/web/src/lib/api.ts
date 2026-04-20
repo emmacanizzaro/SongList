@@ -167,6 +167,7 @@ export const churchApi = {
 
 export const subscriptionsApi = {
   get: () => api.get("/api/v1/subscriptions"),
+  entitlements: () => api.get("/api/v1/subscriptions/entitlements"),
   checkout: (plan: string) =>
     api.post("/api/v1/subscriptions/checkout", { plan }),
   portal: () => api.post("/api/v1/subscriptions/portal"),

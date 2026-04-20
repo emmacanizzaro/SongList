@@ -2,10 +2,15 @@
 // TIPOS COMPARTIDOS - SongList SaaS
 // ============================================================
 
-export type MemberRole = 'ADMIN' | 'EDITOR' | 'READER';
-export type VersionType = 'ORIGINAL' | 'MALE_KEY' | 'FEMALE_KEY' | 'CUSTOM';
-export type PlanType = 'FREE' | 'PRO' | 'ENTERPRISE';
-export type SubscriptionStatus = 'ACTIVE' | 'TRIALING' | 'PAST_DUE' | 'CANCELED' | 'INCOMPLETE';
+export type MemberRole = "ADMIN" | "EDITOR" | "READER";
+export type VersionType = "ORIGINAL" | "MALE_KEY" | "FEMALE_KEY" | "CUSTOM";
+export type PlanType = "FREE" | "PRO" | "ENTERPRISE";
+export type SubscriptionStatus =
+  | "ACTIVE"
+  | "TRIALING"
+  | "PAST_DUE"
+  | "CANCELED"
+  | "INCOMPLETE";
 
 export interface User {
   id: string;
@@ -31,7 +36,7 @@ export interface Membership {
   churchId: string;
   role: MemberRole;
   joinedAt: string;
-  user: Pick<User, 'id' | 'name' | 'email' | 'avatarUrl'>;
+  user: Pick<User, "id" | "name" | "email" | "avatarUrl">;
 }
 
 export interface SongVersion {
@@ -68,8 +73,8 @@ export interface Assignment {
   userId: string;
   instrumentId: string;
   notes?: string;
-  user: Pick<User, 'id' | 'name' | 'avatarUrl'>;
-  instrument: Pick<Instrument, 'id' | 'name' | 'icon'>;
+  user: Pick<User, "id" | "name" | "avatarUrl">;
+  instrument: Pick<Instrument, "id" | "name" | "icon">;
 }
 
 export interface MeetingSong {
@@ -101,6 +106,31 @@ export interface Subscription {
   currentPeriodEnd?: string;
   cancelAtPeriodEnd: boolean;
   limits: PlanLimits;
+}
+
+export interface EntitlementQuota {
+  used: number;
+  limit: number;
+  remaining: number | null;
+  unlimited: boolean;
+}
+
+export interface SubscriptionEntitlements {
+  plan: PlanType;
+  status: SubscriptionStatus;
+  currentPeriodEnd?: string;
+  cancelAtPeriodEnd: boolean;
+  limits: PlanLimits;
+  features: {
+    canExportPdf: boolean;
+    canShareLinks: boolean;
+    canMultiTeam: boolean;
+  };
+  quotas: {
+    members: EntitlementQuota;
+    songs: EntitlementQuota;
+    instruments: EntitlementQuota;
+  };
 }
 
 export interface PlanLimits {

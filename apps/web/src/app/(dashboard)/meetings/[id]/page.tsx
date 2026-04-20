@@ -2,6 +2,7 @@
 
 import { SongChordsDrawer } from "@/components/songs/SongChordsDrawer";
 import { useAuth } from "@/hooks/useAuth";
+import { useEntitlements } from "@/hooks/useEntitlements";
 import { churchApi, instrumentsApi, meetingsApi, songsApi } from "@/lib/api";
 import { formatLongSpanishDateWithYear } from "@/lib/dates";
 import { Instrument, Meeting, MeetingSong, Membership } from "@/types";
@@ -27,6 +28,7 @@ import clsx from "clsx";
 import {
   ArrowLeft,
   BookOpen,
+  Crown,
   GripVertical,
   Loader2,
   Plus,
@@ -37,12 +39,13 @@ import {
   Users2,
 } from "lucide-react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
 
 export default function MeetingDetailPage() {
   const { user } = useAuth();
+  const router = useRouter();
   const { id } = useParams<{ id: string }>();
   const queryClient = useQueryClient();
   const [songId, setSongId] = useState("");
@@ -94,6 +97,10 @@ export default function MeetingDetailPage() {
   }, [meeting, songs]);
 
   const canEditMeetings = user?.currentRole !== "READER";
+  const isAdmin = user?.currentRole === "ADMIN";
+  const { entitlements } = useEntitlements(Boolean(user));
+  const canExportPdf = Boolean(entitlements?.features.canExportPdf);
+  const canShareLinks = Boolean(entitlements?.features.canShareLinks);
 
   // ── Drag & Drop ───────────────────────────────────────────
   const [orderedSongs, setOrderedSongs] = useState<MeetingSong[]>([]);
@@ -252,31 +259,52 @@ export default function MeetingDetailPage() {
             {canEditMeetings ? (
               <div className="flex flex-wrap items-center gap-2 self-start lg:self-auto">
                 <Link
-                  href={`/meetings/${id}/print`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn-secondary border-white/10 bg-white/8 text-white hover:bg-white/12"
+                  href={
+                    canExportPdf ? `/meetings/${id}/print` : "/settings/billing"
+                  }
+                  target={canExportPdf ? "_blank" : undefined}
+                  rel={canExportPdf ? "noopener noreferrer" : undefined}
+                  className={clsx(
+                    "btn-secondary border-white/10 bg-white/8 text-white hover:bg-white/12",
+                    !canExportPdf && "ring-1 ring-amber-300/60",
+                  )}
                 >
                   <Printer className="h-4 w-4" />
-                  Imprimir setlist
+                  {canExportPdf ? "Imprimir setlist" : "Desbloquear PDF"}
                 </Link>
-                <button
-                  onClick={() => shareMutation.mutate()}
-                  disabled={shareMutation.isPending}
-                  className="btn-secondary border-white/10 bg-white/8 text-white hover:bg-white/12"
-                >
-                  {shareMutation.isPending ? (
-                    <>
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                      Compartiendo...
-                    </>
-                  ) : (
-                    <>
-                      <Share2 className="h-4 w-4" />
-                      {meeting.shareToken ? "Copiar link" : "Compartir"}
-                    </>
-                  )}
-                </button>
+                {canShareLinks ? (
+                  <button
+                    onClick={() => shareMutation.mutate()}
+                    disabled={shareMutation.isPending}
+                    className="btn-secondary border-white/10 bg-white/8 text-white hover:bg-white/12"
+                  >
+                    {shareMutation.isPending ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Compartiendo...
+                      </>
+                    ) : (
+                      <>
+                        <Share2 className="h-4 w-4" />
+                        {meeting.shareToken ? "Copiar link" : "Compartir"}
+                      </>
+                    )}
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => {
+                      if (isAdmin) {
+                        router.push("/settings/billing");
+                        return;
+                      }
+                      toast("Solo Admin puede desbloquear compartir enlaces");
+                    }}
+                    className="btn-secondary border-white/10 bg-white/8 text-white hover:bg-white/12"
+                  >
+                    <Crown className="h-4 w-4" />
+                    Desbloquear compartir
+                  </button>
+                )}
               </div>
             ) : (
               <span className="rounded-xl border border-white/20 bg-white/10 px-3 py-2 text-xs font-medium text-slate-200">
