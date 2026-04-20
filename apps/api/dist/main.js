@@ -8,9 +8,9 @@ const app_module_1 = require("./app.module");
 async function bootstrap() {
     const app = await core_1.NestFactory.create(app_module_1.AppModule);
     const config = app.get(config_1.ConfigService);
-    const canUseTransform = (() => {
+    const canUseTransform = await (async () => {
         try {
-            require("class-transformer");
+            await Promise.resolve().then(() => require("class-transformer"));
             return true;
         }
         catch {

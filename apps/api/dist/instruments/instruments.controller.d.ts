@@ -7,30 +7,30 @@ export declare class InstrumentsController {
             assignments: number;
         };
     } & {
-        name: string;
         id: string;
         churchId: string;
+        name: string;
         icon: string | null;
         sortOrder: number;
     })[]>;
     create(churchId: string, name: string, icon?: string): Promise<{
-        name: string;
         id: string;
         churchId: string;
+        name: string;
         icon: string | null;
         sortOrder: number;
     }>;
     update(churchId: string, id: string, name: string, icon?: string): Promise<{
-        name: string;
         id: string;
         churchId: string;
+        name: string;
         icon: string | null;
         sortOrder: number;
     }>;
     remove(churchId: string, id: string): Promise<{
-        name: string;
         id: string;
         churchId: string;
+        name: string;
         icon: string | null;
         sortOrder: number;
     }>;
@@ -39,9 +39,9 @@ export declare class InstrumentsController {
             assignments: number;
         };
     } & {
-        name: string;
         id: string;
         churchId: string;
+        name: string;
         icon: string | null;
         sortOrder: number;
     })[]>;

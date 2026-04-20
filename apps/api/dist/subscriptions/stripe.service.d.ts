@@ -1,6 +1,6 @@
 import { ConfigService } from "@nestjs/config";
 import { PlanType } from "@prisma/client";
-import type Stripe from "stripe";
+import Stripe from "stripe";
 import { PrismaService } from "../prisma/prisma.service";
 export declare class StripeService {
     private config;

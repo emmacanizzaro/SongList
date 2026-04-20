@@ -7,9 +7,9 @@ import { AppModule } from "./app.module";
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const config = app.get(ConfigService);
-  const canUseTransform = (() => {
+  const canUseTransform = await (async () => {
     try {
-      require("class-transformer");
+      await import("class-transformer");
       return true;
     } catch {
       return false;

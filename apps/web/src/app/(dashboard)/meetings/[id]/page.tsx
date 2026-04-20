@@ -3,6 +3,7 @@
 import { SongChordsDrawer } from "@/components/songs/SongChordsDrawer";
 import { useAuth } from "@/hooks/useAuth";
 import { churchApi, instrumentsApi, meetingsApi, songsApi } from "@/lib/api";
+import { formatLongSpanishDateWithYear } from "@/lib/dates";
 import { Instrument, Meeting, MeetingSong, Membership } from "@/types";
 import {
   DndContext,
@@ -23,8 +24,6 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import clsx from "clsx";
-import { format } from "date-fns";
-import { es } from "date-fns/locale";
 import {
   ArrowLeft,
   BookOpen,
@@ -247,9 +246,7 @@ export default function MeetingDetailPage() {
                 {meeting.title}
               </h1>
               <p className="mt-2 text-sm text-slate-300 sm:text-base">
-                {format(new Date(meeting.date), "EEEE d 'de' MMMM 'de' yyyy", {
-                  locale: es,
-                })}
+                {formatLongSpanishDateWithYear(new Date(meeting.date))}
               </p>
             </div>
             {canEditMeetings ? (

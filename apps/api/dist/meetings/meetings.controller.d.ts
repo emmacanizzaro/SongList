@@ -6,13 +6,13 @@ export declare class MeetingsController {
     create(churchId: string, userId: string, dto: CreateMeetingDto): Promise<{
         assignments: ({
             user: {
-                name: string;
                 id: string;
+                name: string;
                 avatarUrl: string | null;
             };
             instrument: {
-                name: string;
                 id: string;
+                name: string;
                 icon: string | null;
             };
         } & {
@@ -25,22 +25,22 @@ export declare class MeetingsController {
         meetingSongs: ({
             song: {
                 versions: {
-                    type: import(".prisma/client").$Enums.VersionType;
                     id: string;
                     createdAt: Date;
                     updatedAt: Date;
+                    type: import(".prisma/client").$Enums.VersionType;
                     notes: string | null;
                     songId: string;
                     key: string;
                     lyricsChords: string;
                 }[];
             } & {
-                title: string;
                 id: string;
                 churchId: string;
                 createdAt: Date;
                 updatedAt: Date;
                 tags: string[];
+                title: string;
                 createdById: string | null;
                 artist: string | null;
                 originalKey: string;
@@ -49,17 +49,17 @@ export declare class MeetingsController {
         } & {
             id: string;
             notes: string | null;
+            meetingId: string;
             songId: string;
             order: number;
             keyOverride: string | null;
-            meetingId: string;
         })[];
     } & {
-        title: string;
         id: string;
         churchId: string;
         createdAt: Date;
         updatedAt: Date;
+        title: string;
         date: Date;
         notes: string | null;
         isPublic: boolean;
@@ -72,11 +72,11 @@ export declare class MeetingsController {
             meetingSongs: number;
         };
     } & {
-        title: string;
         id: string;
         churchId: string;
         createdAt: Date;
         updatedAt: Date;
+        title: string;
         date: Date;
         notes: string | null;
         isPublic: boolean;
@@ -86,13 +86,13 @@ export declare class MeetingsController {
     findOne(churchId: string, id: string): Promise<{
         assignments: ({
             user: {
-                name: string;
                 id: string;
+                name: string;
                 avatarUrl: string | null;
             };
             instrument: {
-                name: string;
                 id: string;
+                name: string;
                 icon: string | null;
             };
         } & {
@@ -105,22 +105,22 @@ export declare class MeetingsController {
         meetingSongs: ({
             song: {
                 versions: {
-                    type: import(".prisma/client").$Enums.VersionType;
                     id: string;
                     createdAt: Date;
                     updatedAt: Date;
+                    type: import(".prisma/client").$Enums.VersionType;
                     notes: string | null;
                     songId: string;
                     key: string;
                     lyricsChords: string;
                 }[];
             } & {
-                title: string;
                 id: string;
                 churchId: string;
                 createdAt: Date;
                 updatedAt: Date;
                 tags: string[];
+                title: string;
                 createdById: string | null;
                 artist: string | null;
                 originalKey: string;
@@ -129,17 +129,17 @@ export declare class MeetingsController {
         } & {
             id: string;
             notes: string | null;
+            meetingId: string;
             songId: string;
             order: number;
             keyOverride: string | null;
-            meetingId: string;
         })[];
     } & {
-        title: string;
         id: string;
         churchId: string;
         createdAt: Date;
         updatedAt: Date;
+        title: string;
         date: Date;
         notes: string | null;
         isPublic: boolean;
@@ -149,13 +149,13 @@ export declare class MeetingsController {
     update(churchId: string, id: string, dto: Partial<CreateMeetingDto>): Promise<{
         assignments: ({
             user: {
-                name: string;
                 id: string;
+                name: string;
                 avatarUrl: string | null;
             };
             instrument: {
-                name: string;
                 id: string;
+                name: string;
                 icon: string | null;
             };
         } & {
@@ -168,22 +168,22 @@ export declare class MeetingsController {
         meetingSongs: ({
             song: {
                 versions: {
-                    type: import(".prisma/client").$Enums.VersionType;
                     id: string;
                     createdAt: Date;
                     updatedAt: Date;
+                    type: import(".prisma/client").$Enums.VersionType;
                     notes: string | null;
                     songId: string;
                     key: string;
                     lyricsChords: string;
                 }[];
             } & {
-                title: string;
                 id: string;
                 churchId: string;
                 createdAt: Date;
                 updatedAt: Date;
                 tags: string[];
+                title: string;
                 createdById: string | null;
                 artist: string | null;
                 originalKey: string;
@@ -192,17 +192,17 @@ export declare class MeetingsController {
         } & {
             id: string;
             notes: string | null;
+            meetingId: string;
             songId: string;
             order: number;
             keyOverride: string | null;
-            meetingId: string;
         })[];
     } & {
-        title: string;
         id: string;
         churchId: string;
         createdAt: Date;
         updatedAt: Date;
+        title: string;
         date: Date;
         notes: string | null;
         isPublic: boolean;
@@ -210,11 +210,11 @@ export declare class MeetingsController {
         createdById: string | null;
     }>;
     remove(churchId: string, id: string): Promise<{
-        title: string;
         id: string;
         churchId: string;
         createdAt: Date;
         updatedAt: Date;
+        title: string;
         date: Date;
         notes: string | null;
         isPublic: boolean;
@@ -223,28 +223,28 @@ export declare class MeetingsController {
     }>;
     addSong(churchId: string, meetingId: string, songId: string, keyOverride?: string, notes?: string): Promise<{
         song: {
-            title: string;
             id: string;
+            title: string;
             originalKey: string;
         };
     } & {
         id: string;
         notes: string | null;
+        meetingId: string;
         songId: string;
         order: number;
         keyOverride: string | null;
-        meetingId: string;
     }>;
     reorderSongs(churchId: string, meetingId: string, orderedSongIds: string[]): Promise<{
         assignments: ({
             user: {
-                name: string;
                 id: string;
+                name: string;
                 avatarUrl: string | null;
             };
             instrument: {
-                name: string;
                 id: string;
+                name: string;
                 icon: string | null;
             };
         } & {
@@ -257,22 +257,22 @@ export declare class MeetingsController {
         meetingSongs: ({
             song: {
                 versions: {
-                    type: import(".prisma/client").$Enums.VersionType;
                     id: string;
                     createdAt: Date;
                     updatedAt: Date;
+                    type: import(".prisma/client").$Enums.VersionType;
                     notes: string | null;
                     songId: string;
                     key: string;
                     lyricsChords: string;
                 }[];
             } & {
-                title: string;
                 id: string;
                 churchId: string;
                 createdAt: Date;
                 updatedAt: Date;
                 tags: string[];
+                title: string;
                 createdById: string | null;
                 artist: string | null;
                 originalKey: string;
@@ -281,17 +281,17 @@ export declare class MeetingsController {
         } & {
             id: string;
             notes: string | null;
+            meetingId: string;
             songId: string;
             order: number;
             keyOverride: string | null;
-            meetingId: string;
         })[];
     } & {
-        title: string;
         id: string;
         churchId: string;
         createdAt: Date;
         updatedAt: Date;
+        title: string;
         date: Date;
         notes: string | null;
         isPublic: boolean;
@@ -301,19 +301,19 @@ export declare class MeetingsController {
     removeSong(churchId: string, meetingId: string, meetingSongId: string): Promise<{
         id: string;
         notes: string | null;
+        meetingId: string;
         songId: string;
         order: number;
         keyOverride: string | null;
-        meetingId: string;
     }>;
     assign(meetingId: string, userId: string, instrumentId: string, notes?: string): Promise<{
         user: {
-            name: string;
             id: string;
+            name: string;
         };
         instrument: {
-            name: string;
             id: string;
+            name: string;
             icon: string | null;
         };
     } & {
@@ -340,13 +340,13 @@ export declare class PublicMeetingsController {
     findByToken(token: string): Promise<{
         assignments: ({
             user: {
-                name: string;
                 id: string;
+                name: string;
                 avatarUrl: string | null;
             };
             instrument: {
-                name: string;
                 id: string;
+                name: string;
                 icon: string | null;
             };
         } & {
@@ -359,22 +359,22 @@ export declare class PublicMeetingsController {
         meetingSongs: ({
             song: {
                 versions: {
-                    type: import(".prisma/client").$Enums.VersionType;
                     id: string;
                     createdAt: Date;
                     updatedAt: Date;
+                    type: import(".prisma/client").$Enums.VersionType;
                     notes: string | null;
                     songId: string;
                     key: string;
                     lyricsChords: string;
                 }[];
             } & {
-                title: string;
                 id: string;
                 churchId: string;
                 createdAt: Date;
                 updatedAt: Date;
                 tags: string[];
+                title: string;
                 createdById: string | null;
                 artist: string | null;
                 originalKey: string;
@@ -383,17 +383,17 @@ export declare class PublicMeetingsController {
         } & {
             id: string;
             notes: string | null;
+            meetingId: string;
             songId: string;
             order: number;
             keyOverride: string | null;
-            meetingId: string;
         })[];
     } & {
-        title: string;
         id: string;
         churchId: string;
         createdAt: Date;
         updatedAt: Date;
+        title: string;
         date: Date;
         notes: string | null;
         isPublic: boolean;

@@ -1,10 +1,12 @@
 "use client";
 
 import { meetingsApi } from "@/lib/api";
+import {
+  formatLongSpanishDateWithYear,
+  formatShortSpanishDayMonth,
+} from "@/lib/dates";
 import { Meeting } from "@/types";
 import { useQuery } from "@tanstack/react-query";
-import { format } from "date-fns";
-import { es } from "date-fns/locale";
 import { ArrowLeft, Loader2, Music2, Printer } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
@@ -70,9 +72,7 @@ export default function MeetingPrintPage() {
             {meeting.title}
           </h1>
           <p className="mt-1.5 text-base text-slate-500">
-            {format(new Date(meeting.date), "EEEE d 'de' MMMM 'de' yyyy", {
-              locale: es,
-            })}
+            {formatLongSpanishDateWithYear(new Date(meeting.date))}
           </p>
         </header>
 
@@ -182,8 +182,7 @@ export default function MeetingPrintPage() {
 
         {/* Footer */}
         <footer className="border-t border-slate-200 pt-4 text-xs text-slate-400">
-          Generado con SongList ·{" "}
-          {format(new Date(), "d 'de' MMMM 'de' yyyy", { locale: es })}
+          Generado con SongList · {formatShortSpanishDayMonth(new Date())}
         </footer>
       </div>
     </>

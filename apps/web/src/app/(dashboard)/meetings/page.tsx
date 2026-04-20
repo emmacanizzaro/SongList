@@ -2,11 +2,17 @@
 
 import { useAuth } from "@/hooks/useAuth";
 import { meetingsApi } from "@/lib/api";
+import {
+  formatShortSpanishDayMonth,
+  formatSpanishDayNumber,
+  formatSpanishMonthShort,
+  isPastDate,
+  isTodayDate,
+  isTomorrowDate,
+} from "@/lib/dates";
 import { Meeting } from "@/types";
 import { useQuery } from "@tanstack/react-query";
 import { clsx } from "clsx";
-import { format, isPast, isToday, isTomorrow } from "date-fns";
-import { es } from "date-fns/locale";
 import { Calendar, ChevronRight, Music2, Plus, Users2 } from "lucide-react";
 import Link from "next/link";
 
@@ -72,13 +78,13 @@ export default function MeetingsPage() {
 
 function MeetingRow({ meeting }: { meeting: Meeting }) {
   const date = new Date(meeting.date);
-  const past = isPast(date) && !isToday(date);
+  const past = isPastDate(date) && !isTodayDate(date);
 
-  const dateLabel = isToday(date)
+  const dateLabel = isTodayDate(date)
     ? "Hoy"
-    : isTomorrow(date)
+    : isTomorrowDate(date)
       ? "Mañana"
-      : format(date, "d 'de' MMM", { locale: es });
+      : formatShortSpanishDayMonth(date);
 
   return (
     <Link
@@ -93,16 +99,18 @@ function MeetingRow({ meeting }: { meeting: Meeting }) {
         <div
           className={clsx(
             "w-12 h-12 rounded-2xl flex flex-col items-center justify-center text-xs font-bold",
-            isToday(date)
+            isTodayDate(date)
               ? "bg-brand-700 text-white"
               : past
                 ? "bg-slate-100 text-slate-500"
                 : "bg-brand-50 text-brand-800",
           )}
         >
-          <span className="text-lg leading-none">{format(date, "d")}</span>
+          <span className="text-lg leading-none">
+            {formatSpanishDayNumber(date)}
+          </span>
           <span className="text-[10px] uppercase">
-            {format(date, "MMM", { locale: es })}
+            {formatSpanishMonthShort(date)}
           </span>
         </div>
 

@@ -136,6 +136,23 @@ export default function SongDetailPage() {
     });
   }, [song, reset]);
 
+  const originalVersion = song?.versions.find((v) => v.type === "ORIGINAL");
+
+  const transposedVersions = useMemo(
+    () => song?.versions.filter((v) => v.type !== "ORIGINAL") ?? [],
+    [song],
+  );
+
+  const versionSummary = useMemo(() => {
+    if (transposedVersions.length === 0) {
+      return "Aún no hay versiones guardadas";
+    }
+
+    return transposedVersions
+      .map((version) => `${formatVersionType(version.type)} (${version.key})`)
+      .join(" · ");
+  }, [transposedVersions]);
+
   if (isLoading) {
     return (
       <div className="mx-auto w-full max-w-6xl animate-pulse space-y-4">
@@ -147,19 +164,6 @@ export default function SongDetailPage() {
   }
 
   if (!song) return <div>Canción no encontrada</div>;
-
-  const originalVersion = song.versions.find((v) => v.type === "ORIGINAL");
-  const transposedVersions = song.versions.filter((v) => v.type !== "ORIGINAL");
-
-  const versionSummary = useMemo(() => {
-    if (transposedVersions.length === 0) {
-      return "Aún no hay versiones guardadas";
-    }
-
-    return transposedVersions
-      .map((version) => `${formatVersionType(version.type)} (${version.key})`)
-      .join(" · ");
-  }, [transposedVersions]);
 
   const canSaveVariant =
     Boolean(originalVersion) && currentKey !== originalVersion?.key;

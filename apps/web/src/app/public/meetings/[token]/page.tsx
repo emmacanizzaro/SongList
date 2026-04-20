@@ -1,10 +1,9 @@
 "use client";
 
 import api from "@/lib/api";
+import { formatLongSpanishDateWithYear } from "@/lib/dates";
 import { Meeting, MeetingSong } from "@/types";
 import { useQuery } from "@tanstack/react-query";
-import { format } from "date-fns";
-import { es } from "date-fns/locale";
 import { AlertCircle, Calendar, Music2, Users2 } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
@@ -107,7 +106,7 @@ export default function PublicMeetingPage() {
             </h1>
             <p className="mt-2 flex items-center gap-1.5 text-sm text-slate-300">
               <Calendar className="w-4 h-4 shrink-0" />
-              {format(date, "EEEE d 'de' MMMM 'de' yyyy", { locale: es })}
+              {formatLongSpanishDateWithYear(date)}
             </p>
             {meeting.notes && (
               <p className="mt-3 text-sm text-slate-400 leading-relaxed border-t border-white/10 pt-3">

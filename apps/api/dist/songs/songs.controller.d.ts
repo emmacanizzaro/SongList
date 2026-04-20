@@ -6,22 +6,22 @@ export declare class SongsController {
     constructor(songsService: SongsService);
     create(churchId: string, userId: string, dto: CreateSongDto): Promise<{
         versions: {
-            type: import(".prisma/client").$Enums.VersionType;
             id: string;
             createdAt: Date;
             updatedAt: Date;
+            type: import(".prisma/client").$Enums.VersionType;
             notes: string | null;
             songId: string;
             key: string;
             lyricsChords: string;
         }[];
     } & {
-        title: string;
         id: string;
         churchId: string;
         createdAt: Date;
         updatedAt: Date;
         tags: string[];
+        title: string;
         createdById: string | null;
         artist: string | null;
         originalKey: string;
@@ -33,12 +33,12 @@ export declare class SongsController {
             versions: number;
         };
     } & {
-        title: string;
         id: string;
         churchId: string;
         createdAt: Date;
         updatedAt: Date;
         tags: string[];
+        title: string;
         createdById: string | null;
         artist: string | null;
         originalKey: string;
@@ -46,56 +46,56 @@ export declare class SongsController {
     })[]>;
     findOne(churchId: string, id: string): Promise<{
         versions: {
-            type: import(".prisma/client").$Enums.VersionType;
             id: string;
             createdAt: Date;
             updatedAt: Date;
+            type: import(".prisma/client").$Enums.VersionType;
             notes: string | null;
             songId: string;
             key: string;
             lyricsChords: string;
         }[];
     } & {
-        title: string;
         id: string;
         churchId: string;
         createdAt: Date;
         updatedAt: Date;
         tags: string[];
+        title: string;
         createdById: string | null;
         artist: string | null;
         originalKey: string;
         bpm: number | null;
     }>;
     update(churchId: string, id: string, dto: Partial<CreateSongDto>): Promise<{
-        title: string;
         id: string;
         churchId: string;
         createdAt: Date;
         updatedAt: Date;
         tags: string[];
+        title: string;
         createdById: string | null;
         artist: string | null;
         originalKey: string;
         bpm: number | null;
     }>;
     remove(churchId: string, id: string): Promise<{
-        title: string;
         id: string;
         churchId: string;
         createdAt: Date;
         updatedAt: Date;
         tags: string[];
+        title: string;
         createdById: string | null;
         artist: string | null;
         originalKey: string;
         bpm: number | null;
     }>;
     addVersion(churchId: string, songId: string, type: VersionType, targetKey: string, notes?: string): Promise<{
-        type: import(".prisma/client").$Enums.VersionType;
         id: string;
         createdAt: Date;
         updatedAt: Date;
+        type: import(".prisma/client").$Enums.VersionType;
         notes: string | null;
         songId: string;
         key: string;

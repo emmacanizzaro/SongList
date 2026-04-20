@@ -130,7 +130,6 @@ export class TranspositionService {
     const results: Array<{ key: string; lyricsChords: string }> = [];
 
     for (let semitones = 0; semitones < 12; semitones++) {
-      const preferFlat = false; // En la raíz de originalKey
       const newKey = this.transposeNote(
         this.extractRootFromKey(originalKey),
         semitones,

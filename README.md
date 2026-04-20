@@ -10,6 +10,8 @@
 - Monorepo publicado y versionado en GitHub
 - Frontend con UI moderna, dark mode y flujos de canciones/reuniones
 - Backend NestJS con multi-tenant, roles e invitaciones por enlace
+- Pipeline CI en GitHub Actions para lint, test, typecheck y build
+- Checklist operativo de calidad: ver `QUALITY_CHECKLIST.md`
 
 ---
 

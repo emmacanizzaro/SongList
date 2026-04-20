@@ -8,8 +8,11 @@ on:
 
 jobs:
   quality:
-    name: Typecheck and Build
+    name: Lint, Test, Typecheck and Build
     runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
 
     steps:
       - name: Checkout
@@ -26,6 +29,14 @@ jobs:
 
       - name: Generate Prisma client
         run: npm run db:generate
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/songlist?schema=public
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Test
+        run: npm run test
 
       - name: Typecheck API
         run: npx tsc --noEmit -p apps/api/tsconfig.json

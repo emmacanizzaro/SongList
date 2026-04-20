@@ -11,6 +11,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
+var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.StripeWebhookController = exports.SubscriptionsController = void 0;
 const openapi = require("@nestjs/swagger");
@@ -47,7 +48,7 @@ exports.SubscriptionsController = SubscriptionsController;
 __decorate([
     (0, common_1.Get)(),
     (0, swagger_1.ApiOperation)({ summary: 'Obtener plan y estado de suscripción' }),
-    openapi.ApiResponse({ status: 200 }),
+    openapi.ApiResponse({ status: 200, type: Object }),
     __param(0, (0, tenant_decorator_1.CurrentTenant)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
@@ -62,7 +63,7 @@ __decorate([
     __param(1, (0, current_user_decorator_1.CurrentUser)('email')),
     __param(2, (0, common_1.Body)('plan')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String, String]),
+    __metadata("design:paramtypes", [String, String, typeof (_a = typeof client_1.PlanType !== "undefined" && client_1.PlanType) === "function" ? _a : Object]),
     __metadata("design:returntype", void 0)
 ], SubscriptionsController.prototype, "createCheckout", null);
 __decorate([

@@ -6,7 +6,7 @@ import { PlanType, Subscription } from "@/types";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { Check, CreditCard, Loader2, Sparkles } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect } from "react";
+import { Suspense, useEffect } from "react";
 import toast from "react-hot-toast";
 
 const PLAN_CARDS: Array<{
@@ -54,7 +54,7 @@ const PLAN_CARDS: Array<{
   },
 ];
 
-export default function BillingPage() {
+function BillingPageContent() {
   const { user } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -303,6 +303,20 @@ export default function BillingPage() {
         </section>
       </div>
     </div>
+  );
+}
+
+export default function BillingPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-[40vh] items-center justify-center">
+          <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-brand-700" />
+        </div>
+      }
+    >
+      <BillingPageContent />
+    </Suspense>
   );
 }
 

@@ -26,23 +26,23 @@ export declare class ChurchesController {
             meetings: number;
         };
     } & {
-        name: string;
-        description: string | null;
         id: string;
         createdAt: Date;
+        name: string;
         updatedAt: Date;
         slug: string;
         logoUrl: string | null;
+        description: string | null;
         timezone: string;
     }>;
     update(churchId: string, dto: CreateChurchDto): Promise<{
-        name: string;
-        description: string | null;
         id: string;
         createdAt: Date;
+        name: string;
         updatedAt: Date;
         slug: string;
         logoUrl: string | null;
+        description: string | null;
         timezone: string;
     }>;
     getStats(churchId: string): Promise<{
@@ -60,17 +60,17 @@ export declare class ChurchesController {
             } & {
                 id: string;
                 notes: string | null;
+                meetingId: string;
                 songId: string;
                 order: number;
                 keyOverride: string | null;
-                meetingId: string;
             })[];
         } & {
-            title: string;
             id: string;
             churchId: string;
             createdAt: Date;
             updatedAt: Date;
+            title: string;
             date: Date;
             notes: string | null;
             isPublic: boolean;
@@ -80,9 +80,9 @@ export declare class ChurchesController {
     }>;
     getMembers(churchId: string): Promise<({
         user: {
-            name: string;
-            email: string;
             id: string;
+            email: string;
+            name: string;
             avatarUrl: string | null;
         };
     } & {
@@ -94,9 +94,9 @@ export declare class ChurchesController {
     })[]>;
     inviteMember(churchId: string, role: MemberRole, email: string, memberRole: MemberRole): Promise<{
         user: {
-            name: string;
-            email: string;
             id: string;
+            email: string;
+            name: string;
         };
     } & {
         id: string;

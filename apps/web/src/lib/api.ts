@@ -6,7 +6,7 @@ import Cookies from "js-cookie";
 // ============================================================
 
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001",
+  baseURL: "/",
   headers: { "Content-Type": "application/json" },
   withCredentials: false,
 });
@@ -64,10 +64,9 @@ api.interceptors.response.use(
     }
 
     try {
-      const { data } = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/v1/auth/refresh`,
-        { refreshToken },
-      );
+      const { data } = await axios.post("/api/v1/auth/refresh", {
+        refreshToken,
+      });
       Cookies.set("accessToken", data.accessToken, {
         secure: true,
         sameSite: "Strict",

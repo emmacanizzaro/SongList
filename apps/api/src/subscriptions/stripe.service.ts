@@ -1,4 +1,8 @@
-import { Injectable, Logger } from "@nestjs/common";
+import {
+  Injectable,
+  Logger,
+  ServiceUnavailableException,
+} from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { PlanType } from "@prisma/client";
 import Stripe from "stripe";
@@ -6,16 +10,41 @@ import { PrismaService } from "../prisma/prisma.service";
 
 @Injectable()
 export class StripeService {
-  private stripe: Stripe;
+  private stripe: Stripe | null = null;
   private readonly logger = new Logger(StripeService.name);
 
   constructor(
     private config: ConfigService,
     private prisma: PrismaService,
   ) {
-    this.stripe = new Stripe(config.getOrThrow("STRIPE_SECRET_KEY"), {
-      apiVersion: "2023-10-16",
-    });
+    const secretKey = config.get<string>("STRIPE_SECRET_KEY");
+
+    if (!secretKey) {
+      this.logger.warn("Stripe deshabilitado: falta STRIPE_SECRET_KEY");
+      return;
+    }
+
+    try {
+      this.stripe = new Stripe(secretKey, {
+        apiVersion: "2023-10-16",
+      });
+    } catch (error) {
+      this.logger.error(
+        "Stripe no pudo inicializarse. Se deshabilita billing.",
+        error as Error,
+      );
+      this.stripe = null;
+    }
+  }
+
+  private getStripeClient(): Stripe {
+    if (!this.stripe) {
+      throw new ServiceUnavailableException(
+        "Stripe no está disponible en este entorno",
+      );
+    }
+
+    return this.stripe;
   }
 
   // ── Crear sesión de checkout ──────────────────────────────
@@ -27,9 +56,10 @@ export class StripeService {
     successUrl: string,
     cancelUrl: string,
   ): Promise<Stripe.Checkout.Session> {
+    const stripe = this.getStripeClient();
     const priceId = this.getPriceId(plan);
 
-    const session = await this.stripe.checkout.sessions.create({
+    const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       mode: "subscription",
       customer_email: customerEmail,
@@ -52,7 +82,9 @@ export class StripeService {
     stripeCustomerId: string,
     returnUrl: string,
   ): Promise<Stripe.BillingPortal.Session> {
-    return this.stripe.billingPortal.sessions.create({
+    const stripe = this.getStripeClient();
+
+    return stripe.billingPortal.sessions.create({
       customer: stripeCustomerId,
       return_url: returnUrl,
     });
@@ -61,15 +93,12 @@ export class StripeService {
   // ── Webhook handler ──────────────────────────────────────
 
   async handleWebhook(payload: Buffer, signature: string): Promise<void> {
+    const stripe = this.getStripeClient();
     const webhookSecret = this.config.getOrThrow("STRIPE_WEBHOOK_SECRET");
     let event: Stripe.Event;
 
     try {
-      event = this.stripe.webhooks.constructEvent(
-        payload,
-        signature,
-        webhookSecret,
-      );
+      event = stripe.webhooks.constructEvent(payload, signature, webhookSecret);
     } catch (err) {
       this.logger.error("Stripe webhook signature inválida", err);
       throw new Error("Webhook signature inválida");
@@ -100,11 +129,12 @@ export class StripeService {
   }
 
   private async handleCheckoutCompleted(session: Stripe.Checkout.Session) {
+    const stripe = this.getStripeClient();
     const churchId = session.metadata?.churchId;
     const plan = session.metadata?.plan as PlanType;
     if (!churchId || !plan) return;
 
-    const subscription = await this.stripe.subscriptions.retrieve(
+    const subscription = await stripe.subscriptions.retrieve(
       session.subscription as string,
     );
 
