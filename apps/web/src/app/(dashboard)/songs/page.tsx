@@ -1,9 +1,11 @@
 "use client";
 
+import { useAuth } from "@/hooks/useAuth";
+import { useEntitlements } from "@/hooks/useEntitlements";
 import { songsApi } from "@/lib/api";
 import { Song } from "@/types";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowRight, Music2, Plus, Search, Tag, X } from "lucide-react";
+import { ArrowRight, Crown, Music2, Plus, Search, Tag, X } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 
@@ -57,8 +59,17 @@ function sortKeys(keys: string[]): string[] {
 }
 
 export default function SongsPage() {
+  const { user } = useAuth();
   const [search, setSearch] = useState("");
   const [keyFilter, setKeyFilter] = useState("");
+  const isAdmin = user?.currentRole === "ADMIN";
+  const { entitlements } = useEntitlements(Boolean(user));
+
+  const songsQuota = entitlements?.quotas.songs;
+  const hasSongsLimitReached = Boolean(
+    songsQuota && !songsQuota.unlimited && (songsQuota.remaining ?? 0) <= 0,
+  );
+  const createSongHref = hasSongsLimitReached ? "/settings/billing" : "/songs/new";
 
   const { data: songs = [], isLoading } = useQuery<Song[]>({
     queryKey: ["songs", search],
@@ -96,11 +107,20 @@ export default function SongsPage() {
               </p>
             </div>
             <Link
-              href="/songs/new"
+              href={createSongHref}
               className="btn-primary self-start lg:self-auto"
             >
-              <Plus className="h-4 w-4" />
-              Nueva canción
+              {hasSongsLimitReached ? (
+                <>
+                  <Crown className="h-4 w-4" />
+                  Desbloquear canciones
+                </>
+              ) : (
+                <>
+                  <Plus className="h-4 w-4" />
+                  Nueva canción
+                </>
+              )}
             </Link>
           </div>
 
@@ -154,6 +174,14 @@ export default function SongsPage() {
                     </span>
                   )}
                 </div>
+
+                {songsQuota && (
+                  <div className="rounded-2xl border border-white/10 bg-white/6 px-4 py-3 text-sm text-slate-200 shrink-0">
+                    {songsQuota.unlimited
+                      ? "Sin límite"
+                      : `${songsQuota.used}/${songsQuota.limit} canciones`}
+                  </div>
+                )}
               </div>
             </div>
 
@@ -166,16 +194,27 @@ export default function SongsPage() {
                 detalle luego podrás transponer y generar variantes.
               </p>
               <Link
-                href="/songs/new"
+                href={createSongHref}
                 className="mt-4 inline-flex items-center gap-2 text-sm font-medium text-accent-300 transition-colors hover:text-accent-200"
               >
-                Abrir alta de canción
+                {hasSongsLimitReached
+                  ? "Ver planes para agregar más"
+                  : "Abrir alta de canción"}
                 <ArrowRight className="h-4 w-4" />
               </Link>
             </div>
           </div>
         </div>
       </section>
+
+      {hasSongsLimitReached && (
+        <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:border-amber-900 dark:bg-amber-950/60 dark:text-amber-200">
+          Alcanzaste el límite de canciones del plan actual.
+          {isAdmin
+            ? " Actualiza en billing para seguir cargando repertorio."
+            : " Pide a un Admin actualizar el plan para seguir cargando repertorio."}
+        </div>
+      )}
 
       {isLoading ? (
         <div className="space-y-3">
@@ -213,9 +252,18 @@ export default function SongsPage() {
             </button>
           ) : (
             !search && (
-              <Link href="/songs/new" className="btn-primary mt-5 inline-flex">
-                <Plus className="h-4 w-4" />
-                Agregar canción
+              <Link href={createSongHref} className="btn-primary mt-5 inline-flex">
+                {hasSongsLimitReached ? (
+                  <>
+                    <Crown className="h-4 w-4" />
+                    Ver planes
+                  </>
+                ) : (
+                  <>
+                    <Plus className="h-4 w-4" />
+                    Agregar canción
+                  </>
+                )}
               </Link>
             )
           )}

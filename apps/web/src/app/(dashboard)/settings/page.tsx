@@ -1,10 +1,19 @@
 "use client";
 
 import { useAuth } from "@/hooks/useAuth";
+import { useEntitlements } from "@/hooks/useEntitlements";
 import { churchApi } from "@/lib/api";
 import { Membership } from "@/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Link2, ShieldCheck, Trash2, UserPlus, Users } from "lucide-react";
+import {
+  Crown,
+  Link2,
+  ShieldCheck,
+  Trash2,
+  UserPlus,
+  Users,
+} from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
@@ -28,6 +37,13 @@ export default function SettingsPage() {
   }, [user, router]);
 
   const canManageMembers = user?.currentRole === "ADMIN";
+  const { entitlements } = useEntitlements(Boolean(user));
+  const membersQuota = entitlements?.quotas.members;
+  const hasMembersLimitReached = Boolean(
+    membersQuota &&
+      !membersQuota.unlimited &&
+      (membersQuota.remaining ?? 0) <= 0,
+  );
 
   const { data: stats, isLoading: loadingStats } = useQuery<ChurchStats>({
     queryKey: ["settings-stats"],
@@ -144,6 +160,11 @@ export default function SettingsPage() {
           <p className="mt-2 text-3xl font-semibold text-brand-700 dark:text-brand-300">
             {stats?.membersCount ?? 0}
           </p>
+          {membersQuota && !membersQuota.unlimited && (
+            <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+              Límite: {membersQuota.limit}
+            </p>
+          )}
         </div>
         <div className="card p-5">
           <p className="text-sm text-slate-500 dark:text-slate-400">
@@ -238,12 +259,25 @@ export default function SettingsPage() {
 
             {canManageMembers ? (
               <div className="space-y-3">
+                {hasMembersLimitReached && (
+                  <div className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800 dark:border-amber-900 dark:bg-amber-950/50 dark:text-amber-200">
+                    Alcanzaste el límite de integrantes del plan.
+                    <Link
+                      href="/settings/billing"
+                      className="ml-1 font-semibold underline-offset-2 hover:underline"
+                    >
+                      Ver planes
+                    </Link>
+                  </div>
+                )}
+
                 <input
                   type="email"
                   className="input"
                   placeholder="email@iglesia.com"
                   value={inviteEmail}
                   onChange={(event) => setInviteEmail(event.target.value)}
+                  disabled={hasMembersLimitReached}
                 />
                 <select
                   className="input"
@@ -251,6 +285,7 @@ export default function SettingsPage() {
                   onChange={(event) =>
                     setInviteRole(event.target.value as "EDITOR" | "READER")
                   }
+                  disabled={hasMembersLimitReached}
                 >
                   <option value="EDITOR">Editor (puede crear/editar)</option>
                   <option value="READER">Visualizador (solo lectura)</option>
@@ -258,18 +293,35 @@ export default function SettingsPage() {
 
                 <button
                   className="btn-primary w-full disabled:cursor-not-allowed disabled:opacity-60"
-                  disabled={!inviteEmail || inviteMutation.isPending}
+                  disabled={
+                    !inviteEmail ||
+                    inviteMutation.isPending ||
+                    hasMembersLimitReached
+                  }
                   onClick={() => inviteMutation.mutate()}
                 >
-                  <UserPlus className="h-4 w-4" />
-                  {inviteMutation.isPending
-                    ? "Agregando..."
-                    : "Agregar integrante"}
+                  {hasMembersLimitReached ? (
+                    <>
+                      <Crown className="h-4 w-4" />
+                      Límite alcanzado
+                    </>
+                  ) : (
+                    <>
+                      <UserPlus className="h-4 w-4" />
+                      {inviteMutation.isPending
+                        ? "Agregando..."
+                        : "Agregar integrante"}
+                    </>
+                  )}
                 </button>
 
                 <button
                   className="btn-secondary w-full disabled:cursor-not-allowed disabled:opacity-60"
-                  disabled={!inviteEmail || inviteLinkMutation.isPending}
+                  disabled={
+                    !inviteEmail ||
+                    inviteLinkMutation.isPending ||
+                    hasMembersLimitReached
+                  }
                   onClick={() => inviteLinkMutation.mutate()}
                 >
                   <Link2 className="h-4 w-4" />

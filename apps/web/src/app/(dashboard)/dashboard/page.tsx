@@ -1,12 +1,14 @@
 "use client";
 
 import { useAuth } from "@/hooks/useAuth";
+import { useEntitlements } from "@/hooks/useEntitlements";
 import { churchApi } from "@/lib/api";
 import { formatLongSpanishDate } from "@/lib/dates";
 import { useQuery } from "@tanstack/react-query";
 import {
   ArrowRight,
   Calendar,
+  Crown,
   Music2,
   Plus,
   Sparkles,
@@ -17,6 +19,19 @@ import Link from "next/link";
 
 export default function DashboardPage() {
   const { user } = useAuth();
+  const isAdmin = user?.currentRole === "ADMIN";
+  const { entitlements } = useEntitlements(Boolean(user));
+
+  const songsQuota = entitlements?.quotas.songs;
+  const membersQuota = entitlements?.quotas.members;
+  const hasSongsLimitReached = Boolean(
+    songsQuota && !songsQuota.unlimited && (songsQuota.remaining ?? 0) <= 0,
+  );
+  const hasMembersLimitReached = Boolean(
+    membersQuota &&
+      !membersQuota.unlimited &&
+      (membersQuota.remaining ?? 0) <= 0,
+  );
 
   const { data: stats } = useQuery({
     queryKey: ["church-stats"],
@@ -45,9 +60,21 @@ export default function DashboardPage() {
             </div>
 
             <div className="flex flex-wrap gap-3 xl:justify-end">
-              <Link href="/songs/new" className="btn-primary">
-                <Plus className="h-4 w-4" />
-                Nueva canción
+              <Link
+                href={hasSongsLimitReached ? "/settings/billing" : "/songs/new"}
+                className="btn-primary"
+              >
+                {hasSongsLimitReached ? (
+                  <>
+                    <Crown className="h-4 w-4" />
+                    Ver planes
+                  </>
+                ) : (
+                  <>
+                    <Plus className="h-4 w-4" />
+                    Nueva canción
+                  </>
+                )}
               </Link>
               <Link
                 href="/meetings/new"
@@ -99,6 +126,24 @@ export default function DashboardPage() {
               />
             </div>
           </div>
+
+          {(hasSongsLimitReached || hasMembersLimitReached) && (
+            <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:border-amber-900 dark:bg-amber-950/60 dark:text-amber-200">
+              {hasSongsLimitReached && "Límite de canciones alcanzado. "}
+              {hasMembersLimitReached && "Límite de integrantes alcanzado. "}
+              {isAdmin
+                ? "Actualiza tu plan para desbloquear crecimiento."
+                : "Solicita a un Admin actualizar el plan."}
+              {isAdmin && (
+                <Link
+                  href="/settings/billing"
+                  className="ml-1 font-semibold underline-offset-2 hover:underline"
+                >
+                  Ir a billing
+                </Link>
+              )}
+            </div>
+          )}
         </div>
       </section>
 
@@ -112,10 +157,12 @@ export default function DashboardPage() {
           </p>
         </div>
         <Link
-          href="/songs/new"
+          href={hasSongsLimitReached ? "/settings/billing" : "/songs/new"}
           className="inline-flex items-center gap-2 text-sm font-medium text-brand-700 transition-colors hover:text-brand-600 dark:text-brand-300 dark:hover:text-brand-200"
         >
-          Empezar cargando repertorio
+          {hasSongsLimitReached
+            ? "Desbloquear creación de canciones"
+            : "Empezar cargando repertorio"}
           <ArrowRight className="h-4 w-4" />
         </Link>
       </section>

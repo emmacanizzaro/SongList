@@ -1,8 +1,10 @@
 "use client";
 
+import { useAuth } from "@/hooks/useAuth";
+import { useEntitlements } from "@/hooks/useEntitlements";
 import { songsApi } from "@/lib/api";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowLeft, Info, Music2, Save } from "lucide-react";
+import { ArrowLeft, Crown, Info, Music2, Save } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -30,8 +32,16 @@ type CreateSongInput = z.infer<typeof createSongSchema>;
 const KEYS = ["C", "C#", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B"];
 
 export default function NewSongPage() {
+  const { user } = useAuth();
   const router = useRouter();
   const [error, setError] = useState("");
+  const isAdmin = user?.currentRole === "ADMIN";
+  const { entitlements } = useEntitlements(Boolean(user));
+
+  const songsQuota = entitlements?.quotas.songs;
+  const hasSongsLimitReached = Boolean(
+    songsQuota && !songsQuota.unlimited && (songsQuota.remaining ?? 0) <= 0,
+  );
 
   const {
     register,
@@ -53,6 +63,13 @@ export default function NewSongPage() {
 
   const onSubmit = async (data: CreateSongInput) => {
     setError("");
+
+    if (hasSongsLimitReached) {
+      setError(
+        "Tu plan alcanzó el límite de canciones. Actualiza para seguir agregando repertorio.",
+      );
+      return;
+    }
 
     try {
       const response = await songsApi.create({
@@ -115,6 +132,28 @@ export default function NewSongPage() {
             {error && (
               <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-900 dark:bg-red-950 dark:text-red-200">
                 {error}
+              </div>
+            )}
+
+            {hasSongsLimitReached && (
+              <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:border-amber-900 dark:bg-amber-950/60 dark:text-amber-200">
+                Llegaste al límite de canciones para tu plan. Para cargar nuevas,
+                actualiza tu suscripción.
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <Link href="/songs" className="btn-secondary">
+                    Volver a canciones
+                  </Link>
+                  {isAdmin ? (
+                    <Link href="/settings/billing" className="btn-primary">
+                      <Crown className="h-4 w-4" />
+                      Ver planes
+                    </Link>
+                  ) : (
+                    <span className="rounded-xl border border-amber-300/70 px-3 py-2 text-xs font-medium dark:border-amber-800">
+                      Solo Admin puede cambiar el plan
+                    </span>
+                  )}
+                </div>
               </div>
             )}
 
@@ -241,11 +280,15 @@ export default function NewSongPage() {
                 </button>
                 <button
                   type="submit"
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || hasSongsLimitReached}
                   className="btn-primary disabled:translate-y-0 disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   <Save className="h-4 w-4" />
-                  {isSubmitting ? "Guardando..." : "Guardar canción"}
+                  {isSubmitting
+                    ? "Guardando..."
+                    : hasSongsLimitReached
+                      ? "Límite alcanzado"
+                      : "Guardar canción"}
                 </button>
               </div>
             </div>
@@ -296,6 +339,24 @@ export default function NewSongPage() {
               )}
             </div>
           </div>
+
+          {songsQuota && (
+            <div className="card p-6">
+              <div className="text-sm font-semibold text-slate-900 dark:text-white">
+                Cuota de canciones
+              </div>
+              <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
+                {songsQuota.unlimited
+                  ? `${songsQuota.used} registradas · sin límite`
+                  : `${songsQuota.used} de ${songsQuota.limit} en uso`}
+              </p>
+              {!songsQuota.unlimited && (
+                <p className="mt-1 text-xs text-slate-400 dark:text-slate-500">
+                  {songsQuota.remaining ?? 0} disponibles en tu plan actual.
+                </p>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>
