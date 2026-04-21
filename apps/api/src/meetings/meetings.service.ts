@@ -166,11 +166,33 @@ export class MeetingsService {
   // ── Asignaciones ─────────────────────────────────────────
 
   async assignMusician(
+    churchId: string,
     meetingId: string,
     userId: string,
     instrumentId: string,
     notes?: string,
   ) {
+    await this.assertBelongsToChurch(meetingId, churchId);
+
+    const [membership, instrument] = await this.prisma.$transaction([
+      this.prisma.membership.findFirst({
+        where: { churchId, userId },
+        select: { id: true },
+      }),
+      this.prisma.instrument.findFirst({
+        where: { id: instrumentId, churchId },
+        select: { id: true },
+      }),
+    ]);
+
+    if (!membership) {
+      throw new NotFoundException("Miembro no encontrado en esta iglesia");
+    }
+
+    if (!instrument) {
+      throw new NotFoundException("Instrumento no encontrado en esta iglesia");
+    }
+
     return this.prisma.assignment.upsert({
       where: {
         meetingId_userId_instrumentId: { meetingId, userId, instrumentId },
@@ -184,7 +206,18 @@ export class MeetingsService {
     });
   }
 
-  async unassignMusician(meetingId: string, assignmentId: string) {
+  async unassignMusician(
+    churchId: string,
+    meetingId: string,
+    assignmentId: string,
+  ) {
+    await this.assertBelongsToChurch(meetingId, churchId);
+    await this.assertAssignmentBelongsToMeeting(
+      assignmentId,
+      meetingId,
+      churchId,
+    );
+
     return this.prisma.assignment.delete({ where: { id: assignmentId } });
   }
 
@@ -224,5 +257,24 @@ export class MeetingsService {
       where: { id: meetingId, churchId },
     });
     if (!m) throw new NotFoundException("Reunión no encontrada");
+  }
+
+  private async assertAssignmentBelongsToMeeting(
+    assignmentId: string,
+    meetingId: string,
+    churchId: string,
+  ) {
+    const assignment = await this.prisma.assignment.findFirst({
+      where: {
+        id: assignmentId,
+        meetingId,
+        meeting: { churchId },
+      },
+      select: { id: true },
+    });
+
+    if (!assignment) {
+      throw new NotFoundException("Asignación no encontrada");
+    }
   }
 }
