@@ -53,6 +53,7 @@ export default function MeetingDetailPage() {
   const [songNotes, setSongNotes] = useState("");
   const [assignUserId, setAssignUserId] = useState("");
   const [assignInstrumentId, setAssignInstrumentId] = useState("");
+  const [assignNotes, setAssignNotes] = useState("");
   const [removingSongId, setRemovingSongId] = useState<string | null>(null);
   const [removingAssignmentId, setRemovingAssignmentId] = useState<
     string | null
@@ -91,6 +92,8 @@ export default function MeetingDetailPage() {
     () => members.filter((m) => !assignedUserIds.has(m.userId)),
     [members, assignedUserIds],
   );
+  const hasAssignableMembers = availableMembers.length > 0;
+  const hasAvailableInstruments = instruments.length > 0;
 
   const availableSongs = useMemo(() => {
     if (!meeting) return songs;
@@ -144,6 +147,9 @@ export default function MeetingDetailPage() {
   const reorderMutation = useMutation({
     mutationFn: (orderedSongIds: string[]) =>
       meetingsApi.reorderSongs(id, orderedSongIds),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["meeting", id] });
+    },
     onError: () => {
       if (meeting) setOrderedSongs(meeting.meetingSongs);
       toast.error("No se pudo reordenar");
@@ -210,6 +216,27 @@ export default function MeetingDetailPage() {
     },
   });
 
+  async function handleShareClick() {
+    if (meeting?.shareToken) {
+      const url = `${window.location.origin}/public/meetings/${meeting.shareToken}`;
+      try {
+        const copied = await copyShareUrl(url);
+        if (copied) {
+          toast.success("¡Link listo para compartir!");
+        } else {
+          toast.success("Link disponible para compartir.");
+        }
+      } catch {
+        toast.success(
+          "Link disponible. Si no se copió automáticamente, cópialo manualmente.",
+        );
+      }
+      return;
+    }
+
+    shareMutation.mutate();
+  }
+
   const addSongMutation = useMutation({
     mutationFn: () =>
       meetingsApi.addSong(id, {
@@ -258,12 +285,16 @@ export default function MeetingDetailPage() {
       meetingsApi.removeSong(id, meetingSongId),
     onMutate: (meetingSongId: string) => {
       setRemovingSongId(meetingSongId);
+      setOrderedSongs((prev) =>
+        prev.filter((song) => song.id !== meetingSongId),
+      );
     },
     onSuccess: async () => {
       toast.success("Canción eliminada de la reunión");
       await queryClient.invalidateQueries({ queryKey: ["meeting", id] });
     },
     onError: () => {
+      if (meeting) setOrderedSongs(meeting.meetingSongs);
       toast.error("No se pudo eliminar la canción");
     },
     onSettled: () => {
@@ -276,11 +307,13 @@ export default function MeetingDetailPage() {
       meetingsApi.assign(id, {
         userId: assignUserId,
         instrumentId: assignInstrumentId,
+        notes: assignNotes || undefined,
       }),
     onSuccess: async () => {
       toast.success("Músico asignado");
       setAssignUserId("");
       setAssignInstrumentId("");
+      setAssignNotes("");
       await queryClient.invalidateQueries({ queryKey: ["meeting", id] });
     },
     onError: (error: any) => {
@@ -378,7 +411,7 @@ export default function MeetingDetailPage() {
                   </button>
                 ) : canShareLinks ? (
                   <button
-                    onClick={() => shareMutation.mutate()}
+                    onClick={handleShareClick}
                     disabled={shareMutation.isPending}
                     className="btn-secondary border-white/10 bg-white/8 text-white hover:bg-white/12"
                   >
@@ -483,7 +516,7 @@ export default function MeetingDetailPage() {
               </button>
             </div>
 
-            {meeting.meetingSongs.length === 0 ? (
+            {orderedSongs.length === 0 ? (
               <div className="card p-8 text-center text-sm text-gray-400 dark:text-slate-400">
                 No hay canciones. Agrega la primera.
               </div>
@@ -543,6 +576,7 @@ export default function MeetingDetailPage() {
                     className="input"
                     value={assignUserId}
                     onChange={(e) => setAssignUserId(e.target.value)}
+                    disabled={!hasAssignableMembers || assignMutation.isPending}
                   >
                     <option value="">Selecciona un miembro...</option>
                     {availableMembers.map((m) => (
@@ -555,6 +589,7 @@ export default function MeetingDetailPage() {
                     className="input"
                     value={assignInstrumentId}
                     onChange={(e) => setAssignInstrumentId(e.target.value)}
+                    disabled={!hasAvailableInstruments || assignMutation.isPending}
                   >
                     <option value="">Selecciona un instrumento...</option>
                     {instruments.map((inst) => (
@@ -564,10 +599,18 @@ export default function MeetingDetailPage() {
                       </option>
                     ))}
                   </select>
+                  <input
+                    className="input"
+                    placeholder="Nota opcional (ej: entra en coro)"
+                    value={assignNotes}
+                    onChange={(e) => setAssignNotes(e.target.value)}
+                  />
                   <button
                     disabled={
                       !assignUserId ||
                       !assignInstrumentId ||
+                      !hasAssignableMembers ||
+                      !hasAvailableInstruments ||
                       assignMutation.isPending
                     }
                     onClick={() => assignMutation.mutate()}
@@ -585,6 +628,16 @@ export default function MeetingDetailPage() {
                       </>
                     )}
                   </button>
+                  {!hasAssignableMembers && (
+                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                      Todos los miembros ya están asignados en esta reunión.
+                    </p>
+                  )}
+                  {!hasAvailableInstruments && (
+                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                      No hay instrumentos disponibles. Crea uno desde la sección de instrumentos.
+                    </p>
+                  )}
                 </div>
               </div>
             )}
@@ -608,6 +661,11 @@ export default function MeetingDetailPage() {
                       <p className="text-xs text-slate-400 dark:text-slate-500">
                         {a.instrument.name}
                       </p>
+                      {a.notes && (
+                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 truncate">
+                          {a.notes}
+                        </p>
+                      )}
                     </div>
                     {canEditMeetings && (
                       <button
