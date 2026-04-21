@@ -589,7 +589,9 @@ export default function MeetingDetailPage() {
                     className="input"
                     value={assignInstrumentId}
                     onChange={(e) => setAssignInstrumentId(e.target.value)}
-                    disabled={!hasAvailableInstruments || assignMutation.isPending}
+                    disabled={
+                      !hasAvailableInstruments || assignMutation.isPending
+                    }
                   >
                     <option value="">Selecciona un instrumento...</option>
                     {instruments.map((inst) => (
@@ -635,7 +637,8 @@ export default function MeetingDetailPage() {
                   )}
                   {!hasAvailableInstruments && (
                     <p className="text-xs text-slate-500 dark:text-slate-400">
-                      No hay instrumentos disponibles. Crea uno desde la sección de instrumentos.
+                      No hay instrumentos disponibles. Crea uno desde la sección
+                      de instrumentos.
                     </p>
                   )}
                 </div>
