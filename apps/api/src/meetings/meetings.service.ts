@@ -1,7 +1,12 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from "@nestjs/common";
 import { Prisma, VersionType } from "@prisma/client";
 import { v4 as uuidv4 } from "uuid";
 import { PrismaService } from "../prisma/prisma.service";
+import { EntitlementsService } from "../subscriptions/entitlements.service";
 import { CreateMeetingDto } from "./dto/create-meeting.dto";
 
 const MEETING_INCLUDE = Prisma.validator<Prisma.MeetingInclude>()({
@@ -25,7 +30,10 @@ const MEETING_INCLUDE = Prisma.validator<Prisma.MeetingInclude>()({
 
 @Injectable()
 export class MeetingsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private entitlements: EntitlementsService,
+  ) {}
 
   async create(churchId: string, userId: string, dto: CreateMeetingDto) {
     return this.prisma.meeting.create({
@@ -171,6 +179,13 @@ export class MeetingsService {
   // ── Compartir reunión (link público) ─────────────────────
 
   async generateShareLink(churchId: string, meetingId: string) {
+    const snapshot = await this.entitlements.getSnapshot(churchId);
+    if (!snapshot.features.canShareLinks) {
+      throw new ForbiddenException(
+        "Compartir por enlace es una función premium. Actualiza tu plan para habilitarla.",
+      );
+    }
+
     await this.assertBelongsToChurch(meetingId, churchId);
     const shareToken = uuidv4();
 

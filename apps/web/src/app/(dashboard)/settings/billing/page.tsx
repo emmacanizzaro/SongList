@@ -37,7 +37,7 @@ const PLAN_CARDS: Array<{
       "Integrantes y canciones ilimitadas",
       "Hasta 30 instrumentos",
       "Historial completo",
-      "Exportación PDF y soporte por email",
+      "Exportación PDF, compartir por enlace y soporte por email",
     ],
   },
   {

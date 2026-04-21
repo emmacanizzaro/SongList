@@ -29,8 +29,8 @@ export default function DashboardPage() {
   );
   const hasMembersLimitReached = Boolean(
     membersQuota &&
-      !membersQuota.unlimited &&
-      (membersQuota.remaining ?? 0) <= 0,
+    !membersQuota.unlimited &&
+    (membersQuota.remaining ?? 0) <= 0,
   );
 
   const { data: stats } = useQuery({
@@ -184,7 +184,7 @@ export default function DashboardPage() {
           icon={<Users className="h-5 w-5 text-emerald-600" />}
           label="Miembros"
           value={stats?.membersCount ?? 0}
-          href="/settings/members"
+          href="/settings"
         />
       </div>
 

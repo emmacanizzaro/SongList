@@ -1,18 +1,18 @@
-import { PlanType } from '@prisma/client';
+import { PlanType } from "@prisma/client";
 
 // ============================================================
 // LÍMITES POR PLAN - Fuente única de verdad para el negocio
 // ============================================================
 
 export interface PlanLimits {
-  maxMembers: number;          // -1 = ilimitado
-  maxSongs: number;            // -1 = ilimitado
+  maxMembers: number; // -1 = ilimitado
+  maxSongs: number; // -1 = ilimitado
   maxInstruments: number;
-  historyMonths: number;       // Meses de historial de reuniones
+  historyMonths: number; // Meses de historial de reuniones
   canExportPdf: boolean;
   canShareLinks: boolean;
   canMultiTeam: boolean;
-  supportPriority: 'community' | 'email' | 'priority';
+  supportPriority: "community" | "email" | "priority";
 }
 
 export const PLAN_LIMITS: Record<PlanType, PlanLimits> = {
@@ -22,9 +22,9 @@ export const PLAN_LIMITS: Record<PlanType, PlanLimits> = {
     maxInstruments: 6,
     historyMonths: 3,
     canExportPdf: false,
-    canShareLinks: true,
+    canShareLinks: false,
     canMultiTeam: false,
-    supportPriority: 'community',
+    supportPriority: "community",
   },
   [PlanType.PRO]: {
     maxMembers: -1,
@@ -34,7 +34,7 @@ export const PLAN_LIMITS: Record<PlanType, PlanLimits> = {
     canExportPdf: true,
     canShareLinks: true,
     canMultiTeam: false,
-    supportPriority: 'email',
+    supportPriority: "email",
   },
   [PlanType.ENTERPRISE]: {
     maxMembers: -1,
@@ -44,7 +44,7 @@ export const PLAN_LIMITS: Record<PlanType, PlanLimits> = {
     canExportPdf: true,
     canShareLinks: true,
     canMultiTeam: true,
-    supportPriority: 'priority',
+    supportPriority: "priority",
   },
 };
 
