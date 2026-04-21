@@ -13,6 +13,8 @@
     "test": "turbo run test",
     "lint": "turbo run lint",
     "check:all": "npm run lint && npm run build && npm run test",
+    "beta:check": "node scripts/beta-check.js",
+    "beta:check:full": "node scripts/beta-check.js --full",
     "db:migrate": "cd apps/api && npx prisma migrate dev",
     "db:studio": "cd apps/api && npx prisma studio",
     "db:generate": "cd apps/api && npx prisma generate",

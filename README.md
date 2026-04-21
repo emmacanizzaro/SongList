@@ -12,6 +12,7 @@
 - Backend NestJS con multi-tenant, roles e invitaciones por enlace
 - Pipeline CI en GitHub Actions para lint, test, typecheck y build
 - Checklist operativo de calidad: ver `QUALITY_CHECKLIST.md`
+- Checklist de release/deploy: ver `RELEASE_CHECKLIST.md`
 
 ---
 

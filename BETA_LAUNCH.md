@@ -85,6 +85,11 @@ Comandos CLI (desde la raiz del repo):
 
 ## 3) Checklist de salida a beta
 
+Validacion rapida automatizada:
+
+- `npm run beta:check`
+- `npm run beta:check:full` (incluye `check:all`)
+
 - Login y registro funcionan en URL publica.
 - Crear cancion funciona.
 - Ver detalle y transponer funciona.
