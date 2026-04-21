@@ -1,4 +1,5 @@
 import {
+  ConflictException,
   ForbiddenException,
   Injectable,
   NotFoundException,
@@ -118,13 +119,24 @@ export class MeetingsService {
     await this.assertBelongsToChurch(meetingId, churchId);
 
     const count = await this.prisma.meetingSong.count({ where: { meetingId } });
-
-    return this.prisma.meetingSong.create({
-      data: { meetingId, songId, order: count + 1, keyOverride, notes },
-      include: {
-        song: { select: { id: true, title: true, originalKey: true } },
-      },
-    });
+    try {
+      return await this.prisma.meetingSong.create({
+        data: { meetingId, songId, order: count + 1, keyOverride, notes },
+        include: {
+          song: { select: { id: true, title: true, originalKey: true } },
+        },
+      });
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === "P2002"
+      ) {
+        throw new ConflictException(
+          "Esa canción ya está agregada a la reunión",
+        );
+      }
+      throw error;
+    }
   }
 
   async reorderSongs(
@@ -154,11 +166,33 @@ export class MeetingsService {
   // ── Asignaciones ─────────────────────────────────────────
 
   async assignMusician(
+    churchId: string,
     meetingId: string,
     userId: string,
     instrumentId: string,
     notes?: string,
   ) {
+    await this.assertBelongsToChurch(meetingId, churchId);
+
+    const [membership, instrument] = await this.prisma.$transaction([
+      this.prisma.membership.findFirst({
+        where: { churchId, userId },
+        select: { id: true },
+      }),
+      this.prisma.instrument.findFirst({
+        where: { id: instrumentId, churchId },
+        select: { id: true },
+      }),
+    ]);
+
+    if (!membership) {
+      throw new NotFoundException("Miembro no encontrado en esta iglesia");
+    }
+
+    if (!instrument) {
+      throw new NotFoundException("Instrumento no encontrado en esta iglesia");
+    }
+
     return this.prisma.assignment.upsert({
       where: {
         meetingId_userId_instrumentId: { meetingId, userId, instrumentId },
@@ -172,7 +206,18 @@ export class MeetingsService {
     });
   }
 
-  async unassignMusician(meetingId: string, assignmentId: string) {
+  async unassignMusician(
+    churchId: string,
+    meetingId: string,
+    assignmentId: string,
+  ) {
+    await this.assertBelongsToChurch(meetingId, churchId);
+    await this.assertAssignmentBelongsToMeeting(
+      assignmentId,
+      meetingId,
+      churchId,
+    );
+
     return this.prisma.assignment.delete({ where: { id: assignmentId } });
   }
 
@@ -212,5 +257,24 @@ export class MeetingsService {
       where: { id: meetingId, churchId },
     });
     if (!m) throw new NotFoundException("Reunión no encontrada");
+  }
+
+  private async assertAssignmentBelongsToMeeting(
+    assignmentId: string,
+    meetingId: string,
+    churchId: string,
+  ) {
+    const assignment = await this.prisma.assignment.findFirst({
+      where: {
+        id: assignmentId,
+        meetingId,
+        meeting: { churchId },
+      },
+      select: { id: true },
+    });
+
+    if (!assignment) {
+      throw new NotFoundException("Asignación no encontrada");
+    }
   }
 }

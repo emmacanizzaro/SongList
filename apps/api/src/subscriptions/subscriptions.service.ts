@@ -1,13 +1,15 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
-import { StripeService } from './stripe.service';
-import { getPlanLimits, PlanLimits } from './plan-limits';
-import { PlanType } from '@prisma/client';
+import { Injectable, NotFoundException } from "@nestjs/common";
+import { PlanType } from "@prisma/client";
+import { PrismaService } from "../prisma/prisma.service";
+import { EntitlementsService } from "./entitlements.service";
+import { getPlanLimits, PlanLimits } from "./plan-limits";
+import { StripeService } from "./stripe.service";
 
 @Injectable()
 export class SubscriptionsService {
   constructor(
     private prisma: PrismaService,
+    private entitlements: EntitlementsService,
     private stripe: StripeService,
   ) {}
 
@@ -15,7 +17,7 @@ export class SubscriptionsService {
     const sub = await this.prisma.subscription.findUnique({
       where: { churchId },
     });
-    if (!sub) throw new NotFoundException('Suscripción no encontrada');
+    if (!sub) throw new NotFoundException("Suscripción no encontrada");
 
     return {
       ...sub,
@@ -24,11 +26,11 @@ export class SubscriptionsService {
   }
 
   async getLimits(churchId: string): Promise<PlanLimits> {
-    const sub = await this.prisma.subscription.findUnique({
-      where: { churchId },
-      select: { plan: true },
-    });
-    return getPlanLimits(sub?.plan ?? PlanType.FREE);
+    return this.entitlements.getLimits(churchId);
+  }
+
+  async getEntitlements(churchId: string) {
+    return this.entitlements.getSnapshot(churchId);
   }
 
   async createCheckout(
@@ -53,7 +55,9 @@ export class SubscriptionsService {
       select: { stripeCustomerId: true },
     });
     if (!sub?.stripeCustomerId) {
-      throw new NotFoundException('No existe sesión de Stripe para esta iglesia');
+      throw new NotFoundException(
+        "No existe sesión de Stripe para esta iglesia",
+      );
     }
     const session = await this.stripe.createCustomerPortalSession(
       sub.stripeCustomerId,

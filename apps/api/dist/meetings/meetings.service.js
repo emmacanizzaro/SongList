@@ -14,6 +14,7 @@ const common_1 = require("@nestjs/common");
 const client_1 = require("@prisma/client");
 const uuid_1 = require("uuid");
 const prisma_service_1 = require("../prisma/prisma.service");
+const entitlements_service_1 = require("../subscriptions/entitlements.service");
 const MEETING_INCLUDE = client_1.Prisma.validator()({
     meetingSongs: {
         include: {
@@ -33,8 +34,9 @@ const MEETING_INCLUDE = client_1.Prisma.validator()({
     },
 });
 let MeetingsService = class MeetingsService {
-    constructor(prisma) {
+    constructor(prisma, entitlements) {
         this.prisma = prisma;
+        this.entitlements = entitlements;
     }
     async create(churchId, userId, dto) {
         return this.prisma.meeting.create({
@@ -102,12 +104,21 @@ let MeetingsService = class MeetingsService {
     async addSong(churchId, meetingId, songId, keyOverride, notes) {
         await this.assertBelongsToChurch(meetingId, churchId);
         const count = await this.prisma.meetingSong.count({ where: { meetingId } });
-        return this.prisma.meetingSong.create({
-            data: { meetingId, songId, order: count + 1, keyOverride, notes },
-            include: {
-                song: { select: { id: true, title: true, originalKey: true } },
-            },
-        });
+        try {
+            return await this.prisma.meetingSong.create({
+                data: { meetingId, songId, order: count + 1, keyOverride, notes },
+                include: {
+                    song: { select: { id: true, title: true, originalKey: true } },
+                },
+            });
+        }
+        catch (error) {
+            if (error instanceof client_1.Prisma.PrismaClientKnownRequestError &&
+                error.code === "P2002") {
+                throw new common_1.ConflictException("Esa canción ya está agregada a la reunión");
+            }
+            throw error;
+        }
     }
     async reorderSongs(churchId, meetingId, orderedSongIds) {
         await this.assertBelongsToChurch(meetingId, churchId);
@@ -121,7 +132,24 @@ let MeetingsService = class MeetingsService {
         await this.assertBelongsToChurch(meetingId, churchId);
         return this.prisma.meetingSong.delete({ where: { id: meetingSongId } });
     }
-    async assignMusician(meetingId, userId, instrumentId, notes) {
+    async assignMusician(churchId, meetingId, userId, instrumentId, notes) {
+        await this.assertBelongsToChurch(meetingId, churchId);
+        const [membership, instrument] = await this.prisma.$transaction([
+            this.prisma.membership.findFirst({
+                where: { churchId, userId },
+                select: { id: true },
+            }),
+            this.prisma.instrument.findFirst({
+                where: { id: instrumentId, churchId },
+                select: { id: true },
+            }),
+        ]);
+        if (!membership) {
+            throw new common_1.NotFoundException("Miembro no encontrado en esta iglesia");
+        }
+        if (!instrument) {
+            throw new common_1.NotFoundException("Instrumento no encontrado en esta iglesia");
+        }
         return this.prisma.assignment.upsert({
             where: {
                 meetingId_userId_instrumentId: { meetingId, userId, instrumentId },
@@ -134,10 +162,16 @@ let MeetingsService = class MeetingsService {
             },
         });
     }
-    async unassignMusician(meetingId, assignmentId) {
+    async unassignMusician(churchId, meetingId, assignmentId) {
+        await this.assertBelongsToChurch(meetingId, churchId);
+        await this.assertAssignmentBelongsToMeeting(assignmentId, meetingId, churchId);
         return this.prisma.assignment.delete({ where: { id: assignmentId } });
     }
     async generateShareLink(churchId, meetingId) {
+        const snapshot = await this.entitlements.getSnapshot(churchId);
+        if (!snapshot.features.canShareLinks) {
+            throw new common_1.ForbiddenException("Compartir por enlace es una función premium. Actualiza tu plan para habilitarla.");
+        }
         await this.assertBelongsToChurch(meetingId, churchId);
         const shareToken = (0, uuid_1.v4)();
         return this.prisma.meeting.update({
@@ -163,10 +197,24 @@ let MeetingsService = class MeetingsService {
         if (!m)
             throw new common_1.NotFoundException("Reunión no encontrada");
     }
+    async assertAssignmentBelongsToMeeting(assignmentId, meetingId, churchId) {
+        const assignment = await this.prisma.assignment.findFirst({
+            where: {
+                id: assignmentId,
+                meetingId,
+                meeting: { churchId },
+            },
+            select: { id: true },
+        });
+        if (!assignment) {
+            throw new common_1.NotFoundException("Asignación no encontrada");
+        }
+    }
 };
 exports.MeetingsService = MeetingsService;
 exports.MeetingsService = MeetingsService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
+        entitlements_service_1.EntitlementsService])
 ], MeetingsService);
 //# sourceMappingURL=meetings.service.js.map

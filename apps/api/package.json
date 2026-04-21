@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "node dist/main",
+    "prebuild": "npm run db:generate",
     "build": "nest build",
     "start": "node dist/main",
     "start:dev": "nest start --watch",

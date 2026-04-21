@@ -8,17 +8,18 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SubscriptionsModule = void 0;
 const common_1 = require("@nestjs/common");
+const entitlements_service_1 = require("./entitlements.service");
+const stripe_service_1 = require("./stripe.service");
 const subscriptions_controller_1 = require("./subscriptions.controller");
 const subscriptions_service_1 = require("./subscriptions.service");
-const stripe_service_1 = require("./stripe.service");
 let SubscriptionsModule = class SubscriptionsModule {
 };
 exports.SubscriptionsModule = SubscriptionsModule;
 exports.SubscriptionsModule = SubscriptionsModule = __decorate([
     (0, common_1.Module)({
         controllers: [subscriptions_controller_1.SubscriptionsController, subscriptions_controller_1.StripeWebhookController],
-        providers: [subscriptions_service_1.SubscriptionsService, stripe_service_1.StripeService],
-        exports: [subscriptions_service_1.SubscriptionsService],
+        providers: [subscriptions_service_1.SubscriptionsService, stripe_service_1.StripeService, entitlements_service_1.EntitlementsService],
+        exports: [subscriptions_service_1.SubscriptionsService, entitlements_service_1.EntitlementsService],
     })
 ], SubscriptionsModule);
 //# sourceMappingURL=subscriptions.module.js.map

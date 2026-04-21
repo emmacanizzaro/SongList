@@ -1,13 +1,13 @@
 import { MemberRole } from "@prisma/client";
 import { PrismaService } from "../prisma/prisma.service";
-import { SubscriptionsService } from "../subscriptions/subscriptions.service";
+import { EntitlementsService } from "../subscriptions/entitlements.service";
 import { CreateChurchDto } from "./dto/create-church.dto";
 import { InviteEmailService } from "./invite-email.service";
 export declare class ChurchesService {
     private prisma;
-    private subscriptions;
+    private entitlements;
     private inviteEmail;
-    constructor(prisma: PrismaService, subscriptions: SubscriptionsService, inviteEmail: InviteEmailService);
+    constructor(prisma: PrismaService, entitlements: EntitlementsService, inviteEmail: InviteEmailService);
     findById(churchId: string): Promise<{
         subscription: {
             id: string;

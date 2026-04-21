@@ -12,11 +12,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.InstrumentsService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../prisma/prisma.service");
-const subscriptions_service_1 = require("../subscriptions/subscriptions.service");
+const entitlements_service_1 = require("../subscriptions/entitlements.service");
 let InstrumentsService = class InstrumentsService {
-    constructor(prisma, subscriptions) {
+    constructor(prisma, entitlements) {
         this.prisma = prisma;
-        this.subscriptions = subscriptions;
+        this.entitlements = entitlements;
     }
     async findAll(churchId) {
         return this.prisma.instrument.findMany({
@@ -26,13 +26,7 @@ let InstrumentsService = class InstrumentsService {
         });
     }
     async create(churchId, name, icon) {
-        const limits = await this.subscriptions.getLimits(churchId);
-        if (limits.maxInstruments !== -1) {
-            const count = await this.prisma.instrument.count({ where: { churchId } });
-            if (count >= limits.maxInstruments) {
-                throw new common_1.ForbiddenException(`Tu plan permite un máximo de ${limits.maxInstruments} instrumentos. Actualiza tu plan para agregar más.`);
-            }
-        }
+        await this.entitlements.assertCanAddInstrument(churchId);
         const existing = await this.prisma.instrument.findUnique({
             where: { churchId_name: { churchId, name } },
         });
@@ -73,6 +67,6 @@ exports.InstrumentsService = InstrumentsService;
 exports.InstrumentsService = InstrumentsService = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [prisma_service_1.PrismaService,
-        subscriptions_service_1.SubscriptionsService])
+        entitlements_service_1.EntitlementsService])
 ], InstrumentsService);
 //# sourceMappingURL=instruments.service.js.map

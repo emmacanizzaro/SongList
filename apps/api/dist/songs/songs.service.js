@@ -13,22 +13,16 @@ exports.SongsService = void 0;
 const common_1 = require("@nestjs/common");
 const client_1 = require("@prisma/client");
 const prisma_service_1 = require("../prisma/prisma.service");
-const subscriptions_service_1 = require("../subscriptions/subscriptions.service");
+const entitlements_service_1 = require("../subscriptions/entitlements.service");
 const transposition_service_1 = require("../transposition/transposition.service");
 let SongsService = class SongsService {
-    constructor(prisma, transposition, subscriptions) {
+    constructor(prisma, transposition, entitlements) {
         this.prisma = prisma;
         this.transposition = transposition;
-        this.subscriptions = subscriptions;
+        this.entitlements = entitlements;
     }
     async create(churchId, userId, dto) {
-        const limits = await this.subscriptions.getLimits(churchId);
-        if (limits.maxSongs !== -1) {
-            const count = await this.prisma.song.count({ where: { churchId } });
-            if (count >= limits.maxSongs) {
-                throw new common_1.ForbiddenException(`Tu plan permite un máximo de ${limits.maxSongs} canciones. Actualiza tu plan para agregar más.`);
-            }
-        }
+        await this.entitlements.assertCanAddSong(churchId);
         const song = await this.prisma.song.create({
             data: {
                 churchId,
@@ -145,6 +139,6 @@ exports.SongsService = SongsService = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [prisma_service_1.PrismaService,
         transposition_service_1.TranspositionService,
-        subscriptions_service_1.SubscriptionsService])
+        entitlements_service_1.EntitlementsService])
 ], SongsService);
 //# sourceMappingURL=songs.service.js.map

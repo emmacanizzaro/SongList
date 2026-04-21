@@ -1,9 +1,9 @@
-import { RawBodyRequest } from '@nestjs/common';
-import { Request } from 'express';
-import { ConfigService } from '@nestjs/config';
-import { PlanType } from '@prisma/client';
-import { SubscriptionsService } from './subscriptions.service';
-import { StripeService } from './stripe.service';
+import { RawBodyRequest } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
+import { PlanType } from "@prisma/client";
+import { Request } from "express";
+import { StripeService } from "./stripe.service";
+import { SubscriptionsService } from "./subscriptions.service";
 export declare class SubscriptionsController {
     private readonly subscriptionsService;
     private readonly stripeService;
@@ -25,6 +25,7 @@ export declare class SubscriptionsController {
         mpSubscriptionId: string | null;
         mpCustomerEmail: string | null;
     }>;
+    getEntitlements(churchId: string): Promise<import("./entitlements.service").EntitlementsSnapshot>;
     createCheckout(churchId: string, email: string, plan: PlanType): Promise<{
         checkoutUrl: string | null;
     }>;

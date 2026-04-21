@@ -8,7 +8,7 @@ import { MemberRole } from "@prisma/client";
 import * as bcrypt from "bcryptjs";
 import * as crypto from "crypto";
 import { PrismaService } from "../prisma/prisma.service";
-import { SubscriptionsService } from "../subscriptions/subscriptions.service";
+import { EntitlementsService } from "../subscriptions/entitlements.service";
 import { CreateChurchDto } from "./dto/create-church.dto";
 import { InviteEmailService } from "./invite-email.service";
 
@@ -16,7 +16,7 @@ import { InviteEmailService } from "./invite-email.service";
 export class ChurchesService {
   constructor(
     private prisma: PrismaService,
-    private subscriptions: SubscriptionsService,
+    private entitlements: EntitlementsService,
     private inviteEmail: InviteEmailService,
   ) {}
 
@@ -65,15 +65,7 @@ export class ChurchesService {
       );
     }
 
-    const limits = await this.subscriptions.getLimits(churchId);
-    if (limits.maxMembers !== -1) {
-      const count = await this.prisma.membership.count({ where: { churchId } });
-      if (count >= limits.maxMembers) {
-        throw new ForbiddenException(
-          `Tu plan permite un máximo de ${limits.maxMembers} miembros. Actualiza tu plan para agregar más.`,
-        );
-      }
-    }
+    await this.entitlements.assertCanAddMember(churchId);
 
     const normalizedEmail = email.toLowerCase();
     let user = await this.prisma.user.findUnique({
@@ -119,15 +111,7 @@ export class ChurchesService {
       );
     }
 
-    const limits = await this.subscriptions.getLimits(churchId);
-    if (limits.maxMembers !== -1) {
-      const count = await this.prisma.membership.count({ where: { churchId } });
-      if (count >= limits.maxMembers) {
-        throw new ForbiddenException(
-          `Tu plan permite un máximo de ${limits.maxMembers} miembros. Actualiza tu plan para agregar más.`,
-        );
-      }
-    }
+    await this.entitlements.assertCanAddMember(churchId);
 
     const normalizedEmail = email.toLowerCase();
     const token = crypto.randomBytes(24).toString("hex");

@@ -10,9 +10,9 @@ exports.PLAN_LIMITS = {
         maxInstruments: 6,
         historyMonths: 3,
         canExportPdf: false,
-        canShareLinks: true,
+        canShareLinks: false,
         canMultiTeam: false,
-        supportPriority: 'community',
+        supportPriority: "community",
     },
     [client_1.PlanType.PRO]: {
         maxMembers: -1,
@@ -22,7 +22,7 @@ exports.PLAN_LIMITS = {
         canExportPdf: true,
         canShareLinks: true,
         canMultiTeam: false,
-        supportPriority: 'email',
+        supportPriority: "email",
     },
     [client_1.PlanType.ENTERPRISE]: {
         maxMembers: -1,
@@ -32,7 +32,7 @@ exports.PLAN_LIMITS = {
         canExportPdf: true,
         canShareLinks: true,
         canMultiTeam: true,
-        supportPriority: 'priority',
+        supportPriority: "priority",
     },
 };
 function getPlanLimits(plan) {

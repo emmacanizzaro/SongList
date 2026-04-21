@@ -5,7 +5,7 @@ import {
 } from "@nestjs/common";
 import { VersionType } from "@prisma/client";
 import { PrismaService } from "../prisma/prisma.service";
-import { SubscriptionsService } from "../subscriptions/subscriptions.service";
+import { EntitlementsService } from "../subscriptions/entitlements.service";
 import { TranspositionService } from "../transposition/transposition.service";
 import { CreateSongDto } from "./dto/create-song.dto";
 
@@ -14,19 +14,11 @@ export class SongsService {
   constructor(
     private prisma: PrismaService,
     private transposition: TranspositionService,
-    private subscriptions: SubscriptionsService,
+    private entitlements: EntitlementsService,
   ) {}
 
   async create(churchId: string, userId: string, dto: CreateSongDto) {
-    const limits = await this.subscriptions.getLimits(churchId);
-    if (limits.maxSongs !== -1) {
-      const count = await this.prisma.song.count({ where: { churchId } });
-      if (count >= limits.maxSongs) {
-        throw new ForbiddenException(
-          `Tu plan permite un máximo de ${limits.maxSongs} canciones. Actualiza tu plan para agregar más.`,
-        );
-      }
-    }
+    await this.entitlements.assertCanAddSong(churchId);
 
     const song = await this.prisma.song.create({
       data: {

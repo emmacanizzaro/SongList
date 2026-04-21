@@ -11,6 +11,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
+var _a, _b, _c, _d, _e;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PublicChurchInvitesController = exports.ChurchesController = void 0;
 const openapi = require("@nestjs/swagger");
@@ -67,7 +68,7 @@ __decorate([
     (0, common_1.Patch)("me"),
     (0, roles_decorator_1.Roles)(client_1.MemberRole.ADMIN),
     (0, swagger_1.ApiOperation)({ summary: "Actualizar datos de la iglesia (solo ADMIN)" }),
-    openapi.ApiResponse({ status: 200 }),
+    openapi.ApiResponse({ status: 200, type: Object }),
     __param(0, (0, tenant_decorator_1.CurrentTenant)()),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
@@ -86,7 +87,7 @@ __decorate([
 __decorate([
     (0, common_1.Get)("me/members"),
     (0, swagger_1.ApiOperation)({ summary: "Listar miembros de la iglesia" }),
-    openapi.ApiResponse({ status: 200, type: [Object] }),
+    openapi.ApiResponse({ status: 200, type: Object }),
     __param(0, (0, tenant_decorator_1.CurrentTenant)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
@@ -102,7 +103,7 @@ __decorate([
     __param(2, (0, common_1.Body)("email")),
     __param(3, (0, common_1.Body)("role")),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String, String, String]),
+    __metadata("design:paramtypes", [String, typeof (_a = typeof client_1.MemberRole !== "undefined" && client_1.MemberRole) === "function" ? _a : Object, String, typeof (_b = typeof client_1.MemberRole !== "undefined" && client_1.MemberRole) === "function" ? _b : Object]),
     __metadata("design:returntype", void 0)
 ], ChurchesController.prototype, "inviteMember", null);
 __decorate([
@@ -116,26 +117,26 @@ __decorate([
     __param(3, (0, common_1.Body)("email")),
     __param(4, (0, common_1.Body)("role")),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String, String, String, String]),
+    __metadata("design:paramtypes", [String, String, typeof (_c = typeof client_1.MemberRole !== "undefined" && client_1.MemberRole) === "function" ? _c : Object, String, typeof (_d = typeof client_1.MemberRole !== "undefined" && client_1.MemberRole) === "function" ? _d : Object]),
     __metadata("design:returntype", void 0)
 ], ChurchesController.prototype, "createInviteLink", null);
 __decorate([
     (0, common_1.Patch)("me/members/:memberId/role"),
     (0, roles_decorator_1.Roles)(client_1.MemberRole.ADMIN),
     (0, swagger_1.ApiOperation)({ summary: "Cambiar rol de un miembro (solo ADMIN)" }),
-    openapi.ApiResponse({ status: 200 }),
+    openapi.ApiResponse({ status: 200, type: Object }),
     __param(0, (0, tenant_decorator_1.CurrentTenant)()),
     __param(1, (0, common_1.Param)("memberId")),
     __param(2, (0, common_1.Body)("role")),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String, String]),
+    __metadata("design:paramtypes", [String, String, typeof (_e = typeof client_1.MemberRole !== "undefined" && client_1.MemberRole) === "function" ? _e : Object]),
     __metadata("design:returntype", void 0)
 ], ChurchesController.prototype, "updateRole", null);
 __decorate([
     (0, common_1.Delete)("me/members/:memberId"),
     (0, roles_decorator_1.Roles)(client_1.MemberRole.ADMIN),
     (0, swagger_1.ApiOperation)({ summary: "Eliminar miembro (solo ADMIN)" }),
-    openapi.ApiResponse({ status: 200 }),
+    openapi.ApiResponse({ status: 200, type: Object }),
     __param(0, (0, tenant_decorator_1.CurrentTenant)()),
     __param(1, (0, current_user_decorator_1.CurrentUser)("id")),
     __param(2, (0, common_1.Param)("memberId")),

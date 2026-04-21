@@ -11,6 +11,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
+var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SongsController = void 0;
 const openapi = require("@nestjs/swagger");
@@ -67,7 +68,7 @@ __decorate([
     (0, common_1.Get)(),
     (0, swagger_1.ApiOperation)({ summary: 'Listar canciones (con búsqueda)' }),
     (0, swagger_1.ApiQuery)({ name: 'search', required: false }),
-    openapi.ApiResponse({ status: 200, type: [Object] }),
+    openapi.ApiResponse({ status: 200, type: Object }),
     __param(0, (0, tenant_decorator_1.CurrentTenant)()),
     __param(1, (0, common_1.Query)('search')),
     __metadata("design:type", Function),
@@ -88,7 +89,7 @@ __decorate([
     (0, common_1.Patch)(':id'),
     (0, roles_decorator_1.Roles)(client_1.MemberRole.EDITOR),
     (0, swagger_1.ApiOperation)({ summary: 'Editar canción' }),
-    openapi.ApiResponse({ status: 200 }),
+    openapi.ApiResponse({ status: 200, type: Object }),
     __param(0, (0, tenant_decorator_1.CurrentTenant)()),
     __param(1, (0, common_1.Param)('id')),
     __param(2, (0, common_1.Body)()),
@@ -100,7 +101,7 @@ __decorate([
     (0, common_1.Delete)(':id'),
     (0, roles_decorator_1.Roles)(client_1.MemberRole.EDITOR),
     (0, swagger_1.ApiOperation)({ summary: 'Eliminar canción' }),
-    openapi.ApiResponse({ status: 200 }),
+    openapi.ApiResponse({ status: 200, type: Object }),
     __param(0, (0, tenant_decorator_1.CurrentTenant)()),
     __param(1, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
@@ -111,14 +112,14 @@ __decorate([
     (0, common_1.Post)(':id/versions'),
     (0, roles_decorator_1.Roles)(client_1.MemberRole.EDITOR),
     (0, swagger_1.ApiOperation)({ summary: 'Generar versión transpuesta (hombre/mujer/custom)' }),
-    openapi.ApiResponse({ status: 201 }),
+    openapi.ApiResponse({ status: 201, type: Object }),
     __param(0, (0, tenant_decorator_1.CurrentTenant)()),
     __param(1, (0, common_1.Param)('id')),
     __param(2, (0, common_1.Body)('type')),
     __param(3, (0, common_1.Body)('targetKey')),
     __param(4, (0, common_1.Body)('notes')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String, String, String, String]),
+    __metadata("design:paramtypes", [String, String, typeof (_a = typeof client_1.VersionType !== "undefined" && client_1.VersionType) === "function" ? _a : Object, String, String]),
     __metadata("design:returntype", void 0)
 ], SongsController.prototype, "addVersion", null);
 __decorate([

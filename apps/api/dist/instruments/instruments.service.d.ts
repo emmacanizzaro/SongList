@@ -1,9 +1,9 @@
 import { PrismaService } from "../prisma/prisma.service";
-import { SubscriptionsService } from "../subscriptions/subscriptions.service";
+import { EntitlementsService } from "../subscriptions/entitlements.service";
 export declare class InstrumentsService {
     private prisma;
-    private subscriptions;
-    constructor(prisma: PrismaService, subscriptions: SubscriptionsService);
+    private entitlements;
+    constructor(prisma: PrismaService, entitlements: EntitlementsService);
     findAll(churchId: string): Promise<({
         _count: {
             assignments: number;
