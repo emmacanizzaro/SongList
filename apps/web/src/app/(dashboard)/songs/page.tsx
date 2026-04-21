@@ -69,7 +69,9 @@ export default function SongsPage() {
   const hasSongsLimitReached = Boolean(
     songsQuota && !songsQuota.unlimited && (songsQuota.remaining ?? 0) <= 0,
   );
-  const createSongHref = hasSongsLimitReached ? "/settings/billing" : "/songs/new";
+  const createSongHref = hasSongsLimitReached
+    ? "/settings/billing"
+    : "/songs/new";
 
   const { data: songs = [], isLoading } = useQuery<Song[]>({
     queryKey: ["songs", search],
@@ -252,7 +254,10 @@ export default function SongsPage() {
             </button>
           ) : (
             !search && (
-              <Link href={createSongHref} className="btn-primary mt-5 inline-flex">
+              <Link
+                href={createSongHref}
+                className="btn-primary mt-5 inline-flex"
+              >
                 {hasSongsLimitReached ? (
                   <>
                     <Crown className="h-4 w-4" />

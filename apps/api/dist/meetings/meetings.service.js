@@ -14,6 +14,7 @@ const common_1 = require("@nestjs/common");
 const client_1 = require("@prisma/client");
 const uuid_1 = require("uuid");
 const prisma_service_1 = require("../prisma/prisma.service");
+const entitlements_service_1 = require("../subscriptions/entitlements.service");
 const MEETING_INCLUDE = client_1.Prisma.validator()({
     meetingSongs: {
         include: {
@@ -33,8 +34,9 @@ const MEETING_INCLUDE = client_1.Prisma.validator()({
     },
 });
 let MeetingsService = class MeetingsService {
-    constructor(prisma) {
+    constructor(prisma, entitlements) {
         this.prisma = prisma;
+        this.entitlements = entitlements;
     }
     async create(churchId, userId, dto) {
         return this.prisma.meeting.create({
@@ -138,6 +140,10 @@ let MeetingsService = class MeetingsService {
         return this.prisma.assignment.delete({ where: { id: assignmentId } });
     }
     async generateShareLink(churchId, meetingId) {
+        const snapshot = await this.entitlements.getSnapshot(churchId);
+        if (!snapshot.features.canShareLinks) {
+            throw new common_1.ForbiddenException("Compartir por enlace es una función premium. Actualiza tu plan para habilitarla.");
+        }
         await this.assertBelongsToChurch(meetingId, churchId);
         const shareToken = (0, uuid_1.v4)();
         return this.prisma.meeting.update({
@@ -167,6 +173,7 @@ let MeetingsService = class MeetingsService {
 exports.MeetingsService = MeetingsService;
 exports.MeetingsService = MeetingsService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
+        entitlements_service_1.EntitlementsService])
 ], MeetingsService);
 //# sourceMappingURL=meetings.service.js.map

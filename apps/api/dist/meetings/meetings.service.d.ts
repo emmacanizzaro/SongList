@@ -1,8 +1,10 @@
 import { PrismaService } from "../prisma/prisma.service";
+import { EntitlementsService } from "../subscriptions/entitlements.service";
 import { CreateMeetingDto } from "./dto/create-meeting.dto";
 export declare class MeetingsService {
     private prisma;
-    constructor(prisma: PrismaService);
+    private entitlements;
+    constructor(prisma: PrismaService, entitlements: EntitlementsService);
     create(churchId: string, userId: string, dto: CreateMeetingDto): Promise<{
         assignments: ({
             user: {

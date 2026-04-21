@@ -1,13 +1,13 @@
 import { VersionType } from "@prisma/client";
 import { PrismaService } from "../prisma/prisma.service";
-import { SubscriptionsService } from "../subscriptions/subscriptions.service";
+import { EntitlementsService } from "../subscriptions/entitlements.service";
 import { TranspositionService } from "../transposition/transposition.service";
 import { CreateSongDto } from "./dto/create-song.dto";
 export declare class SongsService {
     private prisma;
     private transposition;
-    private subscriptions;
-    constructor(prisma: PrismaService, transposition: TranspositionService, subscriptions: SubscriptionsService);
+    private entitlements;
+    constructor(prisma: PrismaService, transposition: TranspositionService, entitlements: EntitlementsService);
     create(churchId: string, userId: string, dto: CreateSongDto): Promise<{
         versions: {
             id: string;

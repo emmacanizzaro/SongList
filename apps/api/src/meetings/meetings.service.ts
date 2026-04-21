@@ -1,4 +1,5 @@
 import {
+  ConflictException,
   ForbiddenException,
   Injectable,
   NotFoundException,
@@ -118,13 +119,24 @@ export class MeetingsService {
     await this.assertBelongsToChurch(meetingId, churchId);
 
     const count = await this.prisma.meetingSong.count({ where: { meetingId } });
-
-    return this.prisma.meetingSong.create({
-      data: { meetingId, songId, order: count + 1, keyOverride, notes },
-      include: {
-        song: { select: { id: true, title: true, originalKey: true } },
-      },
-    });
+    try {
+      return await this.prisma.meetingSong.create({
+        data: { meetingId, songId, order: count + 1, keyOverride, notes },
+        include: {
+          song: { select: { id: true, title: true, originalKey: true } },
+        },
+      });
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === "P2002"
+      ) {
+        throw new ConflictException(
+          "Esa canción ya está agregada a la reunión",
+        );
+      }
+      throw error;
+    }
   }
 
   async reorderSongs(

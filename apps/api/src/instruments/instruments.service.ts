@@ -1,17 +1,16 @@
 import {
   ConflictException,
-  ForbiddenException,
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
-import { SubscriptionsService } from "../subscriptions/subscriptions.service";
+import { EntitlementsService } from "../subscriptions/entitlements.service";
 
 @Injectable()
 export class InstrumentsService {
   constructor(
     private prisma: PrismaService,
-    private subscriptions: SubscriptionsService,
+    private entitlements: EntitlementsService,
   ) {}
 
   async findAll(churchId: string) {
@@ -23,15 +22,7 @@ export class InstrumentsService {
   }
 
   async create(churchId: string, name: string, icon?: string) {
-    const limits = await this.subscriptions.getLimits(churchId);
-    if (limits.maxInstruments !== -1) {
-      const count = await this.prisma.instrument.count({ where: { churchId } });
-      if (count >= limits.maxInstruments) {
-        throw new ForbiddenException(
-          `Tu plan permite un máximo de ${limits.maxInstruments} instrumentos. Actualiza tu plan para agregar más.`,
-        );
-      }
-    }
+    await this.entitlements.assertCanAddInstrument(churchId);
 
     const existing = await this.prisma.instrument.findUnique({
       where: { churchId_name: { churchId, name } },

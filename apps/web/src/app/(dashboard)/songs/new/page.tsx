@@ -137,8 +137,8 @@ export default function NewSongPage() {
 
             {hasSongsLimitReached && (
               <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:border-amber-900 dark:bg-amber-950/60 dark:text-amber-200">
-                Llegaste al límite de canciones para tu plan. Para cargar nuevas,
-                actualiza tu suscripción.
+                Llegaste al límite de canciones para tu plan. Para cargar
+                nuevas, actualiza tu suscripción.
                 <div className="mt-3 flex flex-wrap gap-2">
                   <Link href="/songs" className="btn-secondary">
                     Volver a canciones

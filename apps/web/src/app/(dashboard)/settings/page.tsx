@@ -41,8 +41,8 @@ export default function SettingsPage() {
   const membersQuota = entitlements?.quotas.members;
   const hasMembersLimitReached = Boolean(
     membersQuota &&
-      !membersQuota.unlimited &&
-      (membersQuota.remaining ?? 0) <= 0,
+    !membersQuota.unlimited &&
+    (membersQuota.remaining ?? 0) <= 0,
   );
 
   const { data: stats, isLoading: loadingStats } = useQuery<ChurchStats>({

@@ -12,12 +12,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.SubscriptionsService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../prisma/prisma.service");
-const stripe_service_1 = require("./stripe.service");
+const entitlements_service_1 = require("./entitlements.service");
 const plan_limits_1 = require("./plan-limits");
-const client_1 = require("@prisma/client");
+const stripe_service_1 = require("./stripe.service");
 let SubscriptionsService = class SubscriptionsService {
-    constructor(prisma, stripe) {
+    constructor(prisma, entitlements, stripe) {
         this.prisma = prisma;
+        this.entitlements = entitlements;
         this.stripe = stripe;
     }
     async getSubscription(churchId) {
@@ -25,18 +26,17 @@ let SubscriptionsService = class SubscriptionsService {
             where: { churchId },
         });
         if (!sub)
-            throw new common_1.NotFoundException('Suscripción no encontrada');
+            throw new common_1.NotFoundException("Suscripción no encontrada");
         return {
             ...sub,
             limits: (0, plan_limits_1.getPlanLimits)(sub.plan),
         };
     }
     async getLimits(churchId) {
-        const sub = await this.prisma.subscription.findUnique({
-            where: { churchId },
-            select: { plan: true },
-        });
-        return (0, plan_limits_1.getPlanLimits)(sub?.plan ?? client_1.PlanType.FREE);
+        return this.entitlements.getLimits(churchId);
+    }
+    async getEntitlements(churchId) {
+        return this.entitlements.getSnapshot(churchId);
     }
     async createCheckout(churchId, plan, userEmail, frontendUrl) {
         const session = await this.stripe.createCheckoutSession(churchId, plan, userEmail, `${frontendUrl}/settings/billing?success=true`, `${frontendUrl}/settings/billing?canceled=true`);
@@ -48,7 +48,7 @@ let SubscriptionsService = class SubscriptionsService {
             select: { stripeCustomerId: true },
         });
         if (!sub?.stripeCustomerId) {
-            throw new common_1.NotFoundException('No existe sesión de Stripe para esta iglesia');
+            throw new common_1.NotFoundException("No existe sesión de Stripe para esta iglesia");
         }
         const session = await this.stripe.createCustomerPortalSession(sub.stripeCustomerId, `${frontendUrl}/settings/billing`);
         return { portalUrl: session.url };
@@ -58,6 +58,7 @@ exports.SubscriptionsService = SubscriptionsService;
 exports.SubscriptionsService = SubscriptionsService = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [prisma_service_1.PrismaService,
+        entitlements_service_1.EntitlementsService,
         stripe_service_1.StripeService])
 ], SubscriptionsService);
 //# sourceMappingURL=subscriptions.service.js.map

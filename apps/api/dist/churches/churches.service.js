@@ -15,12 +15,12 @@ const client_1 = require("@prisma/client");
 const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
 const prisma_service_1 = require("../prisma/prisma.service");
-const subscriptions_service_1 = require("../subscriptions/subscriptions.service");
+const entitlements_service_1 = require("../subscriptions/entitlements.service");
 const invite_email_service_1 = require("./invite-email.service");
 let ChurchesService = class ChurchesService {
-    constructor(prisma, subscriptions, inviteEmail) {
+    constructor(prisma, entitlements, inviteEmail) {
         this.prisma = prisma;
-        this.subscriptions = subscriptions;
+        this.entitlements = entitlements;
         this.inviteEmail = inviteEmail;
     }
     async findById(churchId) {
@@ -56,13 +56,7 @@ let ChurchesService = class ChurchesService {
         if (requestingRole !== client_1.MemberRole.ADMIN) {
             throw new common_1.ForbiddenException("Solo los administradores pueden invitar miembros");
         }
-        const limits = await this.subscriptions.getLimits(churchId);
-        if (limits.maxMembers !== -1) {
-            const count = await this.prisma.membership.count({ where: { churchId } });
-            if (count >= limits.maxMembers) {
-                throw new common_1.ForbiddenException(`Tu plan permite un máximo de ${limits.maxMembers} miembros. Actualiza tu plan para agregar más.`);
-            }
-        }
+        await this.entitlements.assertCanAddMember(churchId);
         const normalizedEmail = email.toLowerCase();
         let user = await this.prisma.user.findUnique({
             where: { email: normalizedEmail },
@@ -92,13 +86,7 @@ let ChurchesService = class ChurchesService {
         if (requestingRole !== client_1.MemberRole.ADMIN) {
             throw new common_1.ForbiddenException("Solo los administradores pueden crear invitaciones");
         }
-        const limits = await this.subscriptions.getLimits(churchId);
-        if (limits.maxMembers !== -1) {
-            const count = await this.prisma.membership.count({ where: { churchId } });
-            if (count >= limits.maxMembers) {
-                throw new common_1.ForbiddenException(`Tu plan permite un máximo de ${limits.maxMembers} miembros. Actualiza tu plan para agregar más.`);
-            }
-        }
+        await this.entitlements.assertCanAddMember(churchId);
         const normalizedEmail = email.toLowerCase();
         const token = crypto.randomBytes(24).toString("hex");
         const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
@@ -220,7 +208,7 @@ exports.ChurchesService = ChurchesService;
 exports.ChurchesService = ChurchesService = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [prisma_service_1.PrismaService,
-        subscriptions_service_1.SubscriptionsService,
+        entitlements_service_1.EntitlementsService,
         invite_email_service_1.InviteEmailService])
 ], ChurchesService);
 //# sourceMappingURL=churches.service.js.map

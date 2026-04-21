@@ -53,6 +53,10 @@ export default function MeetingDetailPage() {
   const [songNotes, setSongNotes] = useState("");
   const [assignUserId, setAssignUserId] = useState("");
   const [assignInstrumentId, setAssignInstrumentId] = useState("");
+  const [removingSongId, setRemovingSongId] = useState<string | null>(null);
+  const [removingAssignmentId, setRemovingAssignmentId] = useState<
+    string | null
+  >(null);
   const [chordsDrawer, setChordsDrawer] = useState<{
     songId: string;
     defaultKey?: string;
@@ -96,11 +100,32 @@ export default function MeetingDetailPage() {
     return songs.filter((song: any) => !includedIds.has(song.id));
   }, [meeting, songs]);
 
+  const isSelectedSongAvailable = useMemo(
+    () => availableSongs.some((song: any) => song.id === songId),
+    [availableSongs, songId],
+  );
+
   const canEditMeetings = user?.currentRole !== "READER";
   const isAdmin = user?.currentRole === "ADMIN";
-  const { entitlements } = useEntitlements(Boolean(user));
+  const { entitlements, isLoading: isEntitlementsLoading } = useEntitlements(
+    Boolean(user),
+  );
   const canExportPdf = Boolean(entitlements?.features.canExportPdf);
   const canShareLinks = Boolean(entitlements?.features.canShareLinks);
+
+  async function copyShareUrl(url: string) {
+    if (typeof navigator !== "undefined" && navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(url);
+      return true;
+    }
+
+    if (typeof window !== "undefined") {
+      window.prompt("Copia este enlace:", url);
+      return true;
+    }
+
+    return false;
+  }
 
   // ── Drag & Drop ───────────────────────────────────────────
   const [orderedSongs, setOrderedSongs] = useState<MeetingSong[]>([]);
@@ -127,10 +152,13 @@ export default function MeetingDetailPage() {
 
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
-    if (!over || active.id === over.id) return;
+    if (!over || active.id === over.id || reorderMutation.isPending) return;
     setOrderedSongs((prev) => {
       const oldIndex = prev.findIndex((ms) => ms.id === active.id);
       const newIndex = prev.findIndex((ms) => ms.id === over.id);
+      if (oldIndex < 0 || newIndex < 0) {
+        return prev;
+      }
       const next = arrayMove(prev, oldIndex, newIndex);
       reorderMutation.mutate(next.map((ms) => ms.songId));
       return next;
@@ -139,12 +167,46 @@ export default function MeetingDetailPage() {
 
   const shareMutation = useMutation({
     mutationFn: () => meetingsApi.generateShare(id),
-    onSuccess: (res) => {
+    onSuccess: async (res) => {
       const token = res.data.shareToken;
       const url = `${window.location.origin}/public/meetings/${token}`;
-      navigator.clipboard.writeText(url);
-      toast.success("¡Link copiado al portapapeles!");
+
+      try {
+        const copied = await copyShareUrl(url);
+        if (copied) {
+          toast.success("¡Link listo para compartir!");
+        } else {
+          toast.success("Link generado correctamente.");
+        }
+      } catch {
+        toast.success(
+          "Link generado. Si no se copió automáticamente, cópialo manualmente.",
+        );
+      }
+
       queryClient.invalidateQueries({ queryKey: ["meeting", id] });
+    },
+    onError: (error: any) => {
+      const status = error?.response?.status;
+      const message =
+        error?.response?.data?.message?.join?.(", ") ||
+        error?.response?.data?.message ||
+        "No se pudo compartir la reunión";
+
+      if (status === 403) {
+        if (isAdmin) {
+          toast.error(message);
+          router.push("/settings/billing");
+          return;
+        }
+
+        toast.error(
+          "Tu plan actual no permite compartir enlaces. Pide a un admin que actualice la suscripción.",
+        );
+        return;
+      }
+
+      toast.error(message);
     },
   });
 
@@ -163,6 +225,14 @@ export default function MeetingDetailPage() {
       await queryClient.invalidateQueries({ queryKey: ["meeting", id] });
     },
     onError: (error: any) => {
+      const status = error?.response?.status;
+
+      if (status === 409) {
+        toast.error("Esa canción ya está agregada a la reunión");
+        setSongId("");
+        return;
+      }
+
       const message =
         error?.response?.data?.message?.join?.(", ") ||
         error?.response?.data?.message ||
@@ -171,15 +241,33 @@ export default function MeetingDetailPage() {
     },
   });
 
+  function handleAddSong() {
+    if (!songId) return;
+
+    if (!isSelectedSongAvailable) {
+      toast.error("Esa canción ya está en la reunión. Elige otra.");
+      setSongId("");
+      return;
+    }
+
+    addSongMutation.mutate();
+  }
+
   const removeSongMutation = useMutation({
     mutationFn: (meetingSongId: string) =>
       meetingsApi.removeSong(id, meetingSongId),
+    onMutate: (meetingSongId: string) => {
+      setRemovingSongId(meetingSongId);
+    },
     onSuccess: async () => {
       toast.success("Canción eliminada de la reunión");
       await queryClient.invalidateQueries({ queryKey: ["meeting", id] });
     },
     onError: () => {
       toast.error("No se pudo eliminar la canción");
+    },
+    onSettled: () => {
+      setRemovingSongId(null);
     },
   });
 
@@ -197,7 +285,9 @@ export default function MeetingDetailPage() {
     },
     onError: (error: any) => {
       const message =
-        error?.response?.data?.message || "No se pudo asignar el músico";
+        error?.response?.data?.message?.join?.(", ") ||
+        error?.response?.data?.message ||
+        "No se pudo asignar el músico";
       toast.error(message);
     },
   });
@@ -205,12 +295,18 @@ export default function MeetingDetailPage() {
   const unassignMutation = useMutation({
     mutationFn: (assignmentId: string) =>
       meetingsApi.unassign(id, assignmentId),
+    onMutate: (assignmentId: string) => {
+      setRemovingAssignmentId(assignmentId);
+    },
     onSuccess: async () => {
       toast.success("Músico removido de la reunión");
       await queryClient.invalidateQueries({ queryKey: ["meeting", id] });
     },
     onError: () => {
       toast.error("No se pudo remover el músico");
+    },
+    onSettled: () => {
+      setRemovingAssignmentId(null);
     },
   });
 
@@ -272,7 +368,15 @@ export default function MeetingDetailPage() {
                   <Printer className="h-4 w-4" />
                   {canExportPdf ? "Imprimir setlist" : "Desbloquear PDF"}
                 </Link>
-                {canShareLinks ? (
+                {isEntitlementsLoading ? (
+                  <button
+                    disabled
+                    className="btn-secondary border-white/10 bg-white/8 text-white opacity-70"
+                  >
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Verificando plan...
+                  </button>
+                ) : canShareLinks ? (
                   <button
                     onClick={() => shareMutation.mutate()}
                     disabled={shareMutation.isPending}
@@ -357,9 +461,12 @@ export default function MeetingDetailPage() {
               </div>
               <button
                 disabled={
-                  !songId || addSongMutation.isPending || !canEditMeetings
+                  !songId ||
+                  !isSelectedSongAvailable ||
+                  addSongMutation.isPending ||
+                  !canEditMeetings
                 }
-                onClick={() => addSongMutation.mutate()}
+                onClick={handleAddSong}
                 className="btn-primary mt-3 w-full disabled:translate-y-0 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {addSongMutation.isPending ? (
@@ -398,7 +505,7 @@ export default function MeetingDetailPage() {
                         index={idx + 1}
                         canEdit={canEditMeetings}
                         onRemove={() => removeSongMutation.mutate(ms.id)}
-                        isRemoving={removeSongMutation.isPending}
+                        isRemoving={removingSongId === ms.id}
                         onViewChords={() =>
                           setChordsDrawer({
                             songId: ms.songId,
@@ -505,11 +612,15 @@ export default function MeetingDetailPage() {
                     {canEditMeetings && (
                       <button
                         onClick={() => unassignMutation.mutate(a.id)}
-                        disabled={unassignMutation.isPending}
+                        disabled={removingAssignmentId === a.id}
                         className="rounded-lg p-2 text-slate-400 transition-colors hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950 dark:hover:text-red-300 shrink-0"
                         title="Remover músico"
                       >
-                        <Trash2 className="h-4 w-4" />
+                        {removingAssignmentId === a.id ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <Trash2 className="h-4 w-4" />
+                        )}
                       </button>
                     )}
                   </div>
@@ -607,7 +718,11 @@ function SortableSongRow({
         className="rounded-lg p-2 text-slate-400 transition-colors hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950 dark:hover:text-red-300 disabled:pointer-events-none disabled:opacity-40 shrink-0"
         title="Quitar canción"
       >
-        <Trash2 className="h-4 w-4" />
+        {isRemoving ? (
+          <Loader2 className="h-4 w-4 animate-spin" />
+        ) : (
+          <Trash2 className="h-4 w-4" />
+        )}
       </button>
     </div>
   );
