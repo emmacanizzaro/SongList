@@ -14,39 +14,39 @@ export declare class SongsService {
             createdAt: Date;
             updatedAt: Date;
             type: import(".prisma/client").$Enums.VersionType;
-            notes: string | null;
-            songId: string;
             key: string;
             lyricsChords: string;
+            notes: string | null;
+            songId: string;
         }[];
     } & {
         id: string;
         churchId: string;
         createdAt: Date;
         updatedAt: Date;
-        tags: string[];
         title: string;
-        createdById: string | null;
         artist: string | null;
         originalKey: string;
         bpm: number | null;
+        tags: string[];
+        createdById: string | null;
     }>;
     findAll(churchId: string, search?: string): Promise<({
         _count: {
-            meetingSongs: number;
             versions: number;
+            meetingSongs: number;
         };
     } & {
         id: string;
         churchId: string;
         createdAt: Date;
         updatedAt: Date;
-        tags: string[];
         title: string;
-        createdById: string | null;
         artist: string | null;
         originalKey: string;
         bpm: number | null;
+        tags: string[];
+        createdById: string | null;
     })[]>;
     findOne(churchId: string, songId: string): Promise<{
         versions: {
@@ -54,56 +54,56 @@ export declare class SongsService {
             createdAt: Date;
             updatedAt: Date;
             type: import(".prisma/client").$Enums.VersionType;
-            notes: string | null;
-            songId: string;
             key: string;
             lyricsChords: string;
+            notes: string | null;
+            songId: string;
         }[];
     } & {
         id: string;
         churchId: string;
         createdAt: Date;
         updatedAt: Date;
-        tags: string[];
         title: string;
-        createdById: string | null;
         artist: string | null;
         originalKey: string;
         bpm: number | null;
+        tags: string[];
+        createdById: string | null;
     }>;
     update(churchId: string, songId: string, dto: Partial<CreateSongDto>): Promise<{
         id: string;
         churchId: string;
         createdAt: Date;
         updatedAt: Date;
-        tags: string[];
         title: string;
-        createdById: string | null;
         artist: string | null;
         originalKey: string;
         bpm: number | null;
+        tags: string[];
+        createdById: string | null;
     }>;
     remove(churchId: string, songId: string): Promise<{
         id: string;
         churchId: string;
         createdAt: Date;
         updatedAt: Date;
-        tags: string[];
         title: string;
-        createdById: string | null;
         artist: string | null;
         originalKey: string;
         bpm: number | null;
+        tags: string[];
+        createdById: string | null;
     }>;
     addVersion(churchId: string, songId: string, type: VersionType, targetKey: string, notes?: string): Promise<{
         id: string;
         createdAt: Date;
         updatedAt: Date;
         type: import(".prisma/client").$Enums.VersionType;
-        notes: string | null;
-        songId: string;
         key: string;
         lyricsChords: string;
+        notes: string | null;
+        songId: string;
     }>;
     getLiveTransposition(churchId: string, songId: string, targetKey: string): Promise<{
         songId: string;

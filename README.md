@@ -201,7 +201,7 @@ Bb → C (+2) ✓
 
 | Feature                     | FREE      | PRO ($9.99/mes) | ENTERPRISE ($29.99/mes) |
 | --------------------------- | --------- | --------------- | ----------------------- |
-| Usuarios                    | 5         | Ilimitados      | Ilimitados              |
+| Usuarios                    | 10        | Ilimitados      | Ilimitados              |
 | Canciones                   | 50        | Ilimitadas      | Ilimitadas              |
 | Instrumentos personalizados | 6         | 30              | Ilimitados              |
 | Historial                   | 3 meses   | Ilimitado       | Ilimitado               |

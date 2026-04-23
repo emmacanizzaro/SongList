@@ -3,30 +3,30 @@
 // ─────────────────────────────────────────────
 
 export enum MemberRole {
-  ADMIN = 'ADMIN',
-  EDITOR = 'EDITOR',
-  READER = 'READER',
+  ADMIN = "ADMIN",
+  EDITOR = "EDITOR",
+  READER = "READER",
 }
 
 export enum PlanType {
-  FREE = 'FREE',
-  PRO = 'PRO',
-  ENTERPRISE = 'ENTERPRISE',
+  FREE = "FREE",
+  PRO = "PRO",
+  ENTERPRISE = "ENTERPRISE",
 }
 
 export enum SubscriptionStatus {
-  TRIALING = 'TRIALING',
-  ACTIVE = 'ACTIVE',
-  PAST_DUE = 'PAST_DUE',
-  CANCELED = 'CANCELED',
-  UNPAID = 'UNPAID',
+  TRIALING = "TRIALING",
+  ACTIVE = "ACTIVE",
+  PAST_DUE = "PAST_DUE",
+  CANCELED = "CANCELED",
+  UNPAID = "UNPAID",
 }
 
 export enum VersionType {
-  ORIGINAL = 'ORIGINAL',
-  MALE_KEY = 'MALE_KEY',
-  FEMALE_KEY = 'FEMALE_KEY',
-  CUSTOM = 'CUSTOM',
+  ORIGINAL = "ORIGINAL",
+  MALE_KEY = "MALE_KEY",
+  FEMALE_KEY = "FEMALE_KEY",
+  CUSTOM = "CUSTOM",
 }
 
 // ─────────────────────────────────────────────
@@ -34,9 +34,9 @@ export enum VersionType {
 // ─────────────────────────────────────────────
 
 export interface PlanLimits {
-  maxMembers: number;       // -1 = ilimitado
-  maxSongs: number;         // -1 = ilimitado
-  maxInstruments: number;   // -1 = ilimitado
+  maxMembers: number; // -1 = ilimitado
+  maxSongs: number; // -1 = ilimitado
+  maxInstruments: number; // -1 = ilimitado
   meetingHistoryMonths: number; // -1 = ilimitado
   canExportPDF: boolean;
   canShareLinks: boolean;
@@ -46,7 +46,7 @@ export interface PlanLimits {
 
 export const PLAN_LIMITS: Record<PlanType, PlanLimits> = {
   [PlanType.FREE]: {
-    maxMembers: 5,
+    maxMembers: 10,
     maxSongs: 50,
     maxInstruments: 6,
     meetingHistoryMonths: 3,

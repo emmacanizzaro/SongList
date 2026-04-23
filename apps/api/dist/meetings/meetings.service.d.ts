@@ -10,32 +10,32 @@ export declare class MeetingsService {
             song: {
                 versions: {
                     id: string;
-                    notes: string | null;
                     createdAt: Date;
                     updatedAt: Date;
                     type: import(".prisma/client").$Enums.VersionType;
-                    songId: string;
                     key: string;
                     lyricsChords: string;
+                    notes: string | null;
+                    songId: string;
                 }[];
             } & {
                 id: string;
-                title: string;
-                createdById: string | null;
+                churchId: string;
                 createdAt: Date;
                 updatedAt: Date;
-                churchId: string;
+                title: string;
                 artist: string | null;
                 originalKey: string;
                 bpm: number | null;
                 tags: string[];
+                createdById: string | null;
             };
         } & {
             id: string;
             notes: string | null;
+            songId: string;
             order: number;
             meetingId: string;
-            songId: string;
             keyOverride: string | null;
         })[];
         assignments: ({
@@ -58,15 +58,15 @@ export declare class MeetingsService {
         })[];
     } & {
         id: string;
-        title: string;
-        date: Date;
-        notes: string | null;
-        isPublic: boolean;
-        shareToken: string | null;
-        createdById: string | null;
+        churchId: string;
         createdAt: Date;
         updatedAt: Date;
-        churchId: string;
+        title: string;
+        createdById: string | null;
+        notes: string | null;
+        date: Date;
+        isPublic: boolean;
+        shareToken: string | null;
     }>;
     findAll(churchId: string, upcoming?: boolean): Promise<({
         _count: {
@@ -75,47 +75,47 @@ export declare class MeetingsService {
         };
     } & {
         id: string;
-        title: string;
-        date: Date;
-        notes: string | null;
-        isPublic: boolean;
-        shareToken: string | null;
-        createdById: string | null;
+        churchId: string;
         createdAt: Date;
         updatedAt: Date;
-        churchId: string;
+        title: string;
+        createdById: string | null;
+        notes: string | null;
+        date: Date;
+        isPublic: boolean;
+        shareToken: string | null;
     })[]>;
     findOne(churchId: string, meetingId: string): Promise<{
         meetingSongs: ({
             song: {
                 versions: {
                     id: string;
-                    notes: string | null;
                     createdAt: Date;
                     updatedAt: Date;
                     type: import(".prisma/client").$Enums.VersionType;
-                    songId: string;
                     key: string;
                     lyricsChords: string;
+                    notes: string | null;
+                    songId: string;
                 }[];
             } & {
                 id: string;
-                title: string;
-                createdById: string | null;
+                churchId: string;
                 createdAt: Date;
                 updatedAt: Date;
-                churchId: string;
+                title: string;
                 artist: string | null;
                 originalKey: string;
                 bpm: number | null;
                 tags: string[];
+                createdById: string | null;
             };
         } & {
             id: string;
             notes: string | null;
+            songId: string;
             order: number;
             meetingId: string;
-            songId: string;
             keyOverride: string | null;
         })[];
         assignments: ({
@@ -138,47 +138,47 @@ export declare class MeetingsService {
         })[];
     } & {
         id: string;
-        title: string;
-        date: Date;
-        notes: string | null;
-        isPublic: boolean;
-        shareToken: string | null;
-        createdById: string | null;
+        churchId: string;
         createdAt: Date;
         updatedAt: Date;
-        churchId: string;
+        title: string;
+        createdById: string | null;
+        notes: string | null;
+        date: Date;
+        isPublic: boolean;
+        shareToken: string | null;
     }>;
     update(churchId: string, meetingId: string, dto: Partial<CreateMeetingDto>): Promise<{
         meetingSongs: ({
             song: {
                 versions: {
                     id: string;
-                    notes: string | null;
                     createdAt: Date;
                     updatedAt: Date;
                     type: import(".prisma/client").$Enums.VersionType;
-                    songId: string;
                     key: string;
                     lyricsChords: string;
+                    notes: string | null;
+                    songId: string;
                 }[];
             } & {
                 id: string;
-                title: string;
-                createdById: string | null;
+                churchId: string;
                 createdAt: Date;
                 updatedAt: Date;
-                churchId: string;
+                title: string;
                 artist: string | null;
                 originalKey: string;
                 bpm: number | null;
                 tags: string[];
+                createdById: string | null;
             };
         } & {
             id: string;
             notes: string | null;
+            songId: string;
             order: number;
             meetingId: string;
-            songId: string;
             keyOverride: string | null;
         })[];
         assignments: ({
@@ -201,27 +201,27 @@ export declare class MeetingsService {
         })[];
     } & {
         id: string;
-        title: string;
-        date: Date;
-        notes: string | null;
-        isPublic: boolean;
-        shareToken: string | null;
-        createdById: string | null;
+        churchId: string;
         createdAt: Date;
         updatedAt: Date;
-        churchId: string;
+        title: string;
+        createdById: string | null;
+        notes: string | null;
+        date: Date;
+        isPublic: boolean;
+        shareToken: string | null;
     }>;
     remove(churchId: string, meetingId: string): Promise<{
         id: string;
-        title: string;
-        date: Date;
-        notes: string | null;
-        isPublic: boolean;
-        shareToken: string | null;
-        createdById: string | null;
+        churchId: string;
         createdAt: Date;
         updatedAt: Date;
-        churchId: string;
+        title: string;
+        createdById: string | null;
+        notes: string | null;
+        date: Date;
+        isPublic: boolean;
+        shareToken: string | null;
     }>;
     addSong(churchId: string, meetingId: string, songId: string, keyOverride?: string, notes?: string): Promise<{
         song: {
@@ -232,9 +232,9 @@ export declare class MeetingsService {
     } & {
         id: string;
         notes: string | null;
+        songId: string;
         order: number;
         meetingId: string;
-        songId: string;
         keyOverride: string | null;
     }>;
     reorderSongs(churchId: string, meetingId: string, orderedSongIds: string[]): Promise<{
@@ -242,32 +242,32 @@ export declare class MeetingsService {
             song: {
                 versions: {
                     id: string;
-                    notes: string | null;
                     createdAt: Date;
                     updatedAt: Date;
                     type: import(".prisma/client").$Enums.VersionType;
-                    songId: string;
                     key: string;
                     lyricsChords: string;
+                    notes: string | null;
+                    songId: string;
                 }[];
             } & {
                 id: string;
-                title: string;
-                createdById: string | null;
+                churchId: string;
                 createdAt: Date;
                 updatedAt: Date;
-                churchId: string;
+                title: string;
                 artist: string | null;
                 originalKey: string;
                 bpm: number | null;
                 tags: string[];
+                createdById: string | null;
             };
         } & {
             id: string;
             notes: string | null;
+            songId: string;
             order: number;
             meetingId: string;
-            songId: string;
             keyOverride: string | null;
         })[];
         assignments: ({
@@ -290,22 +290,22 @@ export declare class MeetingsService {
         })[];
     } & {
         id: string;
-        title: string;
-        date: Date;
-        notes: string | null;
-        isPublic: boolean;
-        shareToken: string | null;
-        createdById: string | null;
+        churchId: string;
         createdAt: Date;
         updatedAt: Date;
-        churchId: string;
+        title: string;
+        createdById: string | null;
+        notes: string | null;
+        date: Date;
+        isPublic: boolean;
+        shareToken: string | null;
     }>;
     removeSong(churchId: string, meetingId: string, meetingSongId: string): Promise<{
         id: string;
         notes: string | null;
+        songId: string;
         order: number;
         meetingId: string;
-        songId: string;
         keyOverride: string | null;
     }>;
     assignMusician(churchId: string, meetingId: string, userId: string, instrumentId: string, notes?: string): Promise<{
@@ -340,32 +340,32 @@ export declare class MeetingsService {
             song: {
                 versions: {
                     id: string;
-                    notes: string | null;
                     createdAt: Date;
                     updatedAt: Date;
                     type: import(".prisma/client").$Enums.VersionType;
-                    songId: string;
                     key: string;
                     lyricsChords: string;
+                    notes: string | null;
+                    songId: string;
                 }[];
             } & {
                 id: string;
-                title: string;
-                createdById: string | null;
+                churchId: string;
                 createdAt: Date;
                 updatedAt: Date;
-                churchId: string;
+                title: string;
                 artist: string | null;
                 originalKey: string;
                 bpm: number | null;
                 tags: string[];
+                createdById: string | null;
             };
         } & {
             id: string;
             notes: string | null;
+            songId: string;
             order: number;
             meetingId: string;
-            songId: string;
             keyOverride: string | null;
         })[];
         assignments: ({
@@ -388,15 +388,15 @@ export declare class MeetingsService {
         })[];
     } & {
         id: string;
-        title: string;
-        date: Date;
-        notes: string | null;
-        isPublic: boolean;
-        shareToken: string | null;
-        createdById: string | null;
+        churchId: string;
         createdAt: Date;
         updatedAt: Date;
-        churchId: string;
+        title: string;
+        createdById: string | null;
+        notes: string | null;
+        date: Date;
+        isPublic: boolean;
+        shareToken: string | null;
     }>;
     private assertBelongsToChurch;
     private assertAssignmentBelongsToMeeting;

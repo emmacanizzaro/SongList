@@ -33,7 +33,7 @@ var VersionType;
 })(VersionType || (exports.VersionType = VersionType = {}));
 exports.PLAN_LIMITS = {
     [PlanType.FREE]: {
-        maxMembers: 5,
+        maxMembers: 10,
         maxSongs: 50,
         maxInstruments: 6,
         meetingHistoryMonths: 3,

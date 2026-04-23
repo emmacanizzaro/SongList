@@ -17,9 +17,9 @@ export declare class JwtStrategy extends JwtStrategy_base {
     validate(payload: JwtPayload): Promise<{
         churchId: string;
         currentRole: string;
-        id: string;
-        email: string;
         name: string;
+        email: string;
+        id: string;
         avatarUrl: string | null;
     }>;
 }

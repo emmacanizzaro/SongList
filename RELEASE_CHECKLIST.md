@@ -2,6 +2,8 @@
 
 Objetivo: publicar SongList a entorno beta con una secuencia repetible y segura.
 
+Referencia corta de variables por plataforma: ver `DEPLOY_ENV.md`.
+
 ## 1) Verificacion previa en local
 
 1. Ejecutar validacion rapida:
@@ -38,6 +40,11 @@ Esperado: sin cambios pendientes y `beta:check:full` en PASS.
    API_URL
    NODE_ENV=production
 
+   Ejemplo:
+
+   FRONTEND_URL=https://tu-web.vercel.app
+   API_URL=https://tu-api.up.railway.app
+
 5. Aplicar migraciones:
 
    npx prisma migrate deploy --schema apps/api/prisma/schema.prisma
@@ -54,6 +61,10 @@ Esperado: sin cambios pendientes y `beta:check:full` en PASS.
    API_BASE_URL=https://TU_API_PUBLICA
    NEXT_PUBLIC_APP_URL=https://TU_WEB_PUBLICA
 
+   Opcional:
+
+   NEXT_PUBLIC_API_URL=https://TU_API_PUBLICA
+
 3. Deploy por CLI (opcional):
 
    npm run vercel:link:web
@@ -62,12 +73,22 @@ Esperado: sin cambios pendientes y `beta:check:full` en PASS.
 
 ## 4) Smoke test en produccion
 
+0. API health:
+   - GET https://TU_API_PUBLICA/health
+   - Esperado: JSON con `status: ok`
+
 1. Registro/Login
 2. Crear cancion
 3. Ver detalle + transposicion
 4. Crear reunion + agregar canciones + reorder
 5. Compartir reunion por enlace (segun plan)
 6. Ver URL publica de reunion
+
+URLs utiles:
+
+- Web login: https://TU_WEB_PUBLICA/login
+- Web songs: https://TU_WEB_PUBLICA/songs
+- Web meetings: https://TU_WEB_PUBLICA/meetings
 
 ## 5) Rollback rapido
 

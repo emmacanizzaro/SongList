@@ -17,7 +17,7 @@ export interface PlanLimits {
 
 export const PLAN_LIMITS: Record<PlanType, PlanLimits> = {
   [PlanType.FREE]: {
-    maxMembers: 5,
+    maxMembers: 10,
     maxSongs: 50,
     maxInstruments: 6,
     historyMonths: 3,

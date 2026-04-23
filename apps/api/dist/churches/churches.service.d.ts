@@ -12,8 +12,6 @@ export declare class ChurchesService {
         subscription: {
             id: string;
             churchId: string;
-            createdAt: Date;
-            updatedAt: Date;
             plan: import(".prisma/client").$Enums.PlanType;
             status: import(".prisma/client").$Enums.SubscriptionStatus;
             stripeCustomerId: string | null;
@@ -23,6 +21,8 @@ export declare class ChurchesService {
             cancelAtPeriodEnd: boolean;
             mpSubscriptionId: string | null;
             mpCustomerEmail: string | null;
+            createdAt: Date;
+            updatedAt: Date;
         } | null;
         _count: {
             memberships: number;
@@ -32,8 +32,8 @@ export declare class ChurchesService {
     } & {
         id: string;
         createdAt: Date;
-        name: string;
         updatedAt: Date;
+        name: string;
         slug: string;
         logoUrl: string | null;
         description: string | null;
@@ -42,8 +42,8 @@ export declare class ChurchesService {
     update(churchId: string, dto: Partial<CreateChurchDto>): Promise<{
         id: string;
         createdAt: Date;
-        name: string;
         updatedAt: Date;
+        name: string;
         slug: string;
         logoUrl: string | null;
         description: string | null;
@@ -52,28 +52,28 @@ export declare class ChurchesService {
     getMembers(churchId: string): Promise<({
         user: {
             id: string;
-            email: string;
             name: string;
+            email: string;
             avatarUrl: string | null;
         };
     } & {
         id: string;
         churchId: string;
-        role: import(".prisma/client").$Enums.MemberRole;
         userId: string;
+        role: import(".prisma/client").$Enums.MemberRole;
         joinedAt: Date;
     })[]>;
     inviteMember(churchId: string, email: string, role: MemberRole, requestingRole: MemberRole): Promise<{
         user: {
             id: string;
-            email: string;
             name: string;
+            email: string;
         };
     } & {
         id: string;
         churchId: string;
-        role: import(".prisma/client").$Enums.MemberRole;
         userId: string;
+        role: import(".prisma/client").$Enums.MemberRole;
         joinedAt: Date;
     }>;
     createInviteLink(churchId: string, invitedByUserId: string, email: string, role: MemberRole, requestingRole: MemberRole): Promise<{
@@ -96,15 +96,15 @@ export declare class ChurchesService {
     updateMemberRole(churchId: string, memberId: string, role: MemberRole): Promise<{
         id: string;
         churchId: string;
-        role: import(".prisma/client").$Enums.MemberRole;
         userId: string;
+        role: import(".prisma/client").$Enums.MemberRole;
         joinedAt: Date;
     }>;
     removeMember(churchId: string, memberId: string, requestingUserId: string): Promise<{
         id: string;
         churchId: string;
-        role: import(".prisma/client").$Enums.MemberRole;
         userId: string;
+        role: import(".prisma/client").$Enums.MemberRole;
         joinedAt: Date;
     }>;
     getDashboardStats(churchId: string): Promise<{
@@ -112,9 +112,6 @@ export declare class ChurchesService {
         songsCount: number;
         meetingsCount: number;
         upcomingMeetings: ({
-            _count: {
-                assignments: number;
-            };
             meetingSongs: ({
                 song: {
                     title: string;
@@ -122,22 +119,25 @@ export declare class ChurchesService {
             } & {
                 id: string;
                 notes: string | null;
-                meetingId: string;
                 songId: string;
                 order: number;
+                meetingId: string;
                 keyOverride: string | null;
             })[];
+            _count: {
+                assignments: number;
+            };
         } & {
             id: string;
             churchId: string;
             createdAt: Date;
             updatedAt: Date;
             title: string;
-            date: Date;
+            createdById: string | null;
             notes: string | null;
+            date: Date;
             isPublic: boolean;
             shareToken: string | null;
-            createdById: string | null;
         })[];
     }>;
 }

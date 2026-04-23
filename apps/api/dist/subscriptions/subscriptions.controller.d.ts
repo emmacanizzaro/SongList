@@ -13,8 +13,6 @@ export declare class SubscriptionsController {
         limits: import("./plan-limits").PlanLimits;
         id: string;
         churchId: string;
-        createdAt: Date;
-        updatedAt: Date;
         plan: import(".prisma/client").$Enums.PlanType;
         status: import(".prisma/client").$Enums.SubscriptionStatus;
         stripeCustomerId: string | null;
@@ -24,6 +22,8 @@ export declare class SubscriptionsController {
         cancelAtPeriodEnd: boolean;
         mpSubscriptionId: string | null;
         mpCustomerEmail: string | null;
+        createdAt: Date;
+        updatedAt: Date;
     }>;
     getEntitlements(churchId: string): Promise<import("./entitlements.service").EntitlementsSnapshot>;
     createCheckout(churchId: string, email: string, plan: PlanType): Promise<{

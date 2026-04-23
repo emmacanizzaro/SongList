@@ -22,7 +22,7 @@ const PLAN_CARDS: Array<{
     description: "Para equipos pequeños que recién empiezan.",
     price: "$0",
     features: [
-      "Hasta 5 integrantes",
+      "Hasta 10 integrantes",
       "Hasta 50 canciones",
       "6 instrumentos",
       "Historial de 3 meses",

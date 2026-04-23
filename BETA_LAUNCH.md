@@ -2,6 +2,8 @@
 
 Objetivo: mostrar SongList a personas reales esta misma semana con un entorno estable y una demo clara.
 
+Referencia corta de variables y orden de deploy: ver `DEPLOY_ENV.md`.
+
 ## 1) Preparar datos de demo
 
 Ejecutar una sola vez:
@@ -44,6 +46,15 @@ Variables minimas:
 - STRIPE_PRICE_PRO_MONTHLY (si activas pagos)
 - STRIPE_PRICE_ENTERPRISE_MONTHLY (si activas pagos)
 
+Ejemplo recomendado:
+
+- DATABASE_URL=postgresql://USER:PASSWORD@HOST:5432/songlist_db?schema=public
+- JWT_SECRET=<secret-largo-de-al-menos-32-caracteres>
+- REFRESH_TOKEN_SECRET=<otro-secret-largo-distinto>
+- FRONTEND_URL=https://tu-web.vercel.app
+- API_URL=https://tu-api.up.railway.app
+- NODE_ENV=production
+
 Comandos sugeridos:
 
 - Build: npm run build --workspace=@songlist/api
@@ -65,6 +76,10 @@ Variables minimas:
 
 - API_BASE_URL=https://tu-api.com
 - NEXT_PUBLIC_APP_URL=https://tu-web.com
+
+Variables opcionales:
+
+- NEXT_PUBLIC_API_URL=https://tu-api.com
 
 Nota:
 
@@ -89,6 +104,8 @@ Validacion rapida automatizada:
 
 - `npm run beta:check`
 - `npm run beta:check:full` (incluye `check:all`)
+- `GET https://tu-api.com/health` responde `{ "status": "ok" }`
+- La web publica carga sin error 500.
 
 - Login y registro funcionan en URL publica.
 - Crear cancion funciona.
@@ -97,6 +114,14 @@ Validacion rapida automatizada:
 - Enlace publico de reunion funciona.
 - CI en verde en main.
 - Seed demo ejecutado en la base publica.
+
+Secuencia minima post-deploy:
+
+1. Abrir `https://tu-api.com/health` y confirmar `status: ok`.
+2. Abrir `https://tu-web.com/login`.
+3. Iniciar sesion con el usuario demo.
+4. Crear una cancion de prueba.
+5. Crear una reunion, agregar la cancion y abrir el enlace publico.
 
 ## 4) Como venderla antes de terminar
 
