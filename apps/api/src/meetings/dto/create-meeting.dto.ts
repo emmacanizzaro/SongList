@@ -1,8 +1,14 @@
 import {
-  IsString, IsDateString, IsOptional, IsBoolean,
-  IsArray, IsInt, MinLength, MaxLength,
-} from 'class-validator';
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+  IsString,
+  IsDateString,
+  IsOptional,
+  IsBoolean,
+  IsArray,
+  IsInt,
+  MinLength,
+  MaxLength,
+} from "class-validator";
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 
 export class CreateMeetingSongDto {
   @IsString()
@@ -21,13 +27,13 @@ export class CreateMeetingSongDto {
 }
 
 export class CreateMeetingDto {
-  @ApiProperty({ example: 'Reunión Domingo AM' })
+  @ApiProperty({ example: "Reunión Domingo AM" })
   @IsString()
   @MinLength(1)
   @MaxLength(200)
   title: string;
 
-  @ApiProperty({ example: '2026-04-19T10:00:00Z' })
+  @ApiProperty({ example: "2026-04-19T10:00:00Z" })
   @IsDateString()
   date: string;
 

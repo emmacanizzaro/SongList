@@ -20,11 +20,13 @@ let InviteEmailService = InviteEmailService_1 = class InviteEmailService {
         this.logger = new common_1.Logger(InviteEmailService_1.name);
     }
     async sendInviteEmail({ email, churchName, role, token, expiresAt, }) {
+        this.logger.warn("Entrando a sendInviteEmail");
         const frontendUrl = this.config.get("FRONTEND_URL", "http://localhost:3000");
         const inviteUrl = `${frontendUrl.replace(/\/$/, "")}/register?invite=${token}`;
         const apiKey = this.config.get("RESEND_API_KEY");
         const from = this.config.get("INVITE_EMAIL_FROM") ??
             this.config.get("EMAIL_FROM");
+        this.logger.warn(`RESEND_API_KEY: ${apiKey}, INVITE_EMAIL_FROM: ${from}`);
         if (!apiKey || !from) {
             return { emailSent: false, inviteUrl };
         }
@@ -32,25 +34,33 @@ let InviteEmailService = InviteEmailService_1 = class InviteEmailService {
             dateStyle: "medium",
             timeStyle: "short",
         }).format(expiresAt);
-        const subject = `${churchName} te invitó a SongList`;
+        const subject = `¡Bienvenido a SongList! Tu acceso está listo`;
         const text = [
-            `Has sido invitado a unirte a ${churchName} en SongList como ${this.getRoleLabel(role)}.`,
-            `Acepta tu invitación aquí: ${inviteUrl}`,
+            `¡Bienvenido a SongList!`,
+            `Has sido invitado a unirte a ${churchName} como ${this.getRoleLabel(role)}.`,
+            `Tu registro a SongList se confirmó con éxito.`,
+            `Accede a tu equipo usando este enlace: ${inviteUrl}`,
             `La invitación expira el ${expiresAtText}.`,
+            `\n\nEmmanuel Canizzaro - Product Manager`,
         ].join("\n\n");
         const html = `
-      <div style="font-family: Inter, Arial, sans-serif; background: #f8fafc; padding: 24px; color: #0f172a;">
-        <div style="max-width: 560px; margin: 0 auto; background: #ffffff; border-radius: 20px; padding: 32px; border: 1px solid rgba(15, 23, 42, 0.08);">
-          <p style="margin: 0 0 12px; font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase; color: #1d4ed8; font-weight: 700;">SongList</p>
-          <h1 style="margin: 0 0 12px; font-size: 28px; line-height: 1.15;">Te invitaron a ${churchName}</h1>
-          <p style="margin: 0 0 20px; font-size: 15px; line-height: 1.7; color: #475569;">
-            Tu rol será <strong>${this.getRoleLabel(role)}</strong>. Usa este enlace para aceptar la invitación y crear tu acceso.
+      <div style="font-family: Inter, Arial, sans-serif; background: #f6f4ef; padding: 24px; color: #132033;">
+        <div style="max-width: 560px; margin: 0 auto; background: #ffffff; border-radius: 20px; padding: 32px; border: 1px solid #e5e7eb; box-shadow: 0 18px 40px rgba(22, 43, 73, 0.08);">
+          <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 18px;">
+            <div style="font-size: 28px; font-weight: 800; color: #1d4ed8; font-family: Inter, Arial, sans-serif; letter-spacing: 0.12em;">SongList</div>
+          </div>
+          <h1 style="margin: 0 0 18px; font-size: 26px; line-height: 1.15; font-family: Inter, Arial, sans-serif; color: #132033;">¡Bienvenido a SongList!</h1>
+          <p style="margin: 0 0 20px; font-size: 16px; line-height: 1.7; color: #475569; font-family: Inter, Arial, sans-serif;">
+            Has sido invitado a unirte a <strong>${churchName}</strong> como <strong>${this.getRoleLabel(role)}</strong>.<br />
+            Tu registro a SongList se confirmó con éxito.<br />
+            Accede a tu equipo usando el siguiente enlace:
           </p>
-          <a href="${inviteUrl}" style="display: inline-block; padding: 14px 20px; border-radius: 14px; background: #1d4ed8; color: #ffffff; text-decoration: none; font-weight: 700;">Aceptar invitación</a>
-          <p style="margin: 20px 0 0; font-size: 13px; line-height: 1.6; color: #64748b;">
-            Este enlace expira el ${expiresAtText}. Si no esperabas esta invitación, puedes ignorar este correo.
+          <a href="${inviteUrl}" style="display: inline-block; padding: 14px 20px; border-radius: 14px; background: #1d4ed8; color: #ffffff; text-decoration: none; font-weight: 700; font-family: Inter, Arial, sans-serif;">Aceptar invitación</a>
+          <p style="margin: 20px 0 0; font-size: 13px; line-height: 1.6; color: #64748b; font-family: Inter, Arial, sans-serif;">
+            Este enlace expira el ${expiresAtText}. Si no esperabas esta invitación, puedes ignorar este correo.<br />
+            <span style="display:block;margin-top:18px;font-size:15px;color:#1d4ed8;font-weight:700;">Emmanuel Canizzaro - Product Manager</span>
           </p>
-          <p style="margin: 16px 0 0; font-size: 12px; line-height: 1.6; color: #94a3b8; word-break: break-all;">
+          <p style="margin: 16px 0 0; font-size: 12px; line-height: 1.6; color: #94a3b8; word-break: break-all; font-family: Inter, Arial, sans-serif;">
             ${inviteUrl}
           </p>
         </div>

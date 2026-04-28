@@ -54,10 +54,10 @@ exports.SongsController = SongsController;
 __decorate([
     (0, common_1.Post)(),
     (0, roles_decorator_1.Roles)(client_1.MemberRole.EDITOR),
-    (0, swagger_1.ApiOperation)({ summary: 'Crear canción' }),
+    (0, swagger_1.ApiOperation)({ summary: "Crear canción" }),
     openapi.ApiResponse({ status: 201, type: Object }),
     __param(0, (0, tenant_decorator_1.CurrentTenant)()),
-    __param(1, (0, current_user_decorator_1.CurrentUser)('id')),
+    __param(1, (0, current_user_decorator_1.CurrentUser)("id")),
     __param(2, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, String, create_song_dto_1.CreateSongDto]),
@@ -65,79 +65,85 @@ __decorate([
 ], SongsController.prototype, "create", null);
 __decorate([
     (0, common_1.Get)(),
-    (0, swagger_1.ApiOperation)({ summary: 'Listar canciones (con búsqueda)' }),
-    (0, swagger_1.ApiQuery)({ name: 'search', required: false }),
+    (0, swagger_1.ApiOperation)({ summary: "Listar canciones (con búsqueda)" }),
+    (0, swagger_1.ApiQuery)({ name: "search", required: false }),
     openapi.ApiResponse({ status: 200, type: [Object] }),
     __param(0, (0, tenant_decorator_1.CurrentTenant)()),
-    __param(1, (0, common_1.Query)('search')),
+    __param(1, (0, common_1.Query)("search")),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, String]),
     __metadata("design:returntype", void 0)
 ], SongsController.prototype, "findAll", null);
 __decorate([
-    (0, common_1.Get)(':id'),
-    (0, swagger_1.ApiOperation)({ summary: 'Obtener canción con todas las versiones' }),
+    (0, common_1.Get)(":id"),
+    (0, swagger_1.ApiOperation)({ summary: "Obtener canción con todas las versiones" }),
     openapi.ApiResponse({ status: 200, type: Object }),
     __param(0, (0, tenant_decorator_1.CurrentTenant)()),
-    __param(1, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Param)("id")),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, String]),
     __metadata("design:returntype", void 0)
 ], SongsController.prototype, "findOne", null);
 __decorate([
-    (0, common_1.Patch)(':id'),
+    (0, common_1.Patch)(":id"),
     (0, roles_decorator_1.Roles)(client_1.MemberRole.EDITOR),
-    (0, swagger_1.ApiOperation)({ summary: 'Editar canción' }),
+    (0, swagger_1.ApiOperation)({ summary: "Editar canción" }),
     openapi.ApiResponse({ status: 200 }),
     __param(0, (0, tenant_decorator_1.CurrentTenant)()),
-    __param(1, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Param)("id")),
     __param(2, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, String, Object]),
     __metadata("design:returntype", void 0)
 ], SongsController.prototype, "update", null);
 __decorate([
-    (0, common_1.Delete)(':id'),
+    (0, common_1.Delete)(":id"),
     (0, roles_decorator_1.Roles)(client_1.MemberRole.EDITOR),
-    (0, swagger_1.ApiOperation)({ summary: 'Eliminar canción' }),
+    (0, swagger_1.ApiOperation)({ summary: "Eliminar canción" }),
     openapi.ApiResponse({ status: 200 }),
     __param(0, (0, tenant_decorator_1.CurrentTenant)()),
-    __param(1, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Param)("id")),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, String]),
     __metadata("design:returntype", void 0)
 ], SongsController.prototype, "remove", null);
 __decorate([
-    (0, common_1.Post)(':id/versions'),
+    (0, common_1.Post)(":id/versions"),
     (0, roles_decorator_1.Roles)(client_1.MemberRole.EDITOR),
-    (0, swagger_1.ApiOperation)({ summary: 'Generar versión transpuesta (hombre/mujer/custom)' }),
+    (0, swagger_1.ApiOperation)({
+        summary: "Generar versión transpuesta (hombre/mujer/custom)",
+    }),
     openapi.ApiResponse({ status: 201 }),
     __param(0, (0, tenant_decorator_1.CurrentTenant)()),
-    __param(1, (0, common_1.Param)('id')),
-    __param(2, (0, common_1.Body)('type')),
-    __param(3, (0, common_1.Body)('targetKey')),
-    __param(4, (0, common_1.Body)('notes')),
+    __param(1, (0, common_1.Param)("id")),
+    __param(2, (0, common_1.Body)("type")),
+    __param(3, (0, common_1.Body)("targetKey")),
+    __param(4, (0, common_1.Body)("notes")),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, String, String, String, String]),
     __metadata("design:returntype", void 0)
 ], SongsController.prototype, "addVersion", null);
 __decorate([
-    (0, common_1.Get)(':id/transpose'),
-    (0, swagger_1.ApiOperation)({ summary: 'Transposición en vivo (sin guardar)' }),
-    (0, swagger_1.ApiQuery)({ name: 'key', required: true, description: 'Tonalidad destino: C, F#, Bb, etc.' }),
+    (0, common_1.Get)(":id/transpose"),
+    (0, swagger_1.ApiOperation)({ summary: "Transposición en vivo (sin guardar)" }),
+    (0, swagger_1.ApiQuery)({
+        name: "key",
+        required: true,
+        description: "Tonalidad destino: C, F#, Bb, etc.",
+    }),
     openapi.ApiResponse({ status: 200 }),
     __param(0, (0, tenant_decorator_1.CurrentTenant)()),
-    __param(1, (0, common_1.Param)('id')),
-    __param(2, (0, common_1.Query)('key')),
+    __param(1, (0, common_1.Param)("id")),
+    __param(2, (0, common_1.Query)("key")),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, String, String]),
     __metadata("design:returntype", void 0)
 ], SongsController.prototype, "liveTranspose", null);
 exports.SongsController = SongsController = __decorate([
-    (0, swagger_1.ApiTags)('songs'),
-    (0, swagger_1.ApiBearerAuth)('JWT'),
+    (0, swagger_1.ApiTags)("songs"),
+    (0, swagger_1.ApiBearerAuth)("JWT"),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
-    (0, common_1.Controller)('songs'),
+    (0, common_1.Controller)("songs"),
     __metadata("design:paramtypes", [songs_service_1.SongsService])
 ], SongsController);
 //# sourceMappingURL=songs.controller.js.map

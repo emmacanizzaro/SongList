@@ -20,21 +20,25 @@ class CreateChurchDto {
 }
 exports.CreateChurchDto = CreateChurchDto;
 __decorate([
-    (0, swagger_1.ApiProperty)({ example: 'Iglesia Casa de Gracia' }),
+    (0, swagger_1.ApiProperty)({ example: "Iglesia Casa de Gracia" }),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.MinLength)(2),
     (0, class_validator_1.MaxLength)(100),
     __metadata("design:type", String)
 ], CreateChurchDto.prototype, "name", void 0);
 __decorate([
-    (0, swagger_1.ApiPropertyOptional)({ example: 'Una comunidad de fe en el centro de la ciudad' }),
+    (0, swagger_1.ApiPropertyOptional)({
+        example: "Una comunidad de fe en el centro de la ciudad",
+    }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.MaxLength)(500),
     __metadata("design:type", String)
 ], CreateChurchDto.prototype, "description", void 0);
 __decorate([
-    (0, swagger_1.ApiPropertyOptional)({ example: 'https://storage.songlist.app/logos/abc.png' }),
+    (0, swagger_1.ApiPropertyOptional)({
+        example: "https://storage.songlist.app/logos/abc.png",
+    }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsUrl)(),
     __metadata("design:type", String)

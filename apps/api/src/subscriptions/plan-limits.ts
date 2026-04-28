@@ -27,7 +27,7 @@ export const PLAN_LIMITS: Record<PlanType, PlanLimits> = {
     supportPriority: "community",
   },
   [PlanType.PRO]: {
-    maxMembers: -1,
+    maxMembers: 16,
     maxSongs: -1,
     maxInstruments: 30,
     historyMonths: -1,

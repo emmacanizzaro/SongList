@@ -15,7 +15,7 @@ exports.PLAN_LIMITS = {
         supportPriority: "community",
     },
     [client_1.PlanType.PRO]: {
-        maxMembers: -1,
+        maxMembers: 16,
         maxSongs: -1,
         maxInstruments: 30,
         historyMonths: -1,

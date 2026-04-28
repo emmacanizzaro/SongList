@@ -44,14 +44,14 @@ class CreateMeetingDto {
 }
 exports.CreateMeetingDto = CreateMeetingDto;
 __decorate([
-    (0, swagger_1.ApiProperty)({ example: 'Reunión Domingo AM' }),
+    (0, swagger_1.ApiProperty)({ example: "Reunión Domingo AM" }),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.MinLength)(1),
     (0, class_validator_1.MaxLength)(200),
     __metadata("design:type", String)
 ], CreateMeetingDto.prototype, "title", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ example: '2026-04-19T10:00:00Z' }),
+    (0, swagger_1.ApiProperty)({ example: "2026-04-19T10:00:00Z" }),
     (0, class_validator_1.IsDateString)(),
     __metadata("design:type", String)
 ], CreateMeetingDto.prototype, "date", void 0);

@@ -1,6 +1,6 @@
-import { ConfigService } from '@nestjs/config';
-import { Strategy } from 'passport-jwt';
-import { PrismaService } from '../../prisma/prisma.service';
+import { ConfigService } from "@nestjs/config";
+import { Strategy } from "passport-jwt";
+import { PrismaService } from "../../prisma/prisma.service";
 export interface JwtPayload {
     sub: string;
     email: string;
@@ -17,9 +17,9 @@ export declare class JwtStrategy extends JwtStrategy_base {
     validate(payload: JwtPayload): Promise<{
         churchId: string;
         currentRole: string;
-        name: string;
-        email: string;
         id: string;
+        email: string;
+        name: string;
         avatarUrl: string | null;
     }>;
 }

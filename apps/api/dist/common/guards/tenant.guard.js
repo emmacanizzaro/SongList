@@ -21,7 +21,7 @@ let TenantResourceGuard = class TenantResourceGuard {
         const churchId = request.user?.churchId;
         const resourceId = request.params?.id;
         if (!churchId)
-            throw new common_1.ForbiddenException('No autenticado como miembro de una iglesia');
+            throw new common_1.ForbiddenException("No autenticado como miembro de una iglesia");
         if (!resourceId)
             return true;
         request.tenantChurchId = churchId;

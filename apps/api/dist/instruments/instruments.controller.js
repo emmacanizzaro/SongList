@@ -45,7 +45,7 @@ let InstrumentsController = class InstrumentsController {
 exports.InstrumentsController = InstrumentsController;
 __decorate([
     (0, common_1.Get)(),
-    (0, swagger_1.ApiOperation)({ summary: 'Listar instrumentos de la iglesia' }),
+    (0, swagger_1.ApiOperation)({ summary: "Listar instrumentos de la iglesia" }),
     openapi.ApiResponse({ status: 200, type: [Object] }),
     __param(0, (0, tenant_decorator_1.CurrentTenant)()),
     __metadata("design:type", Function),
@@ -55,55 +55,55 @@ __decorate([
 __decorate([
     (0, common_1.Post)(),
     (0, roles_decorator_1.Roles)(client_1.MemberRole.ADMIN),
-    (0, swagger_1.ApiOperation)({ summary: 'Crear instrumento personalizado' }),
+    (0, swagger_1.ApiOperation)({ summary: "Crear instrumento personalizado" }),
     openapi.ApiResponse({ status: 201 }),
     __param(0, (0, tenant_decorator_1.CurrentTenant)()),
-    __param(1, (0, common_1.Body)('name')),
-    __param(2, (0, common_1.Body)('icon')),
+    __param(1, (0, common_1.Body)("name")),
+    __param(2, (0, common_1.Body)("icon")),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, String, String]),
     __metadata("design:returntype", void 0)
 ], InstrumentsController.prototype, "create", null);
 __decorate([
-    (0, common_1.Patch)(':id'),
+    (0, common_1.Patch)(":id"),
     (0, roles_decorator_1.Roles)(client_1.MemberRole.ADMIN),
-    (0, swagger_1.ApiOperation)({ summary: 'Editar instrumento' }),
+    (0, swagger_1.ApiOperation)({ summary: "Editar instrumento" }),
     openapi.ApiResponse({ status: 200 }),
     __param(0, (0, tenant_decorator_1.CurrentTenant)()),
-    __param(1, (0, common_1.Param)('id')),
-    __param(2, (0, common_1.Body)('name')),
-    __param(3, (0, common_1.Body)('icon')),
+    __param(1, (0, common_1.Param)("id")),
+    __param(2, (0, common_1.Body)("name")),
+    __param(3, (0, common_1.Body)("icon")),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, String, String, String]),
     __metadata("design:returntype", void 0)
 ], InstrumentsController.prototype, "update", null);
 __decorate([
-    (0, common_1.Delete)(':id'),
+    (0, common_1.Delete)(":id"),
     (0, roles_decorator_1.Roles)(client_1.MemberRole.ADMIN),
-    (0, swagger_1.ApiOperation)({ summary: 'Eliminar instrumento' }),
+    (0, swagger_1.ApiOperation)({ summary: "Eliminar instrumento" }),
     openapi.ApiResponse({ status: 200 }),
     __param(0, (0, tenant_decorator_1.CurrentTenant)()),
-    __param(1, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Param)("id")),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, String]),
     __metadata("design:returntype", void 0)
 ], InstrumentsController.prototype, "remove", null);
 __decorate([
-    (0, common_1.Patch)('reorder'),
+    (0, common_1.Patch)("reorder"),
     (0, roles_decorator_1.Roles)(client_1.MemberRole.ADMIN),
-    (0, swagger_1.ApiOperation)({ summary: 'Reordenar instrumentos' }),
+    (0, swagger_1.ApiOperation)({ summary: "Reordenar instrumentos" }),
     openapi.ApiResponse({ status: 200, type: [Object] }),
     __param(0, (0, tenant_decorator_1.CurrentTenant)()),
-    __param(1, (0, common_1.Body)('orderedIds')),
+    __param(1, (0, common_1.Body)("orderedIds")),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, Array]),
     __metadata("design:returntype", void 0)
 ], InstrumentsController.prototype, "reorder", null);
 exports.InstrumentsController = InstrumentsController = __decorate([
-    (0, swagger_1.ApiTags)('instruments'),
-    (0, swagger_1.ApiBearerAuth)('JWT'),
+    (0, swagger_1.ApiTags)("instruments"),
+    (0, swagger_1.ApiBearerAuth)("JWT"),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
-    (0, common_1.Controller)('instruments'),
+    (0, common_1.Controller)("instruments"),
     __metadata("design:paramtypes", [instruments_service_1.InstrumentsService])
 ], InstrumentsController);
 //# sourceMappingURL=instruments.controller.js.map

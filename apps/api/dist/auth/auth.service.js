@@ -11,19 +11,22 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthService = void 0;
 const common_1 = require("@nestjs/common");
-const config_1 = require("@nestjs/config");
 const jwt_1 = require("@nestjs/jwt");
+const config_1 = require("@nestjs/config");
 const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
 const prisma_service_1 = require("../prisma/prisma.service");
+const welcome_email_service_1 = require("./welcome-email.service");
 let AuthService = class AuthService {
-    constructor(prisma, jwt, config) {
+    constructor(prisma, jwt, welcomeEmail, config) {
         this.prisma = prisma;
         this.jwt = jwt;
+        this.welcomeEmail = welcomeEmail;
         this.config = config;
     }
     async register(dto) {
         const normalizedEmail = dto.email.toLowerCase();
+        let userNameForWelcome = dto.name;
         if (dto.inviteToken) {
             const invite = await this.prisma.churchInvite.findUnique({
                 where: { token: dto.inviteToken },
@@ -64,6 +67,7 @@ let AuthService = class AuthService {
                         passwordHash,
                     },
                 });
+                userNameForWelcome = updatedUser.name;
                 await this.prisma.churchInvite.update({
                     where: { token: dto.inviteToken },
                     data: { acceptedAt: new Date() },
@@ -122,11 +126,20 @@ let AuthService = class AuthService {
                 },
             });
             const membership = existing.memberships[0];
+            userNameForWelcome = updatedUser.name;
+            await this.welcomeEmail.sendWelcomeEmail({
+                email: updatedUser.email,
+                name: userNameForWelcome,
+            });
             return this.issueTokens(updatedUser.id, updatedUser.email, membership.churchId, membership.role);
         }
         const passwordHash = await bcrypt.hash(dto.password, 12);
         const slug = this.generateSlug(dto.churchName);
         const result = await this.prisma.$transaction(async (tx) => {
+            let finalSlug = slug;
+            const existingChurch = await tx.church.findUnique({ where: { slug } });
+            if (existingChurch)
+                finalSlug = `${slug}-${Date.now()}`;
             const user = await tx.user.create({
                 data: {
                     email: normalizedEmail,
@@ -134,10 +147,7 @@ let AuthService = class AuthService {
                     name: dto.name,
                 },
             });
-            let finalSlug = slug;
-            const existingChurch = await tx.church.findUnique({ where: { slug } });
-            if (existingChurch)
-                finalSlug = `${slug}-${Date.now()}`;
+            userNameForWelcome = user.name;
             const church = await tx.church.create({
                 data: {
                     name: dto.churchName,
@@ -161,6 +171,10 @@ let AuthService = class AuthService {
                 data: { userId: user.id, churchId: church.id, role: "ADMIN" },
             });
             return { user, church, membership };
+        });
+        await this.welcomeEmail.sendWelcomeEmail({
+            email: result.user.email,
+            name: userNameForWelcome,
         });
         return this.issueTokens(result.user.id, result.user.email, result.church.id, "ADMIN");
     }
@@ -254,6 +268,7 @@ exports.AuthService = AuthService = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [prisma_service_1.PrismaService,
         jwt_1.JwtService,
+        welcome_email_service_1.WelcomeEmailService,
         config_1.ConfigService])
 ], AuthService);
 //# sourceMappingURL=auth.service.js.map

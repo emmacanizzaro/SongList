@@ -1,6 +1,6 @@
-import { VersionType } from '@prisma/client';
-import { SongsService } from './songs.service';
-import { CreateSongDto } from './dto/create-song.dto';
+import { VersionType } from "@prisma/client";
+import { SongsService } from "./songs.service";
+import { CreateSongDto } from "./dto/create-song.dto";
 export declare class SongsController {
     private readonly songsService;
     constructor(songsService: SongsService);
@@ -17,14 +17,14 @@ export declare class SongsController {
         }[];
     } & {
         id: string;
-        churchId: string;
         createdAt: Date;
         updatedAt: Date;
+        churchId: string;
+        tags: string[];
         title: string;
         artist: string | null;
         originalKey: string;
         bpm: number | null;
-        tags: string[];
         createdById: string | null;
     }>;
     findAll(churchId: string, search?: string): Promise<({
@@ -34,14 +34,14 @@ export declare class SongsController {
         };
     } & {
         id: string;
-        churchId: string;
         createdAt: Date;
         updatedAt: Date;
+        churchId: string;
+        tags: string[];
         title: string;
         artist: string | null;
         originalKey: string;
         bpm: number | null;
-        tags: string[];
         createdById: string | null;
     })[]>;
     findOne(churchId: string, id: string): Promise<{
@@ -57,38 +57,38 @@ export declare class SongsController {
         }[];
     } & {
         id: string;
-        churchId: string;
         createdAt: Date;
         updatedAt: Date;
+        churchId: string;
+        tags: string[];
         title: string;
         artist: string | null;
         originalKey: string;
         bpm: number | null;
-        tags: string[];
         createdById: string | null;
     }>;
     update(churchId: string, id: string, dto: Partial<CreateSongDto>): Promise<{
         id: string;
-        churchId: string;
         createdAt: Date;
         updatedAt: Date;
+        churchId: string;
+        tags: string[];
         title: string;
         artist: string | null;
         originalKey: string;
         bpm: number | null;
-        tags: string[];
         createdById: string | null;
     }>;
     remove(churchId: string, id: string): Promise<{
         id: string;
-        churchId: string;
         createdAt: Date;
         updatedAt: Date;
+        churchId: string;
+        tags: string[];
         title: string;
         artist: string | null;
         originalKey: string;
         bpm: number | null;
-        tags: string[];
         createdById: string | null;
     }>;
     addVersion(churchId: string, songId: string, type: VersionType, targetKey: string, notes?: string): Promise<{

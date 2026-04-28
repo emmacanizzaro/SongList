@@ -1,10 +1,10 @@
 import {
-    CanActivate,
-    ExecutionContext,
-    ForbiddenException,
-    Injectable,
-} from '@nestjs/common';
-import { PrismaService } from '../../prisma/prisma.service';
+  CanActivate,
+  ExecutionContext,
+  ForbiddenException,
+  Injectable,
+} from "@nestjs/common";
+import { PrismaService } from "../../prisma/prisma.service";
 
 /**
  * TenantResourceGuard — Verifica que el recurso (por :id en la URL)
@@ -24,7 +24,10 @@ export class TenantResourceGuard implements CanActivate {
     const churchId: string = request.user?.churchId;
     const resourceId: string = request.params?.id;
 
-    if (!churchId) throw new ForbiddenException('No autenticado como miembro de una iglesia');
+    if (!churchId)
+      throw new ForbiddenException(
+        "No autenticado como miembro de una iglesia",
+      );
     if (!resourceId) return true; // No hay ID en la ruta, no aplica
 
     // Se almacena churchId validado para uso en los servicios

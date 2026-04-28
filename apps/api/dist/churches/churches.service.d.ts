@@ -7,10 +7,13 @@ export declare class ChurchesService {
     private prisma;
     private entitlements;
     private inviteEmail;
+    private readonly logger;
     constructor(prisma: PrismaService, entitlements: EntitlementsService, inviteEmail: InviteEmailService);
     findById(churchId: string): Promise<{
         subscription: {
             id: string;
+            createdAt: Date;
+            updatedAt: Date;
             churchId: string;
             plan: import(".prisma/client").$Enums.PlanType;
             status: import(".prisma/client").$Enums.SubscriptionStatus;
@@ -21,8 +24,6 @@ export declare class ChurchesService {
             cancelAtPeriodEnd: boolean;
             mpSubscriptionId: string | null;
             mpCustomerEmail: string | null;
-            createdAt: Date;
-            updatedAt: Date;
         } | null;
         _count: {
             memberships: number;
@@ -31,23 +32,23 @@ export declare class ChurchesService {
         };
     } & {
         id: string;
-        createdAt: Date;
-        updatedAt: Date;
-        name: string;
         slug: string;
+        name: string;
         logoUrl: string | null;
         description: string | null;
         timezone: string;
+        createdAt: Date;
+        updatedAt: Date;
     }>;
     update(churchId: string, dto: Partial<CreateChurchDto>): Promise<{
         id: string;
-        createdAt: Date;
-        updatedAt: Date;
-        name: string;
         slug: string;
+        name: string;
         logoUrl: string | null;
         description: string | null;
         timezone: string;
+        createdAt: Date;
+        updatedAt: Date;
     }>;
     getMembers(churchId: string): Promise<({
         user: {
@@ -112,6 +113,9 @@ export declare class ChurchesService {
         songsCount: number;
         meetingsCount: number;
         upcomingMeetings: ({
+            _count: {
+                assignments: number;
+            };
             meetingSongs: ({
                 song: {
                     title: string;
@@ -119,25 +123,22 @@ export declare class ChurchesService {
             } & {
                 id: string;
                 notes: string | null;
+                meetingId: string;
                 songId: string;
                 order: number;
-                meetingId: string;
                 keyOverride: string | null;
             })[];
-            _count: {
-                assignments: number;
-            };
         } & {
             id: string;
-            churchId: string;
             createdAt: Date;
             updatedAt: Date;
+            churchId: string;
             title: string;
-            createdById: string | null;
-            notes: string | null;
             date: Date;
+            notes: string | null;
             isPublic: boolean;
             shareToken: string | null;
+            createdById: string | null;
         })[];
     }>;
 }

@@ -16,11 +16,11 @@ let TenantBaseService = class TenantBaseService {
     constructor(prisma) {
         this.prisma = prisma;
     }
-    async assertBelongsToTenant(resource, churchId, resourceName = 'Recurso') {
+    async assertBelongsToTenant(resource, churchId, resourceName = "Recurso") {
         if (!resource)
             throw new common_1.NotFoundException(`${resourceName} no encontrado`);
         if (resource.churchId !== churchId) {
-            throw new common_1.ForbiddenException('No tienes acceso a este recurso');
+            throw new common_1.ForbiddenException("No tienes acceso a este recurso");
         }
         return resource;
     }

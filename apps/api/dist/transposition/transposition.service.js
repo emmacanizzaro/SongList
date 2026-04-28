@@ -8,15 +8,56 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TranspositionService = void 0;
 const common_1 = require("@nestjs/common");
-const CHROMATIC_SHARP = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
-const CHROMATIC_FLAT = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'];
+const CHROMATIC_SHARP = [
+    "C",
+    "C#",
+    "D",
+    "D#",
+    "E",
+    "F",
+    "F#",
+    "G",
+    "G#",
+    "A",
+    "A#",
+    "B",
+];
+const CHROMATIC_FLAT = [
+    "C",
+    "Db",
+    "D",
+    "Eb",
+    "E",
+    "F",
+    "Gb",
+    "G",
+    "Ab",
+    "A",
+    "Bb",
+    "B",
+];
 const ENHARMONIC = {
-    'Cb': 'B', 'Db': 'C#', 'Eb': 'D#', 'Fb': 'E',
-    'Gb': 'F#', 'Ab': 'G#', 'Bb': 'A#',
+    Cb: "B",
+    Db: "C#",
+    Eb: "D#",
+    Fb: "E",
+    Gb: "F#",
+    Ab: "G#",
+    Bb: "A#",
 };
 const FLAT_PREFERENCE = new Set([
-    'F', 'Bb', 'Eb', 'Ab', 'Db', 'Gb',
-    'Dm', 'Gm', 'Cm', 'Fm', 'Bbm', 'Ebm',
+    "F",
+    "Bb",
+    "Eb",
+    "Ab",
+    "Db",
+    "Gb",
+    "Dm",
+    "Gm",
+    "Cm",
+    "Fm",
+    "Bbm",
+    "Ebm",
 ]);
 const NOTE_PATTERN = /^([A-G][b#]?)/;
 let TranspositionService = class TranspositionService {
@@ -38,7 +79,7 @@ let TranspositionService = class TranspositionService {
             return chord;
         const root = rootMatch[1];
         const rest = chord.slice(root.length);
-        const bassSlashIdx = rest.lastIndexOf('/');
+        const bassSlashIdx = rest.lastIndexOf("/");
         let quality = rest;
         let bassNote = null;
         if (bassSlashIdx !== -1) {
@@ -60,7 +101,7 @@ let TranspositionService = class TranspositionService {
         const index = this.noteToIndex(note);
         if (index === -1)
             return note;
-        const newIndex = ((index + semitones) % 12 + 12) % 12;
+        const newIndex = (((index + semitones) % 12) + 12) % 12;
         return preferFlat ? CHROMATIC_FLAT[newIndex] : CHROMATIC_SHARP[newIndex];
     }
     getInterval(fromKey, toKey) {
@@ -70,7 +111,7 @@ let TranspositionService = class TranspositionService {
         const toIndex = this.noteToIndex(toRoot);
         if (fromIndex === -1 || toIndex === -1)
             return 0;
-        return ((toIndex - fromIndex) + 12) % 12;
+        return (toIndex - fromIndex + 12) % 12;
     }
     getAllTranspositions(lyricsChords, originalKey) {
         const results = [];

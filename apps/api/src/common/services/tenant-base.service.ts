@@ -1,5 +1,9 @@
-import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
-import { PrismaService } from '../../prisma/prisma.service';
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+} from "@nestjs/common";
+import { PrismaService } from "../../prisma/prisma.service";
 
 /**
  * Servicio base para acceso a recursos multi-tenant.
@@ -17,11 +21,11 @@ export class TenantBaseService {
   protected async assertBelongsToTenant<T extends { churchId: string }>(
     resource: T | null,
     churchId: string,
-    resourceName = 'Recurso',
+    resourceName = "Recurso",
   ): Promise<T> {
     if (!resource) throw new NotFoundException(`${resourceName} no encontrado`);
     if (resource.churchId !== churchId) {
-      throw new ForbiddenException('No tienes acceso a este recurso');
+      throw new ForbiddenException("No tienes acceso a este recurso");
     }
     return resource;
   }

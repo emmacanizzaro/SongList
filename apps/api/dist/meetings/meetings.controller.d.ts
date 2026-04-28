@@ -4,6 +4,24 @@ export declare class MeetingsController {
     private readonly meetingsService;
     constructor(meetingsService: MeetingsService);
     create(churchId: string, userId: string, dto: CreateMeetingDto): Promise<{
+        assignments: ({
+            user: {
+                id: string;
+                name: string;
+                avatarUrl: string | null;
+            };
+            instrument: {
+                id: string;
+                name: string;
+                icon: string | null;
+            };
+        } & {
+            id: string;
+            userId: string;
+            notes: string | null;
+            meetingId: string;
+            instrumentId: string;
+        })[];
         meetingSongs: ({
             song: {
                 versions: {
@@ -18,14 +36,14 @@ export declare class MeetingsController {
                 }[];
             } & {
                 id: string;
-                churchId: string;
                 createdAt: Date;
                 updatedAt: Date;
+                churchId: string;
+                tags: string[];
                 title: string;
                 artist: string | null;
                 originalKey: string;
                 bpm: number | null;
-                tags: string[];
                 createdById: string | null;
             };
         } & {
@@ -36,29 +54,11 @@ export declare class MeetingsController {
             meetingId: string;
             keyOverride: string | null;
         })[];
-        assignments: ({
-            user: {
-                id: string;
-                name: string;
-                avatarUrl: string | null;
-            };
-            instrument: {
-                id: string;
-                name: string;
-                icon: string | null;
-            };
-        } & {
-            id: string;
-            notes: string | null;
-            meetingId: string;
-            userId: string;
-            instrumentId: string;
-        })[];
     } & {
         id: string;
-        churchId: string;
         createdAt: Date;
         updatedAt: Date;
+        churchId: string;
         title: string;
         createdById: string | null;
         notes: string | null;
@@ -68,14 +68,14 @@ export declare class MeetingsController {
     }>;
     findAll(churchId: string, upcoming?: boolean): Promise<({
         _count: {
-            meetingSongs: number;
             assignments: number;
+            meetingSongs: number;
         };
     } & {
         id: string;
-        churchId: string;
         createdAt: Date;
         updatedAt: Date;
+        churchId: string;
         title: string;
         createdById: string | null;
         notes: string | null;
@@ -84,6 +84,24 @@ export declare class MeetingsController {
         shareToken: string | null;
     })[]>;
     findOne(churchId: string, id: string): Promise<{
+        assignments: ({
+            user: {
+                id: string;
+                name: string;
+                avatarUrl: string | null;
+            };
+            instrument: {
+                id: string;
+                name: string;
+                icon: string | null;
+            };
+        } & {
+            id: string;
+            userId: string;
+            notes: string | null;
+            meetingId: string;
+            instrumentId: string;
+        })[];
         meetingSongs: ({
             song: {
                 versions: {
@@ -98,14 +116,14 @@ export declare class MeetingsController {
                 }[];
             } & {
                 id: string;
-                churchId: string;
                 createdAt: Date;
                 updatedAt: Date;
+                churchId: string;
+                tags: string[];
                 title: string;
                 artist: string | null;
                 originalKey: string;
                 bpm: number | null;
-                tags: string[];
                 createdById: string | null;
             };
         } & {
@@ -116,29 +134,11 @@ export declare class MeetingsController {
             meetingId: string;
             keyOverride: string | null;
         })[];
-        assignments: ({
-            user: {
-                id: string;
-                name: string;
-                avatarUrl: string | null;
-            };
-            instrument: {
-                id: string;
-                name: string;
-                icon: string | null;
-            };
-        } & {
-            id: string;
-            notes: string | null;
-            meetingId: string;
-            userId: string;
-            instrumentId: string;
-        })[];
     } & {
         id: string;
-        churchId: string;
         createdAt: Date;
         updatedAt: Date;
+        churchId: string;
         title: string;
         createdById: string | null;
         notes: string | null;
@@ -147,6 +147,24 @@ export declare class MeetingsController {
         shareToken: string | null;
     }>;
     update(churchId: string, id: string, dto: Partial<CreateMeetingDto>): Promise<{
+        assignments: ({
+            user: {
+                id: string;
+                name: string;
+                avatarUrl: string | null;
+            };
+            instrument: {
+                id: string;
+                name: string;
+                icon: string | null;
+            };
+        } & {
+            id: string;
+            userId: string;
+            notes: string | null;
+            meetingId: string;
+            instrumentId: string;
+        })[];
         meetingSongs: ({
             song: {
                 versions: {
@@ -161,14 +179,14 @@ export declare class MeetingsController {
                 }[];
             } & {
                 id: string;
-                churchId: string;
                 createdAt: Date;
                 updatedAt: Date;
+                churchId: string;
+                tags: string[];
                 title: string;
                 artist: string | null;
                 originalKey: string;
                 bpm: number | null;
-                tags: string[];
                 createdById: string | null;
             };
         } & {
@@ -179,29 +197,11 @@ export declare class MeetingsController {
             meetingId: string;
             keyOverride: string | null;
         })[];
-        assignments: ({
-            user: {
-                id: string;
-                name: string;
-                avatarUrl: string | null;
-            };
-            instrument: {
-                id: string;
-                name: string;
-                icon: string | null;
-            };
-        } & {
-            id: string;
-            notes: string | null;
-            meetingId: string;
-            userId: string;
-            instrumentId: string;
-        })[];
     } & {
         id: string;
-        churchId: string;
         createdAt: Date;
         updatedAt: Date;
+        churchId: string;
         title: string;
         createdById: string | null;
         notes: string | null;
@@ -211,9 +211,9 @@ export declare class MeetingsController {
     }>;
     remove(churchId: string, id: string): Promise<{
         id: string;
-        churchId: string;
         createdAt: Date;
         updatedAt: Date;
+        churchId: string;
         title: string;
         createdById: string | null;
         notes: string | null;
@@ -236,6 +236,24 @@ export declare class MeetingsController {
         keyOverride: string | null;
     }>;
     reorderSongs(churchId: string, meetingId: string, orderedSongIds: string[]): Promise<{
+        assignments: ({
+            user: {
+                id: string;
+                name: string;
+                avatarUrl: string | null;
+            };
+            instrument: {
+                id: string;
+                name: string;
+                icon: string | null;
+            };
+        } & {
+            id: string;
+            userId: string;
+            notes: string | null;
+            meetingId: string;
+            instrumentId: string;
+        })[];
         meetingSongs: ({
             song: {
                 versions: {
@@ -250,14 +268,14 @@ export declare class MeetingsController {
                 }[];
             } & {
                 id: string;
-                churchId: string;
                 createdAt: Date;
                 updatedAt: Date;
+                churchId: string;
+                tags: string[];
                 title: string;
                 artist: string | null;
                 originalKey: string;
                 bpm: number | null;
-                tags: string[];
                 createdById: string | null;
             };
         } & {
@@ -268,29 +286,11 @@ export declare class MeetingsController {
             meetingId: string;
             keyOverride: string | null;
         })[];
-        assignments: ({
-            user: {
-                id: string;
-                name: string;
-                avatarUrl: string | null;
-            };
-            instrument: {
-                id: string;
-                name: string;
-                icon: string | null;
-            };
-        } & {
-            id: string;
-            notes: string | null;
-            meetingId: string;
-            userId: string;
-            instrumentId: string;
-        })[];
     } & {
         id: string;
-        churchId: string;
         createdAt: Date;
         updatedAt: Date;
+        churchId: string;
         title: string;
         createdById: string | null;
         notes: string | null;
@@ -318,16 +318,16 @@ export declare class MeetingsController {
         };
     } & {
         id: string;
+        userId: string;
         notes: string | null;
         meetingId: string;
-        userId: string;
         instrumentId: string;
     }>;
     unassign(churchId: string, meetingId: string, assignmentId: string): Promise<{
         id: string;
+        userId: string;
         notes: string | null;
         meetingId: string;
-        userId: string;
         instrumentId: string;
     }>;
     generateShare(churchId: string, meetingId: string): Promise<{
@@ -338,6 +338,24 @@ export declare class PublicMeetingsController {
     private readonly meetingsService;
     constructor(meetingsService: MeetingsService);
     findByToken(token: string): Promise<{
+        assignments: ({
+            user: {
+                id: string;
+                name: string;
+                avatarUrl: string | null;
+            };
+            instrument: {
+                id: string;
+                name: string;
+                icon: string | null;
+            };
+        } & {
+            id: string;
+            userId: string;
+            notes: string | null;
+            meetingId: string;
+            instrumentId: string;
+        })[];
         meetingSongs: ({
             song: {
                 versions: {
@@ -352,14 +370,14 @@ export declare class PublicMeetingsController {
                 }[];
             } & {
                 id: string;
-                churchId: string;
                 createdAt: Date;
                 updatedAt: Date;
+                churchId: string;
+                tags: string[];
                 title: string;
                 artist: string | null;
                 originalKey: string;
                 bpm: number | null;
-                tags: string[];
                 createdById: string | null;
             };
         } & {
@@ -370,29 +388,11 @@ export declare class PublicMeetingsController {
             meetingId: string;
             keyOverride: string | null;
         })[];
-        assignments: ({
-            user: {
-                id: string;
-                name: string;
-                avatarUrl: string | null;
-            };
-            instrument: {
-                id: string;
-                name: string;
-                icon: string | null;
-            };
-        } & {
-            id: string;
-            notes: string | null;
-            meetingId: string;
-            userId: string;
-            instrumentId: string;
-        })[];
     } & {
         id: string;
-        churchId: string;
         createdAt: Date;
         updatedAt: Date;
+        churchId: string;
         title: string;
         createdById: string | null;
         notes: string | null;

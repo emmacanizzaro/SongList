@@ -2,10 +2,10 @@ import {
   ConflictException,
   ForbiddenException,
   Injectable,
+  Logger,
   NotFoundException,
 } from "@nestjs/common";
 import { MemberRole } from "@prisma/client";
-import * as bcrypt from "bcryptjs";
 import * as crypto from "crypto";
 import { PrismaService } from "../prisma/prisma.service";
 import { EntitlementsService } from "../subscriptions/entitlements.service";
@@ -14,6 +14,8 @@ import { InviteEmailService } from "./invite-email.service";
 
 @Injectable()
 export class ChurchesService {
+  private readonly logger = new Logger(ChurchesService.name);
+
   constructor(
     private prisma: PrismaService,
     private entitlements: EntitlementsService,
@@ -75,13 +77,11 @@ export class ChurchesService {
     if (!user) {
       // Invitación pendiente: se crea usuario placeholder para reservar email y rol.
       const temporaryPassword = crypto.randomBytes(32).toString("hex");
-      const temporaryHash = await bcrypt.hash(temporaryPassword, 12);
-
       user = await this.prisma.user.create({
         data: {
           email: normalizedEmail,
           name: `Invitado ${normalizedEmail}`,
-          passwordHash: temporaryHash,
+          passwordHash: temporaryPassword,
         },
       });
     }
@@ -155,6 +155,7 @@ export class ChurchesService {
       },
     });
 
+    this.logger.warn("Voy a llamar a sendInviteEmail", invite);
     const { emailSent, inviteUrl } = await this.inviteEmail.sendInviteEmail({
       email: invite.email,
       churchName: invite.church.name,

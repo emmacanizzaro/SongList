@@ -15,12 +15,12 @@ const config_1 = require("@nestjs/config");
 const passport_1 = require("@nestjs/passport");
 const passport_jwt_1 = require("passport-jwt");
 const prisma_service_1 = require("../../prisma/prisma.service");
-let JwtStrategy = class JwtStrategy extends (0, passport_1.PassportStrategy)(passport_jwt_1.Strategy, 'jwt') {
+let JwtStrategy = class JwtStrategy extends (0, passport_1.PassportStrategy)(passport_jwt_1.Strategy, "jwt") {
     constructor(config, prisma) {
         super({
             jwtFromRequest: passport_jwt_1.ExtractJwt.fromAuthHeaderAsBearerToken(),
             ignoreExpiration: false,
-            secretOrKey: config.getOrThrow('JWT_SECRET'),
+            secretOrKey: config.getOrThrow("JWT_SECRET"),
         });
         this.config = config;
         this.prisma = prisma;
@@ -31,7 +31,7 @@ let JwtStrategy = class JwtStrategy extends (0, passport_1.PassportStrategy)(pas
             select: { id: true, email: true, name: true, avatarUrl: true },
         });
         if (!user)
-            throw new common_1.UnauthorizedException('Token inválido');
+            throw new common_1.UnauthorizedException("Token inválido");
         return {
             ...user,
             churchId: payload.churchId,

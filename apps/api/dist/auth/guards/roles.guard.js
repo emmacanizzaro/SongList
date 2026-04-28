@@ -30,11 +30,11 @@ let RolesGuard = class RolesGuard {
         const request = context.switchToHttp().getRequest();
         const userRole = request.user?.currentRole;
         if (!userRole) {
-            throw new common_1.ForbiddenException('No tienes un rol asignado en esta iglesia');
+            throw new common_1.ForbiddenException("No tienes un rol asignado en esta iglesia");
         }
         const hasRole = requiredRoles.some((required) => ROLE_HIERARCHY[userRole] >= ROLE_HIERARCHY[required]);
         if (!hasRole) {
-            throw new common_1.ForbiddenException(`Acceso denegado. Se requiere rol: ${requiredRoles.join(' o ')}`);
+            throw new common_1.ForbiddenException(`Acceso denegado. Se requiere rol: ${requiredRoles.join(" o ")}`);
         }
         return true;
     }

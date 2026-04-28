@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable } from "@nestjs/common";
 
 // ============================================================
 // MOTOR DE TRANSPOSICIÓN DE ACORDES - SONGLIST SAAS
@@ -10,19 +10,60 @@ import { Injectable } from '@nestjs/common';
 //  - Preferencia automática de bemol/sostenido según tonalidad
 
 // --- Escalas cromáticas ---
-const CHROMATIC_SHARP = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
-const CHROMATIC_FLAT  = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'];
+const CHROMATIC_SHARP = [
+  "C",
+  "C#",
+  "D",
+  "D#",
+  "E",
+  "F",
+  "F#",
+  "G",
+  "G#",
+  "A",
+  "A#",
+  "B",
+];
+const CHROMATIC_FLAT = [
+  "C",
+  "Db",
+  "D",
+  "Eb",
+  "E",
+  "F",
+  "Gb",
+  "G",
+  "Ab",
+  "A",
+  "Bb",
+  "B",
+];
 
 // Normalización de enarmónicos (bemol → sostenido para cálculo de índice)
 const ENHARMONIC: Record<string, string> = {
-  'Cb': 'B', 'Db': 'C#', 'Eb': 'D#', 'Fb': 'E',
-  'Gb': 'F#', 'Ab': 'G#', 'Bb': 'A#',
+  Cb: "B",
+  Db: "C#",
+  Eb: "D#",
+  Fb: "E",
+  Gb: "F#",
+  Ab: "G#",
+  Bb: "A#",
 };
 
 // Tonalidades que prefieren notación con bemoles
 const FLAT_PREFERENCE = new Set([
-  'F', 'Bb', 'Eb', 'Ab', 'Db', 'Gb',
-  'Dm', 'Gm', 'Cm', 'Fm', 'Bbm', 'Ebm',
+  "F",
+  "Bb",
+  "Eb",
+  "Ab",
+  "Db",
+  "Gb",
+  "Dm",
+  "Gm",
+  "Cm",
+  "Fm",
+  "Bbm",
+  "Ebm",
 ]);
 
 // Todas las notas válidas como raíz de acorde (orden importa: notas largas primero)
@@ -56,7 +97,11 @@ export class TranspositionService {
    * Transpone un acorde individual.
    * Soporta: C, Cm, C#, C#m7, Cmaj7, Csus4, C/E, Cm7/Bb, etc.
    */
-  transposeChord(chord: string, semitones: number, preferFlat?: boolean): string {
+  transposeChord(
+    chord: string,
+    semitones: number,
+    preferFlat?: boolean,
+  ): string {
     if (semitones === 0) return chord;
 
     // Extraer nota raíz
@@ -67,7 +112,7 @@ export class TranspositionService {
     const rest = chord.slice(root.length);
 
     // Detectar nota de bajo (/X al final)
-    const bassSlashIdx = rest.lastIndexOf('/');
+    const bassSlashIdx = rest.lastIndexOf("/");
     let quality = rest;
     let bassNote: string | null = null;
 
@@ -98,7 +143,7 @@ export class TranspositionService {
     const index = this.noteToIndex(note);
     if (index === -1) return note;
 
-    const newIndex = ((index + semitones) % 12 + 12) % 12;
+    const newIndex = (((index + semitones) % 12) + 12) % 12;
 
     return preferFlat ? CHROMATIC_FLAT[newIndex] : CHROMATIC_SHARP[newIndex];
   }
@@ -116,7 +161,7 @@ export class TranspositionService {
 
     if (fromIndex === -1 || toIndex === -1) return 0;
 
-    return ((toIndex - fromIndex) + 12) % 12;
+    return (toIndex - fromIndex + 12) % 12;
   }
 
   /**
@@ -137,12 +182,13 @@ export class TranspositionService {
       );
       results.push({
         key: newKey,
-        lyricsChords: semitones === 0
-          ? lyricsChords
-          : this.transposeLyrics(lyricsChords, {
-              fromKey: originalKey,
-              toKey: newKey,
-            }),
+        lyricsChords:
+          semitones === 0
+            ? lyricsChords
+            : this.transposeLyrics(lyricsChords, {
+                fromKey: originalKey,
+                toKey: newKey,
+              }),
       });
     }
 

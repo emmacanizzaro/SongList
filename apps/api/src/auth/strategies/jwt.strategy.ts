@@ -1,20 +1,20 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { PassportStrategy } from '@nestjs/passport';
-import { ExtractJwt, Strategy } from 'passport-jwt';
-import { PrismaService } from '../../prisma/prisma.service';
+import { Injectable, UnauthorizedException } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
+import { PassportStrategy } from "@nestjs/passport";
+import { ExtractJwt, Strategy } from "passport-jwt";
+import { PrismaService } from "../../prisma/prisma.service";
 
 export interface JwtPayload {
-  sub: string;      // userId
+  sub: string; // userId
   email: string;
   churchId: string; // tenant activo
-  role: string;     // rol en el tenant activo
+  role: string; // rol en el tenant activo
   iat?: number;
   exp?: number;
 }
 
 @Injectable()
-export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
+export class JwtStrategy extends PassportStrategy(Strategy, "jwt") {
   constructor(
     private config: ConfigService,
     private prisma: PrismaService,
@@ -22,7 +22,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: config.getOrThrow<string>('JWT_SECRET'),
+      secretOrKey: config.getOrThrow<string>("JWT_SECRET"),
     });
   }
 
@@ -32,7 +32,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
       select: { id: true, email: true, name: true, avatarUrl: true },
     });
 
-    if (!user) throw new UnauthorizedException('Token inválido');
+    if (!user) throw new UnauthorizedException("Token inválido");
 
     // Adjuntamos el rol y churchId al request para multi-tenancy
     return {

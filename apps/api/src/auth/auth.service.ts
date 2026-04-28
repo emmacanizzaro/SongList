@@ -11,12 +11,14 @@ import * as crypto from "crypto";
 import { PrismaService } from "../prisma/prisma.service";
 import { LoginDto } from "./dto/login.dto";
 import { RegisterDto } from "./dto/register.dto";
+import { WelcomeEmailService } from "./welcome-email.service";
 
 @Injectable()
 export class AuthService {
   constructor(
     private prisma: PrismaService,
     private jwt: JwtService,
+    private welcomeEmail: WelcomeEmailService,
     private config: ConfigService,
   ) {}
 
@@ -25,6 +27,7 @@ export class AuthService {
   // ──────────────────────────────────────────────
   async register(dto: RegisterDto) {
     const normalizedEmail = dto.email.toLowerCase();
+    let userNameForWelcome = dto.name;
 
     if (dto.inviteToken) {
       const invite = await this.prisma.churchInvite.findUnique({
@@ -75,6 +78,7 @@ export class AuthService {
             passwordHash,
           },
         });
+        userNameForWelcome = updatedUser.name;
 
         await this.prisma.churchInvite.update({
           where: { token: dto.inviteToken },
@@ -159,7 +163,12 @@ export class AuthService {
       });
 
       const membership = existing.memberships[0];
+      userNameForWelcome = updatedUser.name;
 
+      await this.welcomeEmail.sendWelcomeEmail({
+        email: updatedUser.email,
+        name: userNameForWelcome,
+      });
       return this.issueTokens(
         updatedUser.id,
         updatedUser.email,
@@ -173,6 +182,11 @@ export class AuthService {
 
     // Transacción: crear usuario + iglesia + membresía + suscripción FREE
     const result = await this.prisma.$transaction(async (tx) => {
+      // Verificar que el slug sea único
+      let finalSlug = slug;
+      const existingChurch = await tx.church.findUnique({ where: { slug } });
+      if (existingChurch) finalSlug = `${slug}-${Date.now()}`;
+
       const user = await tx.user.create({
         data: {
           email: normalizedEmail,
@@ -180,18 +194,13 @@ export class AuthService {
           name: dto.name,
         },
       });
-
-      // Verificar que el slug sea único
-      let finalSlug = slug;
-      const existingChurch = await tx.church.findUnique({ where: { slug } });
-      if (existingChurch) finalSlug = `${slug}-${Date.now()}`;
+      userNameForWelcome = user.name;
 
       const church = await tx.church.create({
         data: {
           name: dto.churchName!,
           slug: finalSlug,
           subscription: { create: { plan: "FREE", status: "ACTIVE" } },
-          // Instrumentos por defecto
           instruments: {
             createMany: {
               data: [
@@ -215,6 +224,10 @@ export class AuthService {
       return { user, church, membership };
     });
 
+    await this.welcomeEmail.sendWelcomeEmail({
+      email: result.user.email,
+      name: userNameForWelcome,
+    });
     return this.issueTokens(
       result.user.id,
       result.user.email,

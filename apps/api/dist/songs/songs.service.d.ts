@@ -10,100 +10,100 @@ export declare class SongsService {
     constructor(prisma: PrismaService, transposition: TranspositionService, entitlements: EntitlementsService);
     create(churchId: string, userId: string, dto: CreateSongDto): Promise<{
         versions: {
+            type: import(".prisma/client").$Enums.VersionType;
             id: string;
             createdAt: Date;
             updatedAt: Date;
-            type: import(".prisma/client").$Enums.VersionType;
-            key: string;
-            lyricsChords: string;
             notes: string | null;
             songId: string;
+            key: string;
+            lyricsChords: string;
         }[];
     } & {
+        title: string;
         id: string;
-        churchId: string;
         createdAt: Date;
         updatedAt: Date;
-        title: string;
+        churchId: string;
+        tags: string[];
+        createdById: string | null;
         artist: string | null;
         originalKey: string;
         bpm: number | null;
-        tags: string[];
-        createdById: string | null;
     }>;
     findAll(churchId: string, search?: string): Promise<({
         _count: {
-            versions: number;
             meetingSongs: number;
+            versions: number;
         };
     } & {
+        title: string;
         id: string;
-        churchId: string;
         createdAt: Date;
         updatedAt: Date;
-        title: string;
+        churchId: string;
+        tags: string[];
+        createdById: string | null;
         artist: string | null;
         originalKey: string;
         bpm: number | null;
-        tags: string[];
-        createdById: string | null;
     })[]>;
     findOne(churchId: string, songId: string): Promise<{
         versions: {
+            type: import(".prisma/client").$Enums.VersionType;
             id: string;
             createdAt: Date;
             updatedAt: Date;
-            type: import(".prisma/client").$Enums.VersionType;
-            key: string;
-            lyricsChords: string;
             notes: string | null;
             songId: string;
+            key: string;
+            lyricsChords: string;
         }[];
     } & {
+        title: string;
         id: string;
-        churchId: string;
         createdAt: Date;
         updatedAt: Date;
-        title: string;
+        churchId: string;
+        tags: string[];
+        createdById: string | null;
         artist: string | null;
         originalKey: string;
         bpm: number | null;
-        tags: string[];
-        createdById: string | null;
     }>;
     update(churchId: string, songId: string, dto: Partial<CreateSongDto>): Promise<{
+        title: string;
         id: string;
-        churchId: string;
         createdAt: Date;
         updatedAt: Date;
-        title: string;
+        churchId: string;
+        tags: string[];
+        createdById: string | null;
         artist: string | null;
         originalKey: string;
         bpm: number | null;
-        tags: string[];
-        createdById: string | null;
     }>;
     remove(churchId: string, songId: string): Promise<{
+        title: string;
         id: string;
-        churchId: string;
         createdAt: Date;
         updatedAt: Date;
-        title: string;
+        churchId: string;
+        tags: string[];
+        createdById: string | null;
         artist: string | null;
         originalKey: string;
         bpm: number | null;
-        tags: string[];
-        createdById: string | null;
     }>;
     addVersion(churchId: string, songId: string, type: VersionType, targetKey: string, notes?: string): Promise<{
+        type: import(".prisma/client").$Enums.VersionType;
         id: string;
         createdAt: Date;
         updatedAt: Date;
-        type: import(".prisma/client").$Enums.VersionType;
-        key: string;
-        lyricsChords: string;
         notes: string | null;
         songId: string;
+        key: string;
+        lyricsChords: string;
     }>;
     getLiveTransposition(churchId: string, songId: string, targetKey: string): Promise<{
         songId: string;

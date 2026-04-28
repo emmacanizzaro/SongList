@@ -1,4 +1,4 @@
-import { InstrumentsService } from './instruments.service';
+import { InstrumentsService } from "./instruments.service";
 export declare class InstrumentsController {
     private readonly instrumentsService;
     constructor(instrumentsService: InstrumentsService);
@@ -8,29 +8,29 @@ export declare class InstrumentsController {
         };
     } & {
         id: string;
-        churchId: string;
         name: string;
+        churchId: string;
         icon: string | null;
         sortOrder: number;
     })[]>;
     create(churchId: string, name: string, icon?: string): Promise<{
         id: string;
-        churchId: string;
         name: string;
+        churchId: string;
         icon: string | null;
         sortOrder: number;
     }>;
     update(churchId: string, id: string, name: string, icon?: string): Promise<{
         id: string;
-        churchId: string;
         name: string;
+        churchId: string;
         icon: string | null;
         sortOrder: number;
     }>;
     remove(churchId: string, id: string): Promise<{
         id: string;
-        churchId: string;
         name: string;
+        churchId: string;
         icon: string | null;
         sortOrder: number;
     }>;
@@ -40,8 +40,8 @@ export declare class InstrumentsController {
         };
     } & {
         id: string;
-        churchId: string;
         name: string;
+        churchId: string;
         icon: string | null;
         sortOrder: number;
     })[]>;

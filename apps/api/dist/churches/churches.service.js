@@ -8,20 +8,21 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+var ChurchesService_1;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ChurchesService = void 0;
 const common_1 = require("@nestjs/common");
 const client_1 = require("@prisma/client");
-const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
 const prisma_service_1 = require("../prisma/prisma.service");
 const entitlements_service_1 = require("../subscriptions/entitlements.service");
 const invite_email_service_1 = require("./invite-email.service");
-let ChurchesService = class ChurchesService {
+let ChurchesService = ChurchesService_1 = class ChurchesService {
     constructor(prisma, entitlements, inviteEmail) {
         this.prisma = prisma;
         this.entitlements = entitlements;
         this.inviteEmail = inviteEmail;
+        this.logger = new common_1.Logger(ChurchesService_1.name);
     }
     async findById(churchId) {
         const church = await this.prisma.church.findUnique({
@@ -63,12 +64,11 @@ let ChurchesService = class ChurchesService {
         });
         if (!user) {
             const temporaryPassword = crypto.randomBytes(32).toString("hex");
-            const temporaryHash = await bcrypt.hash(temporaryPassword, 12);
             user = await this.prisma.user.create({
                 data: {
                     email: normalizedEmail,
                     name: `Invitado ${normalizedEmail}`,
-                    passwordHash: temporaryHash,
+                    passwordHash: temporaryPassword,
                 },
             });
         }
@@ -124,6 +124,7 @@ let ChurchesService = class ChurchesService {
                 church: { select: { name: true, slug: true } },
             },
         });
+        this.logger.warn("Voy a llamar a sendInviteEmail", invite);
         const { emailSent, inviteUrl } = await this.inviteEmail.sendInviteEmail({
             email: invite.email,
             churchName: invite.church.name,
@@ -205,7 +206,7 @@ let ChurchesService = class ChurchesService {
     }
 };
 exports.ChurchesService = ChurchesService;
-exports.ChurchesService = ChurchesService = __decorate([
+exports.ChurchesService = ChurchesService = ChurchesService_1 = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [prisma_service_1.PrismaService,
         entitlements_service_1.EntitlementsService,

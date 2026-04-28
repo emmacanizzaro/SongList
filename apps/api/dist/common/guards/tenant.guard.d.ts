@@ -1,5 +1,5 @@
-import { CanActivate, ExecutionContext } from '@nestjs/common';
-import { PrismaService } from '../../prisma/prisma.service';
+import { CanActivate, ExecutionContext } from "@nestjs/common";
+import { PrismaService } from "../../prisma/prisma.service";
 export declare class TenantResourceGuard implements CanActivate {
     private prisma;
     constructor(prisma: PrismaService);

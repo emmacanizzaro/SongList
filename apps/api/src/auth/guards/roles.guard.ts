@@ -3,10 +3,10 @@ import {
   CanActivate,
   ExecutionContext,
   ForbiddenException,
-} from '@nestjs/common';
-import { Reflector } from '@nestjs/core';
-import { MemberRole } from '@prisma/client';
-import { ROLES_KEY } from '../decorators/roles.decorator';
+} from "@nestjs/common";
+import { Reflector } from "@nestjs/core";
+import { MemberRole } from "@prisma/client";
+import { ROLES_KEY } from "../decorators/roles.decorator";
 
 // Jerarquía de roles: un rol superior puede hacer todo lo que el inferior
 const ROLE_HIERARCHY: Record<MemberRole, number> = {
@@ -31,7 +31,7 @@ export class RolesGuard implements CanActivate {
     const userRole: MemberRole = request.user?.currentRole;
 
     if (!userRole) {
-      throw new ForbiddenException('No tienes un rol asignado en esta iglesia');
+      throw new ForbiddenException("No tienes un rol asignado en esta iglesia");
     }
 
     const hasRole = requiredRoles.some(
@@ -40,7 +40,7 @@ export class RolesGuard implements CanActivate {
 
     if (!hasRole) {
       throw new ForbiddenException(
-        `Acceso denegado. Se requiere rol: ${requiredRoles.join(' o ')}`,
+        `Acceso denegado. Se requiere rol: ${requiredRoles.join(" o ")}`,
       );
     }
 

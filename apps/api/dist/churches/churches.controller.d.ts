@@ -7,6 +7,8 @@ export declare class ChurchesController {
     getMyChurch(churchId: string): Promise<{
         subscription: {
             id: string;
+            createdAt: Date;
+            updatedAt: Date;
             churchId: string;
             plan: import(".prisma/client").$Enums.PlanType;
             status: import(".prisma/client").$Enums.SubscriptionStatus;
@@ -17,8 +19,6 @@ export declare class ChurchesController {
             cancelAtPeriodEnd: boolean;
             mpSubscriptionId: string | null;
             mpCustomerEmail: string | null;
-            createdAt: Date;
-            updatedAt: Date;
         } | null;
         _count: {
             memberships: number;
@@ -27,9 +27,9 @@ export declare class ChurchesController {
         };
     } & {
         id: string;
+        name: string;
         createdAt: Date;
         updatedAt: Date;
-        name: string;
         slug: string;
         logoUrl: string | null;
         description: string | null;
@@ -37,9 +37,9 @@ export declare class ChurchesController {
     }>;
     update(churchId: string, dto: CreateChurchDto): Promise<{
         id: string;
+        name: string;
         createdAt: Date;
         updatedAt: Date;
-        name: string;
         slug: string;
         logoUrl: string | null;
         description: string | null;
@@ -50,6 +50,9 @@ export declare class ChurchesController {
         songsCount: number;
         meetingsCount: number;
         upcomingMeetings: ({
+            _count: {
+                assignments: number;
+            };
             meetingSongs: ({
                 song: {
                     title: string;
@@ -62,14 +65,11 @@ export declare class ChurchesController {
                 meetingId: string;
                 keyOverride: string | null;
             })[];
-            _count: {
-                assignments: number;
-            };
         } & {
             id: string;
-            churchId: string;
             createdAt: Date;
             updatedAt: Date;
+            churchId: string;
             title: string;
             createdById: string | null;
             notes: string | null;
@@ -81,28 +81,28 @@ export declare class ChurchesController {
     getMembers(churchId: string): Promise<({
         user: {
             id: string;
-            name: string;
             email: string;
+            name: string;
             avatarUrl: string | null;
         };
     } & {
         id: string;
         churchId: string;
-        userId: string;
         role: import(".prisma/client").$Enums.MemberRole;
+        userId: string;
         joinedAt: Date;
     })[]>;
     inviteMember(churchId: string, role: MemberRole, email: string, memberRole: MemberRole): Promise<{
         user: {
             id: string;
-            name: string;
             email: string;
+            name: string;
         };
     } & {
         id: string;
         churchId: string;
-        userId: string;
         role: import(".prisma/client").$Enums.MemberRole;
+        userId: string;
         joinedAt: Date;
     }>;
     createInviteLink(churchId: string, invitedByUserId: string, role: MemberRole, email: string, memberRole: MemberRole): Promise<{
@@ -117,15 +117,15 @@ export declare class ChurchesController {
     updateRole(churchId: string, memberId: string, role: MemberRole): Promise<{
         id: string;
         churchId: string;
-        userId: string;
         role: import(".prisma/client").$Enums.MemberRole;
+        userId: string;
         joinedAt: Date;
     }>;
     removeMember(churchId: string, userId: string, memberId: string): Promise<{
         id: string;
         churchId: string;
-        userId: string;
         role: import(".prisma/client").$Enums.MemberRole;
+        userId: string;
         joinedAt: Date;
     }>;
 }

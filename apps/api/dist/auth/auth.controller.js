@@ -44,10 +44,10 @@ let AuthController = class AuthController {
 };
 exports.AuthController = AuthController;
 __decorate([
-    (0, common_1.Post)('register'),
+    (0, common_1.Post)("register"),
     (0, common_1.HttpCode)(common_1.HttpStatus.CREATED),
     (0, throttler_1.Throttle)({ short: { limit: 3, ttl: 60_000 } }),
-    (0, swagger_1.ApiOperation)({ summary: 'Registrar nuevo usuario e iglesia' }),
+    (0, swagger_1.ApiOperation)({ summary: "Registrar nuevo usuario e iglesia" }),
     openapi.ApiResponse({ status: common_1.HttpStatus.CREATED }),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
@@ -55,10 +55,10 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], AuthController.prototype, "register", null);
 __decorate([
-    (0, common_1.Post)('login'),
+    (0, common_1.Post)("login"),
     (0, common_1.HttpCode)(common_1.HttpStatus.OK),
     (0, throttler_1.Throttle)({ short: { limit: 10, ttl: 60_000 } }),
-    (0, swagger_1.ApiOperation)({ summary: 'Iniciar sesión' }),
+    (0, swagger_1.ApiOperation)({ summary: "Iniciar sesión" }),
     openapi.ApiResponse({ status: common_1.HttpStatus.OK }),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
@@ -66,41 +66,41 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], AuthController.prototype, "login", null);
 __decorate([
-    (0, common_1.Post)('refresh'),
+    (0, common_1.Post)("refresh"),
     (0, common_1.HttpCode)(common_1.HttpStatus.OK),
-    (0, swagger_1.ApiOperation)({ summary: 'Renovar access token con refresh token' }),
+    (0, swagger_1.ApiOperation)({ summary: "Renovar access token con refresh token" }),
     openapi.ApiResponse({ status: common_1.HttpStatus.OK }),
-    __param(0, (0, common_1.Body)('refreshToken')),
+    __param(0, (0, common_1.Body)("refreshToken")),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)
 ], AuthController.prototype, "refresh", null);
 __decorate([
-    (0, common_1.Post)('logout'),
+    (0, common_1.Post)("logout"),
     (0, common_1.HttpCode)(common_1.HttpStatus.OK),
-    (0, swagger_1.ApiOperation)({ summary: 'Cerrar sesión (invalida refresh token)' }),
+    (0, swagger_1.ApiOperation)({ summary: "Cerrar sesión (invalida refresh token)" }),
     openapi.ApiResponse({ status: common_1.HttpStatus.OK }),
-    __param(0, (0, common_1.Body)('refreshToken')),
+    __param(0, (0, common_1.Body)("refreshToken")),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)
 ], AuthController.prototype, "logout", null);
 __decorate([
-    (0, common_1.Post)('switch-church'),
+    (0, common_1.Post)("switch-church"),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     (0, common_1.HttpCode)(common_1.HttpStatus.OK),
-    (0, swagger_1.ApiBearerAuth)('JWT'),
-    (0, swagger_1.ApiOperation)({ summary: 'Cambiar de iglesia activa (multi-iglesia)' }),
+    (0, swagger_1.ApiBearerAuth)("JWT"),
+    (0, swagger_1.ApiOperation)({ summary: "Cambiar de iglesia activa (multi-iglesia)" }),
     openapi.ApiResponse({ status: common_1.HttpStatus.OK }),
-    __param(0, (0, current_user_decorator_1.CurrentUser)('id')),
-    __param(1, (0, common_1.Body)('churchId')),
+    __param(0, (0, current_user_decorator_1.CurrentUser)("id")),
+    __param(1, (0, common_1.Body)("churchId")),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, String]),
     __metadata("design:returntype", void 0)
 ], AuthController.prototype, "switchChurch", null);
 exports.AuthController = AuthController = __decorate([
-    (0, swagger_1.ApiTags)('auth'),
-    (0, common_1.Controller)('auth'),
+    (0, swagger_1.ApiTags)("auth"),
+    (0, common_1.Controller)("auth"),
     __metadata("design:paramtypes", [auth_service_1.AuthService])
 ], AuthController);
 //# sourceMappingURL=auth.controller.js.map
