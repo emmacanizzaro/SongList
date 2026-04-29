@@ -44,6 +44,23 @@ Cada iglesia es un **tenant** aislado. Un usuario puede pertenecer a múltiples 
 
 ---
 
+## Flujo de invitación y registro de equipo
+
+### ¿Cómo agregar miembros a tu equipo?
+
+1. El administrador invita a un usuario desde la sección de miembros/equipo, generando un enlace único con token.
+2. El usuario invitado debe registrarse **usando ese enlace** (no desde el registro normal).
+3. El sistema asocia automáticamente al usuario invitado al mismo equipo (`churchId`) del administrador.
+4. Ambos usuarios comparten reuniones, canciones y datos del equipo.
+
+**Importante:** Si el usuario invitado se registra sin el enlace, se creará una iglesia nueva y no verá la información del equipo.
+
+**Solución de problemas:**
+
+- Si un usuario no ve la información del equipo, elimina su cuenta y repite el proceso usando el enlace de invitación.
+
+---
+
 ## Stack tecnológico
 
 | Capa              | Tecnología                   | Justificación                   |

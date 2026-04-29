@@ -1,6 +1,6 @@
-import { useState, useEffect, useMemo } from 'react';
-import { Song } from '@/types';
-import { transposeLyrics, ALL_KEYS } from '@/lib/transposition';
+import { useState, useEffect, useMemo } from "react";
+import { Song } from "@/types";
+import { transposeLyrics, ALL_KEYS } from "@/lib/transposition";
 
 interface UseTranspositionReturn {
   currentKey: string;
@@ -18,10 +18,13 @@ interface UseTranspositionReturn {
  * servidor) usando el mismo algoritmo que el backend. El servidor es
  * usado opcionalmente para guardar versiones persistentes.
  */
-export function useTransposition(song: Song | undefined): UseTranspositionReturn {
-  const originalKey = song?.versions?.find((v) => v.type === 'ORIGINAL')?.key
-    ?? song?.originalKey
-    ?? 'C';
+export function useTransposition(
+  song: Song | undefined,
+): UseTranspositionReturn {
+  const originalKey =
+    song?.versions?.find((v) => v.type === "ORIGINAL")?.key ??
+    song?.originalKey ??
+    "C";
 
   const [currentKey, setCurrentKey] = useState<string>(originalKey);
 
@@ -41,7 +44,7 @@ export function useTransposition(song: Song | undefined): UseTranspositionReturn
   }, [originalKey, currentKey]);
 
   const transposedLyrics = useMemo(() => {
-    const originalVersion = song?.versions?.find((v) => v.type === 'ORIGINAL');
+    const originalVersion = song?.versions?.find((v) => v.type === "ORIGINAL");
     if (!originalVersion || currentKey === originalKey) return null;
 
     return transposeLyrics(

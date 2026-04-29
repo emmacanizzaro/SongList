@@ -3,17 +3,58 @@
 // Mirror del servicio NestJS para respuesta instantánea en UI
 // ============================================================
 
-const CHROMATIC_SHARP = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
-const CHROMATIC_FLAT  = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'];
+const CHROMATIC_SHARP = [
+  "C",
+  "C#",
+  "D",
+  "D#",
+  "E",
+  "F",
+  "F#",
+  "G",
+  "G#",
+  "A",
+  "A#",
+  "B",
+];
+const CHROMATIC_FLAT = [
+  "C",
+  "Db",
+  "D",
+  "Eb",
+  "E",
+  "F",
+  "Gb",
+  "G",
+  "Ab",
+  "A",
+  "Bb",
+  "B",
+];
 
 const ENHARMONIC: Record<string, string> = {
-  'Cb': 'B', 'Db': 'C#', 'Eb': 'D#', 'Fb': 'E',
-  'Gb': 'F#', 'Ab': 'G#', 'Bb': 'A#',
+  Cb: "B",
+  Db: "C#",
+  Eb: "D#",
+  Fb: "E",
+  Gb: "F#",
+  Ab: "G#",
+  Bb: "A#",
 };
 
 const FLAT_KEYS = new Set([
-  'F', 'Bb', 'Eb', 'Ab', 'Db', 'Gb',
-  'Dm', 'Gm', 'Cm', 'Fm', 'Bbm', 'Ebm',
+  "F",
+  "Bb",
+  "Eb",
+  "Ab",
+  "Db",
+  "Gb",
+  "Dm",
+  "Gm",
+  "Cm",
+  "Fm",
+  "Bbm",
+  "Ebm",
 ]);
 
 const NOTE_PATTERN = /^([A-G][b#]?)/;
@@ -23,14 +64,22 @@ function noteToIndex(note: string): number {
   return CHROMATIC_SHARP.indexOf(normalized);
 }
 
-function transposeNote(note: string, semitones: number, preferFlat: boolean): string {
+function transposeNote(
+  note: string,
+  semitones: number,
+  preferFlat: boolean,
+): string {
   const index = noteToIndex(note);
   if (index === -1) return note;
-  const newIndex = ((index + semitones) % 12 + 12) % 12;
+  const newIndex = (((index + semitones) % 12) + 12) % 12;
   return preferFlat ? CHROMATIC_FLAT[newIndex] : CHROMATIC_SHARP[newIndex];
 }
 
-export function transposeChord(chord: string, semitones: number, targetKey: string): string {
+export function transposeChord(
+  chord: string,
+  semitones: number,
+  targetKey: string,
+): string {
   if (semitones === 0) return chord;
 
   const rootMatch = chord.match(NOTE_PATTERN);
@@ -42,7 +91,7 @@ export function transposeChord(chord: string, semitones: number, targetKey: stri
   const preferFlat = FLAT_KEYS.has(targetKey);
 
   // Detectar nota de bajo
-  const bassSlash = rest.lastIndexOf('/');
+  const bassSlash = rest.lastIndexOf("/");
   let quality = rest;
   let bassNote: string | null = null;
 
@@ -72,7 +121,7 @@ export function getInterval(fromKey: string, toKey: string): number {
   const toIdx = noteToIndex(toRoot);
 
   if (fromIdx === -1 || toIdx === -1) return 0;
-  return ((toIdx - fromIdx) + 12) % 12;
+  return (toIdx - fromIdx + 12) % 12;
 }
 
 export function transposeLyrics(

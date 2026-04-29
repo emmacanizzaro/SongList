@@ -63,17 +63,23 @@ function RegisterPageContent() {
   const onSubmit = async (data: RegisterForm) => {
     setError("");
 
+    // Si hay token de invitación, nunca enviar churchName
+    const payload = inviteToken
+      ? {
+          name: data.name,
+          email: data.email,
+          password: data.password,
+          inviteToken,
+        }
+      : data;
+
     if (!inviteToken && !data.churchName) {
       setError("Debes indicar el nombre de la iglesia.");
       return;
     }
 
     try {
-      await authRegister({
-        ...data,
-        churchName: inviteToken ? undefined : data.churchName,
-        inviteToken: inviteToken || undefined,
-      });
+      await authRegister(payload);
       router.push("/dashboard");
     } catch {
       setError(
@@ -183,65 +189,65 @@ function RegisterPageContent() {
               />
               {errors.email && (
                 <p className="text-xs text-red-600 mt-1">
-                  {errors.email.message}
-                </p>
-              )}
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">
-                Contraseña
-              </label>
-              <input
-                type="password"
-                autoComplete="new-password"
-                placeholder="Mínimo 8 caracteres"
-                className="input"
-                {...register("password")}
-              />
-              {errors.password && (
-                <p className="text-xs text-red-600 mt-1">
-                  {errors.password.message}
-                </p>
-              )}
-            </div>
-
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="btn-primary mt-2 w-full disabled:translate-y-0 disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {isSubmitting ? "Creando cuenta..." : "Crear cuenta gratis"}
-            </button>
-
-            <p className="text-center text-xs text-gray-400 dark:text-slate-500">
-              Al registrarte aceptas los Términos de Servicio y la Política de
-              Privacidad.
-            </p>
-          </form>
-
-          <p className="text-center text-sm text-gray-500 dark:text-slate-400 mt-6">
-            ¿Ya tienes cuenta?{" "}
-            <Link
-              href="/login"
-              className="text-brand-600 dark:text-brand-400 font-medium hover:underline dark:hover:text-brand-300"
-            >
-              Iniciar sesión
-            </Link>
-          </p>
-        </div>
-      </div>
-
-      {/* Panel derecho: features (solo desktop) */}
-      <div className="relative hidden flex-1 items-center justify-center overflow-hidden bg-slate-950 dark:bg-slate-900 p-12 lg:flex">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(188,132,47,0.22),transparent_28%),radial-gradient(circle_at_bottom_left,rgba(31,77,143,0.26),transparent_32%)]" />
-        <div className="relative max-w-sm text-white">
-          <span className="eyebrow bg-white/10 text-slate-200">
-            Diseñado para servir mejor
-          </span>
-          <h2 className="mb-3 mt-5 text-4xl font-semibold leading-tight">
-            Todo lo necesario para tu equipo
-          </h2>
+                  return (
+                    <div className="mx-auto flex w-full max-w-md flex-col gap-8 py-12">
+                      <h1 className="text-2xl font-bold">Crear cuenta</h1>
+                      <form
+                        className="flex flex-col gap-4"
+                        onSubmit={handleSubmit(onSubmit)}
+                        autoComplete="off"
+                      >
+                        <div>
+                          <label className="label">Nombre completo</label>
+                          <input
+                            type="text"
+                            className="input"
+                            {...register("name")}
+                            disabled={isSubmitting}
+                          />
+                          {errors.name && (
+                            <span className="text-xs text-red-500">{errors.name.message}</span>
+                          )}
+                        </div>
+                        <div>
+                          <label className="label">Email</label>
+                          <input
+                            type="email"
+                            className="input"
+                            {...register("email")}
+                            disabled={isSubmitting || Boolean(inviteToken)}
+                          />
+                          {errors.email && (
+                            <span className="text-xs text-red-500">{errors.email.message}</span>
+                          )}
+                        </div>
+                        <div>
+                          <label className="label">Contraseña</label>
+                          <input
+                            type="password"
+                            className="input"
+                            {...register("password")}
+                            disabled={isSubmitting}
+                          />
+                          {errors.password && (
+                            <span className="text-xs text-red-500">{errors.password.message}</span>
+                          )}
+                        </div>
+                        {/* Solo mostrar el campo churchName si NO hay inviteToken */}
+                        {!inviteToken && (
+                          <div>
+                            <label className="label">Nombre de la iglesia</label>
+                            <input
+                              type="text"
+                              className="input"
+                              {...register("churchName")}
+                              disabled={isSubmitting}
+                            />
+                            {errors.churchName && (
+                              <span className="text-xs text-red-500">{errors.churchName.message}</span>
+                            )}
+                          </div>
+                        )}
           <p className="mb-8 text-sm leading-6 text-slate-300">
             SongList es la herramienta que faltaba para organizar tu equipo de
             alabanza.
