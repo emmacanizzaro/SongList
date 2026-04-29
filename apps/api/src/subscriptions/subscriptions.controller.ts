@@ -80,7 +80,6 @@ export class SubscriptionsController {
   }
 }
 
-
 // ── Webhook de Stripe (sin JWT, verificado por firma Stripe) ──
 import { Controller as WebhookCtrl } from "@nestjs/common";
 
