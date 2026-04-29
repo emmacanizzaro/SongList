@@ -1,21 +1,3 @@
-  // TEMPORAL: Upgrade a PRO directo
-  async upgradeToPro(churchId: string) {
-    const result = await this.prisma.subscription.upsert({
-      where: { churchId },
-      update: {
-        plan: "PRO",
-        status: "ACTIVE",
-        cancelAtPeriodEnd: false,
-      },
-      create: {
-        churchId,
-        plan: "PRO",
-        status: "ACTIVE",
-        cancelAtPeriodEnd: false,
-      },
-    });
-    return { message: "Upgrade a PRO realizado", result };
-  }
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { PlanType } from "@prisma/client";
 import { PrismaService } from "../prisma/prisma.service";
@@ -82,5 +64,24 @@ export class SubscriptionsService {
       `${frontendUrl}/settings/billing`,
     );
     return { portalUrl: session.url };
+  }
+
+  // TEMPORAL: Upgrade a PRO directo
+  async upgradeToPro(churchId: string) {
+    const result = await this.prisma.subscription.upsert({
+      where: { churchId },
+      update: {
+        plan: "PRO",
+        status: "ACTIVE",
+        cancelAtPeriodEnd: false,
+      },
+      create: {
+        churchId,
+        plan: "PRO",
+        status: "ACTIVE",
+        cancelAtPeriodEnd: false,
+      },
+    });
+    return { message: "Upgrade a PRO realizado", result };
   }
 }
