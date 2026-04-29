@@ -8,6 +8,24 @@ export declare class SubscriptionsService {
     private entitlements;
     private stripe;
     constructor(prisma: PrismaService, entitlements: EntitlementsService, stripe: StripeService);
+    upgradeToPro(churchId: string): Promise<{
+        message: string;
+        result: {
+            id: string;
+            churchId: string;
+            plan: import(".prisma/client").$Enums.PlanType;
+            status: import(".prisma/client").$Enums.SubscriptionStatus;
+            stripeCustomerId: string | null;
+            stripeSubscriptionId: string | null;
+            currentPeriodStart: Date | null;
+            currentPeriodEnd: Date | null;
+            cancelAtPeriodEnd: boolean;
+            mpSubscriptionId: string | null;
+            mpCustomerEmail: string | null;
+            createdAt: Date;
+            updatedAt: Date;
+        };
+    }>;
     getSubscription(churchId: string): Promise<{
         limits: PlanLimits;
         id: string;

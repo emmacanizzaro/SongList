@@ -14,10 +14,6 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.StripeWebhookController = exports.SubscriptionsController = void 0;
 const openapi = require("@nestjs/swagger");
-upgradeToProTemporal(, churchId, string);
-{
-    return this.subscriptionsService.upgradeToPro(churchId);
-}
 const common_1 = require("@nestjs/common");
 const config_1 = require("@nestjs/config");
 const swagger_1 = require("@nestjs/swagger");
@@ -35,22 +31,31 @@ let SubscriptionsController = class SubscriptionsController {
         this.stripeService = stripeService;
         this.config = config;
     }
+    async upgradeToProTemporal(churchId) {
+        return this.subscriptionsService.upgradeToPro(churchId);
+    }
     getSubscription(churchId) {
         return this.subscriptionsService.getSubscription(churchId);
     }
     getEntitlements(churchId) {
         return this.subscriptionsService.getEntitlements(churchId);
     }
-    createCheckout(churchId, email, plan) {
-        const frontendUrl = this.config.get("FRONTEND_URL", "http://localhost:3000");
+    createCheckout(churchId, email, plan, frontendUrl) {
         return this.subscriptionsService.createCheckout(churchId, plan, email, frontendUrl);
     }
-    createPortal(churchId) {
-        const frontendUrl = this.config.get("FRONTEND_URL", "http://localhost:3000");
+    createPortalSession(churchId, frontendUrl) {
         return this.subscriptionsService.createPortalSession(churchId, frontendUrl);
     }
 };
 exports.SubscriptionsController = SubscriptionsController;
+__decorate([
+    (0, common_1.Post)("upgrade-to-pro-temporal"),
+    openapi.ApiResponse({ status: 201 }),
+    __param(0, (0, common_1.Body)("churchId")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], SubscriptionsController.prototype, "upgradeToProTemporal", null);
 __decorate([
     (0, common_1.Get)(),
     (0, swagger_1.ApiOperation)({ summary: "Obtener plan y estado de suscripción" }),
@@ -77,22 +82,22 @@ __decorate([
     __param(0, (0, tenant_decorator_1.CurrentTenant)()),
     __param(1, (0, current_user_decorator_1.CurrentUser)("email")),
     __param(2, (0, common_1.Body)("plan")),
+    __param(3, (0, common_1.Headers)("origin")),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String, String]),
+    __metadata("design:paramtypes", [String, String, String, String]),
     __metadata("design:returntype", void 0)
 ], SubscriptionsController.prototype, "createCheckout", null);
 __decorate([
-    (0, common_1.Post)("portal"),
+    (0, common_1.Post)("portal-session"),
     (0, roles_decorator_1.Roles)(client_1.MemberRole.ADMIN),
-    (0, swagger_1.ApiOperation)({
-        summary: "Acceder al portal de Stripe para gestionar suscripción",
-    }),
+    (0, swagger_1.ApiOperation)({ summary: "Crear sesión de portal de Stripe" }),
     openapi.ApiResponse({ status: 201 }),
     __param(0, (0, tenant_decorator_1.CurrentTenant)()),
+    __param(1, (0, common_1.Headers)("origin")),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [String, String]),
     __metadata("design:returntype", void 0)
-], SubscriptionsController.prototype, "createPortal", null);
+], SubscriptionsController.prototype, "createPortalSession", null);
 exports.SubscriptionsController = SubscriptionsController = __decorate([
     (0, swagger_1.ApiTags)("subscriptions"),
     (0, swagger_1.ApiBearerAuth)("JWT"),

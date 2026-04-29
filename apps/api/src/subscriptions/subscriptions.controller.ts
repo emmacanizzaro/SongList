@@ -1,9 +1,3 @@
-  // ENDPOINT TEMPORAL: Upgrade a PRO sin auth
-  @Post("upgrade-to-pro-temporal")
-  async upgradeToProTemporal(@Body("churchId") churchId: string) {
-    // Cambia el plan a PRO para la iglesia indicada
-    return this.subscriptionsService.upgradeToPro(churchId);
-  }
 import {
   Body,
   Controller,
@@ -39,6 +33,13 @@ export class SubscriptionsController {
     private readonly config: ConfigService,
   ) {}
 
+  // ENDPOINT TEMPORAL: Upgrade a PRO sin auth
+  @Post("upgrade-to-pro-temporal")
+  async upgradeToProTemporal(@Body("churchId") churchId: string) {
+    // Cambia el plan a PRO para la iglesia indicada
+    return this.subscriptionsService.upgradeToPro(churchId);
+  }
+
   @Get()
   @ApiOperation({ summary: "Obtener plan y estado de suscripción" })
   getSubscription(@CurrentTenant() churchId: string) {
@@ -58,11 +59,8 @@ export class SubscriptionsController {
     @CurrentTenant() churchId: string,
     @CurrentUser("email") email: string,
     @Body("plan") plan: PlanType,
+    @Headers("origin") frontendUrl: string,
   ) {
-    const frontendUrl = this.config.get(
-      "FRONTEND_URL",
-      "http://localhost:3000",
-    );
     return this.subscriptionsService.createCheckout(
       churchId,
       plan,
@@ -71,19 +69,17 @@ export class SubscriptionsController {
     );
   }
 
-  @Post("portal")
+  @Post("portal-session")
   @Roles(MemberRole.ADMIN)
-  @ApiOperation({
-    summary: "Acceder al portal de Stripe para gestionar suscripción",
-  })
-  createPortal(@CurrentTenant() churchId: string) {
-    const frontendUrl = this.config.get(
-      "FRONTEND_URL",
-      "http://localhost:3000",
-    );
+  @ApiOperation({ summary: "Crear sesión de portal de Stripe" })
+  createPortalSession(
+    @CurrentTenant() churchId: string,
+    @Headers("origin") frontendUrl: string,
+  ) {
     return this.subscriptionsService.createPortalSession(churchId, frontendUrl);
   }
 }
+
 
 // ── Webhook de Stripe (sin JWT, verificado por firma Stripe) ──
 import { Controller as WebhookCtrl } from "@nestjs/common";

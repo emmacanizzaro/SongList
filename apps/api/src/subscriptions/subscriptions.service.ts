@@ -1,3 +1,18 @@
+import { Injectable, NotFoundException } from "@nestjs/common";
+import { PlanType } from "@prisma/client";
+import { PrismaService } from "../prisma/prisma.service";
+import { EntitlementsService } from "./entitlements.service";
+import { getPlanLimits, PlanLimits } from "./plan-limits";
+import { StripeService } from "./stripe.service";
+
+@Injectable()
+export class SubscriptionsService {
+  constructor(
+    private prisma: PrismaService,
+    private entitlements: EntitlementsService,
+    private stripe: StripeService,
+  ) {}
+
   // TEMPORAL: Upgrade a PRO directo
   async upgradeToPro(churchId: string) {
     const result = await this.prisma.subscription.upsert({
@@ -16,20 +31,6 @@
     });
     return { message: "Upgrade a PRO realizado", result };
   }
-import { Injectable, NotFoundException } from "@nestjs/common";
-import { PlanType } from "@prisma/client";
-import { PrismaService } from "../prisma/prisma.service";
-import { EntitlementsService } from "./entitlements.service";
-import { getPlanLimits, PlanLimits } from "./plan-limits";
-import { StripeService } from "./stripe.service";
-
-@Injectable()
-export class SubscriptionsService {
-  constructor(
-    private prisma: PrismaService,
-    private entitlements: EntitlementsService,
-    private stripe: StripeService,
-  ) {}
 
   async getSubscription(churchId: string) {
     const sub = await this.prisma.subscription.findUnique({

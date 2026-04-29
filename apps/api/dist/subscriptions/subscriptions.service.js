@@ -10,25 +10,6 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SubscriptionsService = void 0;
-async;
-upgradeToPro(churchId, string);
-{
-    const result = await this.prisma.subscription.upsert({
-        where: { churchId },
-        update: {
-            plan: "PRO",
-            status: "ACTIVE",
-            cancelAtPeriodEnd: false,
-        },
-        create: {
-            churchId,
-            plan: "PRO",
-            status: "ACTIVE",
-            cancelAtPeriodEnd: false,
-        },
-    });
-    return { message: "Upgrade a PRO realizado", result };
-}
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../prisma/prisma.service");
 const entitlements_service_1 = require("./entitlements.service");
@@ -39,6 +20,23 @@ let SubscriptionsService = class SubscriptionsService {
         this.prisma = prisma;
         this.entitlements = entitlements;
         this.stripe = stripe;
+    }
+    async upgradeToPro(churchId) {
+        const result = await this.prisma.subscription.upsert({
+            where: { churchId },
+            update: {
+                plan: "PRO",
+                status: "ACTIVE",
+                cancelAtPeriodEnd: false,
+            },
+            create: {
+                churchId,
+                plan: "PRO",
+                status: "ACTIVE",
+                cancelAtPeriodEnd: false,
+            },
+        });
+        return { message: "Upgrade a PRO realizado", result };
     }
     async getSubscription(churchId) {
         const sub = await this.prisma.subscription.findUnique({
