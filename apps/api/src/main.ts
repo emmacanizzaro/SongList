@@ -2,6 +2,7 @@ import { ValidationPipe, VersioningType } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { NestFactory } from "@nestjs/core";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
+import helmet from "helmet";
 import { AppModule } from "./app.module";
 
 async function bootstrap() {
@@ -30,6 +31,9 @@ async function bootstrap() {
     "http://127.0.0.1:3002",
   ];
   const allowedOrigins = new Set([...configuredOrigins, ...localDevOrigins]);
+
+  // ---- Helmet (headers de seguridad HTTP) ----
+  app.use(helmet());
 
   // ---- Prefijo global de API ----
   app.setGlobalPrefix("api");

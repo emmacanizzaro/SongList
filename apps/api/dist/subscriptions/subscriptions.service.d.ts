@@ -11,8 +11,6 @@ export declare class SubscriptionsService {
     getSubscription(churchId: string): Promise<{
         limits: PlanLimits;
         id: string;
-        createdAt: Date;
-        updatedAt: Date;
         churchId: string;
         plan: import(".prisma/client").$Enums.PlanType;
         status: import(".prisma/client").$Enums.SubscriptionStatus;
@@ -23,6 +21,8 @@ export declare class SubscriptionsService {
         cancelAtPeriodEnd: boolean;
         mpSubscriptionId: string | null;
         mpCustomerEmail: string | null;
+        createdAt: Date;
+        updatedAt: Date;
     }>;
     getLimits(churchId: string): Promise<PlanLimits>;
     getEntitlements(churchId: string): Promise<import("./entitlements.service").EntitlementsSnapshot>;

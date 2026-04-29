@@ -11,15 +11,63 @@ exports.getInterval = getInterval;
 exports.transposeLyrics = transposeLyrics;
 exports.extractChords = extractChords;
 exports.getAllTranspositions = getAllTranspositions;
-exports.CHROMATIC_SHARP = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
-exports.CHROMATIC_FLAT = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'];
-exports.ALL_KEYS = [...exports.CHROMATIC_SHARP, ...exports.CHROMATIC_FLAT.filter(n => n.includes('b'))];
+exports.CHROMATIC_SHARP = [
+    "C",
+    "C#",
+    "D",
+    "D#",
+    "E",
+    "F",
+    "F#",
+    "G",
+    "G#",
+    "A",
+    "A#",
+    "B",
+];
+exports.CHROMATIC_FLAT = [
+    "C",
+    "Db",
+    "D",
+    "Eb",
+    "E",
+    "F",
+    "Gb",
+    "G",
+    "Ab",
+    "A",
+    "Bb",
+    "B",
+];
+exports.ALL_KEYS = [
+    ...exports.CHROMATIC_SHARP,
+    ...exports.CHROMATIC_FLAT.filter((n) => n.includes("b")),
+];
 /** Normaliza bemoles a su equivalente con sostenido para cálculo de índice */
 const ENHARMONIC = {
-    Db: 'C#', Eb: 'D#', Fb: 'E', Gb: 'F#', Ab: 'G#', Bb: 'A#', Cb: 'B',
+    Db: "C#",
+    Eb: "D#",
+    Fb: "E",
+    Gb: "F#",
+    Ab: "G#",
+    Bb: "A#",
+    Cb: "B",
 };
 /** Tonalidades donde se prefiere la notación con bemoles */
-const FLAT_PREFERENCE = new Set(['F', 'Bb', 'Eb', 'Ab', 'Db', 'Gb', 'Dm', 'Gm', 'Cm', 'Fm', 'Bbm', 'Ebm']);
+const FLAT_PREFERENCE = new Set([
+    "F",
+    "Bb",
+    "Eb",
+    "Ab",
+    "Db",
+    "Gb",
+    "Dm",
+    "Gm",
+    "Cm",
+    "Fm",
+    "Bbm",
+    "Ebm",
+]);
 /**
  * Obtiene el índice cromático (0–11) de una nota, normalizando enarmónicos.
  */
@@ -35,7 +83,7 @@ function transposeNote(note, semitones, preferFlat = false) {
     const idx = noteIndex(note);
     if (idx === -1)
         return note;
-    const newIdx = ((idx + semitones) % 12 + 12) % 12;
+    const newIdx = (((idx + semitones) % 12) + 12) % 12;
     return preferFlat ? exports.CHROMATIC_FLAT[newIdx] : exports.CHROMATIC_SHARP[newIdx];
 }
 /**
@@ -62,11 +110,11 @@ function transposeChord(chord, semitones, preferFlat = false) {
  * Calcula la cantidad de semitonos entre dos tonalidades (0–11).
  */
 function getInterval(fromKey, toKey) {
-    const from = noteIndex(fromKey.replace('m', ''));
-    const to = noteIndex(toKey.replace('m', ''));
+    const from = noteIndex(fromKey.replace("m", ""));
+    const to = noteIndex(toKey.replace("m", ""));
     if (from === -1 || to === -1)
         return 0;
-    return ((to - from) % 12 + 12) % 12;
+    return (((to - from) % 12) + 12) % 12;
 }
 /**
  * Transpone una cadena completa en formato ChordPro.
@@ -87,7 +135,7 @@ function transposeLyrics(lyricsChords, options) {
  */
 function extractChords(lyricsChords) {
     const matches = lyricsChords.match(/\[([^\]]+)\]/g) ?? [];
-    const unique = new Set(matches.map(m => m.slice(1, -1)));
+    const unique = new Set(matches.map((m) => m.slice(1, -1)));
     return Array.from(unique);
 }
 /**
@@ -96,7 +144,10 @@ function extractChords(lyricsChords) {
 function getAllTranspositions(lyricsChords, originalKey) {
     const result = {};
     for (const key of exports.CHROMATIC_SHARP) {
-        result[key] = transposeLyrics(lyricsChords, { fromKey: originalKey, toKey: key });
+        result[key] = transposeLyrics(lyricsChords, {
+            fromKey: originalKey,
+            toKey: key,
+        });
     }
     return result;
 }

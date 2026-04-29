@@ -1,3 +1,11 @@
+## Actualización de dependencias y vulnerabilidades
+
+- Ejecutar `npm audit` periódicamente para monitorear vulnerabilidades.
+- Si hay vulnerabilidades que requieren `npm audit fix --force`, evaluar primero en entorno de pruebas o rama aparte.
+- No forzar actualizaciones en producción si la plataforma es estable y no hay riesgos críticos inmediatos.
+- Actualizar dependencias principales (NestJS, Next.js, Prisma, etc.) solo cuando haya versiones mayores estables y tras pruebas.
+- Documentar cualquier excepción o decisión de mantener dependencias vulnerables por motivos de estabilidad.
+
 # Quality Checklist
 
 Usa esta lista antes de abrir PR o mergear a main.

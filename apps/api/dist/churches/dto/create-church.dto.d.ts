@@ -1,5 +1,5 @@
 export declare class CreateChurchDto {
-    name: string;
-    description?: string;
-    logoUrl?: string;
+  name: string;
+  description?: string;
+  logoUrl?: string;
 }

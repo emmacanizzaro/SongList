@@ -43,7 +43,7 @@ exports.PLAN_LIMITS = {
         prioritySupport: false,
     },
     [PlanType.PRO]: {
-        maxMembers: -1,
+        maxMembers: 16,
         maxSongs: -1,
         maxInstruments: 30,
         meetingHistoryMonths: -1,

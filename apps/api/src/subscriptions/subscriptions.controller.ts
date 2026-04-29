@@ -1,3 +1,9 @@
+  // ENDPOINT TEMPORAL: Upgrade a PRO sin auth
+  @Post("upgrade-to-pro-temporal")
+  async upgradeToProTemporal(@Body("churchId") churchId: string) {
+    // Cambia el plan a PRO para la iglesia indicada
+    return this.subscriptionsService.upgradeToPro(churchId);
+  }
 import {
   Body,
   Controller,

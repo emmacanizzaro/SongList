@@ -14,6 +14,10 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.StripeWebhookController = exports.SubscriptionsController = void 0;
 const openapi = require("@nestjs/swagger");
+upgradeToProTemporal(, churchId, string);
+{
+    return this.subscriptionsService.upgradeToPro(churchId);
+}
 const common_1 = require("@nestjs/common");
 const config_1 = require("@nestjs/config");
 const swagger_1 = require("@nestjs/swagger");

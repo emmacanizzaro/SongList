@@ -5,7 +5,7 @@ exports.getPlanLimits = getPlanLimits;
 const client_1 = require("@prisma/client");
 exports.PLAN_LIMITS = {
     [client_1.PlanType.FREE]: {
-        maxMembers: 10,
+        maxMembers: 17,
         maxSongs: 50,
         maxInstruments: 6,
         historyMonths: 3,
@@ -15,7 +15,7 @@ exports.PLAN_LIMITS = {
         supportPriority: "community",
     },
     [client_1.PlanType.PRO]: {
-        maxMembers: 16,
+        maxMembers: -1,
         maxSongs: -1,
         maxInstruments: 30,
         historyMonths: -1,

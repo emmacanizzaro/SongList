@@ -1,49 +1,68 @@
 "use strict";
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-};
+var __decorate =
+  (this && this.__decorate) ||
+  function (decorators, target, key, desc) {
+    var c = arguments.length,
+      r =
+        c < 3
+          ? target
+          : desc === null
+            ? (desc = Object.getOwnPropertyDescriptor(target, key))
+            : desc,
+      d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function")
+      r = Reflect.decorate(decorators, target, key, desc);
+    else
+      for (var i = decorators.length - 1; i >= 0; i--)
+        if ((d = decorators[i]))
+          r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return (c > 3 && r && Object.defineProperty(target, key, r), r);
+  };
+var __metadata =
+  (this && this.__metadata) ||
+  function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function")
+      return Reflect.metadata(k, v);
+  };
 var InviteEmailService_1;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.InviteEmailService = void 0;
 const common_1 = require("@nestjs/common");
 const config_1 = require("@nestjs/config");
 const client_1 = require("@prisma/client");
-let InviteEmailService = InviteEmailService_1 = class InviteEmailService {
-    constructor(config) {
-        this.config = config;
-        this.logger = new common_1.Logger(InviteEmailService_1.name);
+let InviteEmailService = (InviteEmailService_1 = class InviteEmailService {
+  constructor(config) {
+    this.config = config;
+    this.logger = new common_1.Logger(InviteEmailService_1.name);
+  }
+  async sendInviteEmail({ email, churchName, role, token, expiresAt }) {
+    this.logger.warn("Entrando a sendInviteEmail");
+    const frontendUrl = this.config.get(
+      "FRONTEND_URL",
+      "http://localhost:3000",
+    );
+    const inviteUrl = `${frontendUrl.replace(/\/$/, "")}/register?invite=${token}`;
+    const apiKey = this.config.get("RESEND_API_KEY");
+    const from =
+      this.config.get("INVITE_EMAIL_FROM") ?? this.config.get("EMAIL_FROM");
+    this.logger.warn(`RESEND_API_KEY: ${apiKey}, INVITE_EMAIL_FROM: ${from}`);
+    if (!apiKey || !from) {
+      return { emailSent: false, inviteUrl };
     }
-    async sendInviteEmail({ email, churchName, role, token, expiresAt, }) {
-        this.logger.warn("Entrando a sendInviteEmail");
-        const frontendUrl = this.config.get("FRONTEND_URL", "http://localhost:3000");
-        const inviteUrl = `${frontendUrl.replace(/\/$/, "")}/register?invite=${token}`;
-        const apiKey = this.config.get("RESEND_API_KEY");
-        const from = this.config.get("INVITE_EMAIL_FROM") ??
-            this.config.get("EMAIL_FROM");
-        this.logger.warn(`RESEND_API_KEY: ${apiKey}, INVITE_EMAIL_FROM: ${from}`);
-        if (!apiKey || !from) {
-            return { emailSent: false, inviteUrl };
-        }
-        const expiresAtText = new Intl.DateTimeFormat("es-ES", {
-            dateStyle: "medium",
-            timeStyle: "short",
-        }).format(expiresAt);
-        const subject = `¡Bienvenido a SongList! Tu acceso está listo`;
-        const text = [
-            `¡Bienvenido a SongList!`,
-            `Has sido invitado a unirte a ${churchName} como ${this.getRoleLabel(role)}.`,
-            `Tu registro a SongList se confirmó con éxito.`,
-            `Accede a tu equipo usando este enlace: ${inviteUrl}`,
-            `La invitación expira el ${expiresAtText}.`,
-            `\n\nEmmanuel Canizzaro - Product Manager`,
-        ].join("\n\n");
-        const html = `
+    const expiresAtText = new Intl.DateTimeFormat("es-ES", {
+      dateStyle: "medium",
+      timeStyle: "short",
+    }).format(expiresAt);
+    const subject = `¡Bienvenido a SongList! Tu acceso está listo`;
+    const text = [
+      `¡Bienvenido a SongList!`,
+      `Has sido invitado a unirte a ${churchName} como ${this.getRoleLabel(role)}.`,
+      `Tu registro a SongList se confirmó con éxito.`,
+      `Accede a tu equipo usando este enlace: ${inviteUrl}`,
+      `La invitación expira el ${expiresAtText}.`,
+      `\n\nEmmanuel Canizzaro - Product Manager`,
+    ].join("\n\n");
+    const html = `
       <div style="font-family: Inter, Arial, sans-serif; background: #f6f4ef; padding: 24px; color: #132033;">
         <div style="max-width: 560px; margin: 0 auto; background: #ffffff; border-radius: 20px; padding: 32px; border: 1px solid #e5e7eb; box-shadow: 0 18px 40px rgba(22, 43, 73, 0.08);">
           <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 18px;">
@@ -66,46 +85,55 @@ let InviteEmailService = InviteEmailService_1 = class InviteEmailService {
         </div>
       </div>
     `;
-        try {
-            const response = await fetch("https://api.resend.com/emails", {
-                method: "POST",
-                headers: {
-                    Authorization: `Bearer ${apiKey}`,
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    from,
-                    to: [email],
-                    subject,
-                    html,
-                    text,
-                }),
-            });
-            if (!response.ok) {
-                this.logger.warn(`No se pudo enviar invitación a ${email}: ${response.status}`);
-                return { emailSent: false, inviteUrl };
-            }
-            return { emailSent: true, inviteUrl };
-        }
-        catch (error) {
-            this.logger.warn(`Error enviando invitación a ${email}: ${String(error)}`);
-            return { emailSent: false, inviteUrl };
-        }
+    try {
+      const response = await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          from,
+          to: [email],
+          subject,
+          html,
+          text,
+        }),
+      });
+      if (!response.ok) {
+        this.logger.warn(
+          `No se pudo enviar invitación a ${email}: ${response.status}`,
+        );
+        return { emailSent: false, inviteUrl };
+      }
+      return { emailSent: true, inviteUrl };
+    } catch (error) {
+      this.logger.warn(
+        `Error enviando invitación a ${email}: ${String(error)}`,
+      );
+      return { emailSent: false, inviteUrl };
     }
-    getRoleLabel(role) {
-        switch (role) {
-            case client_1.MemberRole.ADMIN:
-                return "Administrador";
-            case client_1.MemberRole.EDITOR:
-                return "Editor";
-            default:
-                return "Visualizador";
-        }
+  }
+  getRoleLabel(role) {
+    switch (role) {
+      case client_1.MemberRole.ADMIN:
+        return "Administrador";
+      case client_1.MemberRole.EDITOR:
+        return "Editor";
+      default:
+        return "Visualizador";
     }
-};
+  }
+});
 exports.InviteEmailService = InviteEmailService;
-exports.InviteEmailService = InviteEmailService = InviteEmailService_1 = __decorate([
-    (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [config_1.ConfigService])
-], InviteEmailService);
+exports.InviteEmailService =
+  InviteEmailService =
+  InviteEmailService_1 =
+    __decorate(
+      [
+        (0, common_1.Injectable)(),
+        __metadata("design:paramtypes", [config_1.ConfigService]),
+      ],
+      InviteEmailService,
+    );
 //# sourceMappingURL=invite-email.service.js.map
