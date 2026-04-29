@@ -1,9 +1,3 @@
-  // ENDPOINT TEMPORAL: Upgrade a PRO sin auth
-  @Post("upgrade-to-pro-temporal")
-  async upgradeToProTemporal(@Body("churchId") churchId: string) {
-    // Cambia el plan a PRO para la iglesia indicada
-    return this.subscriptionsService.upgradeToPro(churchId);
-  }
 import {
   Body,
   Controller,
@@ -15,6 +9,7 @@ import {
   RawBodyRequest,
   Req,
   UseGuards,
+  Controller as WebhookCtrl,
 } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
@@ -83,10 +78,16 @@ export class SubscriptionsController {
     );
     return this.subscriptionsService.createPortalSession(churchId, frontendUrl);
   }
+
+  // ENDPOINT TEMPORAL: Upgrade a PRO sin auth
+  @Post("upgrade-to-pro-temporal")
+  async upgradeToProTemporal(@Body("churchId") churchId: string) {
+    // Cambia el plan a PRO para la iglesia indicada
+    return this.subscriptionsService.upgradeToPro(churchId);
+  }
 }
 
 // ── Webhook de Stripe (sin JWT, verificado por firma Stripe) ──
-import { Controller as WebhookCtrl } from "@nestjs/common";
 
 @ApiTags("subscriptions")
 @WebhookCtrl("webhooks/stripe")
