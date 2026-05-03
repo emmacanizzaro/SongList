@@ -1,58 +1,65 @@
-"use client";
+'use client'
+import { Tooltip } from '@/components/ui/Tooltip'
 
-import { useAuth } from "@/hooks/useAuth";
-import { meetingsApi, songsApi } from "@/lib/api";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useQuery } from "@tanstack/react-query";
+import { useAuth } from '@/hooks/useAuth'
+import { meetingsApi, songsApi } from '@/lib/api'
+import { Song } from '@/types'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useQuery } from '@tanstack/react-query'
 import {
-  ArrowLeft,
-  CalendarDays,
-  Clock3,
-  Plus,
-  Save,
-  Sparkles,
-  StickyNote,
-  Trash2,
-} from "lucide-react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import toast from "react-hot-toast";
-import { z } from "zod";
+    ArrowLeft,
+    CalendarDays,
+    Clock3,
+    Plus,
+    Save,
+    Sparkles,
+    StickyNote,
+    Trash2,
+} from 'lucide-react'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { useState } from 'react'
+import { useForm } from 'react-hook-form'
+import toast from 'react-hot-toast'
+import { z } from 'zod'
 
 const createMeetingSchema = z.object({
   title: z
     .string()
-    .min(3, "El título debe tener al menos 3 caracteres")
-    .max(120, "El título no puede superar 120 caracteres"),
-  worshipLeader: z.string().min(2, "Worship Leader es obligatorio").max(100),
-  date: z.string().min(1, "La fecha es obligatoria"),
-  notes: z.string().optional().default(""),
-});
+    .min(3, 'El título debe tener al menos 3 caracteres')
+    .max(120, 'El título no puede superar 120 caracteres'),
+  worshipLeader: z.string().min(2, 'Worship Leader es obligatorio').max(100),
+  date: z.string().min(1, 'La fecha es obligatoria'),
+  notes: z.string().optional().default(''),
+})
 
-type CreateMeetingInput = z.infer<typeof createMeetingSchema>;
+type CreateMeetingInput = z.infer<typeof createMeetingSchema>
 
 interface SelectedMeetingSong {
-  songId: string;
-  title: string;
-  keyOverride?: string;
-  notes?: string;
+  songId: string
+  title: string
+  keyOverride?: string
+  notes?: string
+}
+
+type SongsListResponse = {
+  items: Song[]
 }
 
 export default function NewMeetingPage() {
-  const { user } = useAuth();
-  const router = useRouter();
-  const [error, setError] = useState("");
-  const [selectedSongId, setSelectedSongId] = useState("");
-  const [selectedKeyOverride, setSelectedKeyOverride] = useState("");
-  const [selectedSongNote, setSelectedSongNote] = useState("");
-  const [selectedSongs, setSelectedSongs] = useState<SelectedMeetingSong[]>([]);
+  const { user } = useAuth()
+  const router = useRouter()
+  const [error, setError] = useState('')
+  const [selectedSongId, setSelectedSongId] = useState('')
+  const [selectedKeyOverride, setSelectedKeyOverride] = useState('')
+  const [selectedSongNote, setSelectedSongNote] = useState('')
+  const [selectedSongs, setSelectedSongs] = useState<SelectedMeetingSong[]>([])
 
-  const { data: songs = [] } = useQuery({
-    queryKey: ["songs-for-new-meeting"],
+  const { data: songsData } = useQuery<SongsListResponse>({
+    queryKey: ['songs-for-new-meeting'],
     queryFn: () => songsApi.list().then((r) => r.data),
-  });
+  })
+  const songs = songsData?.items ?? []
 
   const {
     register,
@@ -62,29 +69,29 @@ export default function NewMeetingPage() {
   } = useForm<CreateMeetingInput>({
     resolver: zodResolver(createMeetingSchema),
     defaultValues: {
-      title: "",
-      worshipLeader: "",
-      date: "",
-      notes: "",
+      title: '',
+      worshipLeader: '',
+      date: '',
+      notes: '',
     },
-  });
+  })
 
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const liveDate = watch("date");
-  const liveTitle = watch("title");
-  const liveLeader = watch("worshipLeader");
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const liveDate = watch('date')
+  const liveTitle = watch('title')
+  const liveLeader = watch('worshipLeader')
 
-  const canEditMeetings = user?.currentRole !== "READER";
+  const canEditMeetings = user?.currentRole !== 'READER'
 
   const addSongToMeeting = () => {
-    if (!selectedSongId) return;
+    if (!selectedSongId) return
 
-    const foundSong = songs.find((song: any) => song.id === selectedSongId);
-    if (!foundSong) return;
+    const foundSong = songs.find((song: any) => song.id === selectedSongId)
+    if (!foundSong) return
 
     if (selectedSongs.some((song) => song.songId === selectedSongId)) {
-      toast.error("Esa canción ya fue agregada");
-      return;
+      toast.error('Esa canción ya fue agregada')
+      return
     }
 
     setSelectedSongs((prev) => [
@@ -95,33 +102,30 @@ export default function NewMeetingPage() {
         keyOverride: selectedKeyOverride || undefined,
         notes: selectedSongNote || undefined,
       },
-    ]);
+    ])
 
-    setSelectedSongId("");
-    setSelectedKeyOverride("");
-    setSelectedSongNote("");
-  };
+    setSelectedSongId('')
+    setSelectedKeyOverride('')
+    setSelectedSongNote('')
+  }
 
   const removeSongFromMeeting = (songId: string) => {
-    setSelectedSongs((prev) => prev.filter((song) => song.songId !== songId));
-  };
+    setSelectedSongs((prev) => prev.filter((song) => song.songId !== songId))
+  }
 
   const onSubmit = async (data: CreateMeetingInput) => {
     if (!canEditMeetings) {
-      toast.error("Tu rol es visualizador. No puedes crear reuniones.");
-      return;
+      toast.error('Tu rol es visualizador. No puedes crear reuniones.')
+      return
     }
 
-    setIsSubmitting(true);
-    setError("");
+    setIsSubmitting(true)
+    setError('')
 
     try {
-      const mergedNotes = [
-        `Worship Leader: ${data.worshipLeader}`,
-        data.notes?.trim(),
-      ]
+      const mergedNotes = [`Worship Leader: ${data.worshipLeader}`, data.notes?.trim()]
         .filter(Boolean)
-        .join("\n\n");
+        .join('\n\n')
 
       const { data: meeting } = await meetingsApi.create({
         title: data.title,
@@ -133,19 +137,19 @@ export default function NewMeetingPage() {
           keyOverride: song.keyOverride,
           notes: song.notes,
         })),
-      });
-      toast.success("Reunión creada correctamente");
-      router.push(`/meetings/${meeting.id}`);
+      })
+      toast.success('Reunión creada correctamente')
+      router.push(`/meetings/${meeting.id}`)
     } catch (err: any) {
       const message =
-        err?.response?.data?.message?.join?.(", ") ||
+        err?.response?.data?.message?.join?.(', ') ||
         err?.response?.data?.message ||
-        "No se pudo crear la reunión";
-      setError(message);
+        'No se pudo crear la reunión'
+      setError(message)
     } finally {
-      setIsSubmitting(false);
+      setIsSubmitting(false)
     }
-  };
+  }
 
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-6">
@@ -166,8 +170,7 @@ export default function NewMeetingPage() {
             Crea una reunión clara y accionable
           </h1>
           <p className="max-w-2xl text-sm leading-6 text-slate-300 sm:text-base">
-            Define fecha, foco y notas para que tu equipo llegue alineado desde
-            el primer momento.
+            Define fecha, foco y notas para que tu equipo llegue alineado desde el primer momento.
           </p>
         </div>
       </section>
@@ -180,8 +183,7 @@ export default function NewMeetingPage() {
 
       {!canEditMeetings && (
         <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:border-amber-900 dark:bg-amber-950/60 dark:text-amber-200">
-          Estás en modo visualizador. Puedes revisar reuniones, pero no crear ni
-          editar.
+          Estás en modo visualizador. Puedes revisar reuniones, pero no crear ni editar.
         </div>
       )}
 
@@ -189,65 +191,108 @@ export default function NewMeetingPage() {
         <div className="card p-6 sm:p-8">
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             <div>
-              <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">
+              <label
+                htmlFor="meeting-title"
+                className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300"
+              >
                 Título
+                <Tooltip text="Nombre de la reunión o servicio. Ejemplo: Ensayo domingo AM.">
+                  <></>
+                </Tooltip>
               </label>
               <input
+                id="meeting-title"
                 type="text"
                 placeholder="Ej. Ensayo domingo AM"
-                {...register("title")}
+                {...register('title')}
                 className="input"
+                aria-describedby={errors.title ? 'meeting-title-error' : undefined}
                 disabled={!canEditMeetings}
               />
               {errors.title && (
-                <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                <p
+                  id="meeting-title-error"
+                  role="alert"
+                  className="mt-1 text-sm text-red-600 dark:text-red-400"
+                >
                   {errors.title.message}
                 </p>
               )}
             </div>
 
             <div>
-              <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">
+              <label
+                htmlFor="meeting-leader"
+                className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300"
+              >
                 Worship Leader
+                <Tooltip text="Quién lidera la reunión o servicio.">
+                  <></>
+                </Tooltip>
               </label>
               <input
+                id="meeting-leader"
                 type="text"
                 placeholder="Nombre del líder de alabanza"
-                {...register("worshipLeader")}
+                {...register('worshipLeader')}
                 className="input"
+                aria-describedby={errors.worshipLeader ? 'meeting-leader-error' : undefined}
                 disabled={!canEditMeetings}
               />
               {errors.worshipLeader && (
-                <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                <p
+                  id="meeting-leader-error"
+                  role="alert"
+                  className="mt-1 text-sm text-red-600 dark:text-red-400"
+                >
                   {errors.worshipLeader.message}
                 </p>
               )}
             </div>
 
             <div>
-              <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">
+              <label
+                htmlFor="meeting-date"
+                className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300"
+              >
                 Fecha y hora
+                <Tooltip text="Selecciona el día y la hora de la reunión.">
+                  <></>
+                </Tooltip>
               </label>
               <input
+                id="meeting-date"
                 type="datetime-local"
-                {...register("date")}
+                {...register('date')}
                 className="input"
+                aria-describedby={errors.date ? 'meeting-date-error' : undefined}
                 disabled={!canEditMeetings}
               />
               {errors.date && (
-                <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                <p
+                  id="meeting-date-error"
+                  role="alert"
+                  className="mt-1 text-sm text-red-600 dark:text-red-400"
+                >
                   {errors.date.message}
                 </p>
               )}
             </div>
 
             <div>
-              <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">
+              <label
+                htmlFor="meeting-notes"
+                className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300"
+              >
                 Notas del equipo
+                <Tooltip text="Observaciones, dinámicas o recordatorios para el grupo.">
+                  <></>
+                </Tooltip>
               </label>
               <textarea
+                id="meeting-notes"
                 placeholder="Enfoque del servicio, dinámica, observaciones musicales..."
-                {...register("notes")}
+                {...register('notes')}
                 rows={5}
                 className="input resize-y"
                 disabled={!canEditMeetings}
@@ -278,9 +323,7 @@ export default function NewMeetingPage() {
                   className="input"
                   placeholder="Tono opcional (ej: D)"
                   value={selectedKeyOverride}
-                  onChange={(event) =>
-                    setSelectedKeyOverride(event.target.value)
-                  }
+                  onChange={(event) => setSelectedKeyOverride(event.target.value)}
                   disabled={!canEditMeetings}
                 />
 
@@ -316,11 +359,9 @@ export default function NewMeetingPage() {
                         </p>
                         {(song.keyOverride || song.notes) && (
                           <p className="text-xs text-slate-500 dark:text-slate-400">
-                            {song.keyOverride
-                              ? `Tono: ${song.keyOverride}`
-                              : ""}
-                            {song.keyOverride && song.notes ? " · " : ""}
-                            {song.notes ?? ""}
+                            {song.keyOverride ? `Tono: ${song.keyOverride}` : ''}
+                            {song.keyOverride && song.notes ? ' · ' : ''}
+                            {song.notes ?? ''}
                           </p>
                         )}
                       </div>
@@ -337,8 +378,8 @@ export default function NewMeetingPage() {
                 </div>
               ) : (
                 <p className="text-xs text-slate-500 dark:text-slate-400">
-                  Aun no agregaste canciones. Seleccionalas desde tu biblioteca
-                  para mas orden y rapidez.
+                  Aun no agregaste canciones. Seleccionalas desde tu biblioteca para mas orden y
+                  rapidez.
                 </p>
               )}
             </div>
@@ -348,11 +389,7 @@ export default function NewMeetingPage() {
                 Luego podrás agregar canciones y asignar músicos.
               </p>
               <div className="flex gap-3">
-                <button
-                  type="button"
-                  onClick={() => router.back()}
-                  className="btn-secondary"
-                >
+                <button type="button" onClick={() => router.back()} className="btn-secondary">
                   Cancelar
                 </button>
                 <button
@@ -361,7 +398,7 @@ export default function NewMeetingPage() {
                   className="btn-primary disabled:translate-y-0 disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   <Save className="h-4 w-4" />
-                  {isSubmitting ? "Creando..." : "Crear reunión"}
+                  {isSubmitting ? 'Creando...' : 'Crear reunión'}
                 </button>
               </div>
             </div>
@@ -376,20 +413,16 @@ export default function NewMeetingPage() {
             </div>
             <div className="mt-4 space-y-3 text-sm">
               <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 dark:border-slate-800 dark:bg-slate-900">
-                <p className="text-xs uppercase tracking-[0.2em] text-slate-400">
-                  Título
-                </p>
+                <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Título</p>
                 <p className="mt-1 font-medium text-slate-800 dark:text-slate-100">
-                  {liveTitle || "Servicio principal"}
+                  {liveTitle || 'Servicio principal'}
                 </p>
               </div>
 
               <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 dark:border-slate-800 dark:bg-slate-900">
-                <p className="text-xs uppercase tracking-[0.2em] text-slate-400">
-                  Worship Leader
-                </p>
+                <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Worship Leader</p>
                 <p className="mt-1 font-medium text-slate-800 dark:text-slate-100">
-                  {liveLeader || "Sin definir"}
+                  {liveLeader || 'Sin definir'}
                 </p>
               </div>
 
@@ -400,9 +433,7 @@ export default function NewMeetingPage() {
                     Fecha
                   </p>
                   <p className="mt-1 text-sm font-medium text-slate-800 dark:text-slate-100">
-                    {liveDate
-                      ? new Date(liveDate).toLocaleDateString("es-ES")
-                      : "Sin definir"}
+                    {liveDate ? new Date(liveDate).toLocaleDateString('es-ES') : 'Sin definir'}
                   </p>
                 </div>
                 <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 dark:border-slate-800 dark:bg-slate-900">
@@ -412,11 +443,11 @@ export default function NewMeetingPage() {
                   </p>
                   <p className="mt-1 text-sm font-medium text-slate-800 dark:text-slate-100">
                     {liveDate
-                      ? new Date(liveDate).toLocaleTimeString("es-ES", {
-                          hour: "2-digit",
-                          minute: "2-digit",
+                      ? new Date(liveDate).toLocaleTimeString('es-ES', {
+                          hour: '2-digit',
+                          minute: '2-digit',
                         })
-                      : "Sin definir"}
+                      : 'Sin definir'}
                   </p>
                 </div>
               </div>
@@ -437,5 +468,5 @@ export default function NewMeetingPage() {
         </aside>
       </div>
     </div>
-  );
+  )
 }

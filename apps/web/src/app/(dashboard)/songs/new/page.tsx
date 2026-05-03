@@ -1,47 +1,48 @@
-"use client";
+'use client'
 
-import { useAuth } from "@/hooks/useAuth";
-import { useEntitlements } from "@/hooks/useEntitlements";
-import { songsApi } from "@/lib/api";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowLeft, Crown, Info, Music2, Save } from "lucide-react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
+import { Tooltip } from '@/components/ui/Tooltip'
+import { useAuth } from '@/hooks/useAuth'
+import { useEntitlements } from '@/hooks/useEntitlements'
+import { songsApi } from '@/lib/api'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { ArrowLeft, Crown, Info, Music2, Save } from 'lucide-react'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { z } from 'zod'
 
 const createSongSchema = z.object({
-  title: z.string().min(1, "El título es obligatorio").max(200),
-  artist: z.string().max(100).optional().or(z.literal("")),
-  originalKey: z.string().min(1, "La tonalidad es obligatoria"),
+  title: z.string().min(1, 'El título es obligatorio').max(200),
+  artist: z.string().max(100).optional().or(z.literal('')),
+  originalKey: z.string().min(1, 'La tonalidad es obligatoria'),
   bpm: z
     .string()
     .optional()
     .refine(
       (value) => !value || (Number(value) >= 40 && Number(value) <= 300),
-      "El BPM debe estar entre 40 y 300",
+      'El BPM debe estar entre 40 y 300',
     ),
   tags: z.string().optional(),
-  lyricsChords: z.string().min(1, "Agrega la letra con acordes"),
+  lyricsChords: z.string().min(1, 'Agrega la letra con acordes'),
   notes: z.string().optional(),
-});
+})
 
-type CreateSongInput = z.infer<typeof createSongSchema>;
+type CreateSongInput = z.infer<typeof createSongSchema>
 
-const KEYS = ["C", "C#", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B"];
+const KEYS = ['C', 'C#', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B']
 
 export default function NewSongPage() {
-  const { user } = useAuth();
-  const router = useRouter();
-  const [error, setError] = useState("");
-  const isAdmin = user?.currentRole === "ADMIN";
-  const { entitlements } = useEntitlements(Boolean(user));
+  const { user } = useAuth()
+  const router = useRouter()
+  const [error, setError] = useState('')
+  const isAdmin = user?.currentRole === 'ADMIN'
+  const { entitlements } = useEntitlements(Boolean(user))
 
-  const songsQuota = entitlements?.quotas.songs;
+  const songsQuota = entitlements?.quotas.songs
   const hasSongsLimitReached = Boolean(
     songsQuota && !songsQuota.unlimited && (songsQuota.remaining ?? 0) <= 0,
-  );
+  )
 
   const {
     register,
@@ -51,24 +52,24 @@ export default function NewSongPage() {
   } = useForm<CreateSongInput>({
     resolver: zodResolver(createSongSchema),
     defaultValues: {
-      originalKey: "C",
-      bpm: "",
-      tags: "",
-      notes: "",
-      lyricsChords: "",
+      originalKey: 'C',
+      bpm: '',
+      tags: '',
+      notes: '',
+      lyricsChords: '',
     },
-  });
+  })
 
-  const lyricsPreview = watch("lyricsChords");
+  const lyricsPreview = watch('lyricsChords')
 
   const onSubmit = async (data: CreateSongInput) => {
-    setError("");
+    setError('')
 
     if (hasSongsLimitReached) {
       setError(
-        "Tu plan alcanzó el límite de canciones. Actualiza para seguir agregando repertorio.",
-      );
-      return;
+        'Tu plan alcanzó el límite de canciones. Actualiza para seguir agregando repertorio.',
+      )
+      return
     }
 
     try {
@@ -79,27 +80,27 @@ export default function NewSongPage() {
         bpm: data.bpm ? Number(data.bpm) : undefined,
         tags: data.tags
           ? data.tags
-              .split(",")
+              .split(',')
               .map((tag) => tag.trim().toLowerCase())
               .filter(Boolean)
           : [],
         version: {
-          type: "ORIGINAL",
+          type: 'ORIGINAL',
           key: data.originalKey,
           lyricsChords: data.lyricsChords,
           notes: data.notes || undefined,
         },
-      });
+      })
 
-      router.push(`/songs/${response.data.id}`);
+      router.push(`/songs/${response.data.id}`)
     } catch (submissionError: any) {
       setError(
-        submissionError?.response?.data?.message?.join?.(", ") ||
+        submissionError?.response?.data?.message?.join?.(', ') ||
           submissionError?.response?.data?.message ||
-          "No se pudo crear la canción. Revisa los datos e intenta nuevamente.",
-      );
+          'No se pudo crear la canción. Revisa los datos e intenta nuevamente.',
+      )
     }
-  };
+  }
 
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-6">
@@ -120,8 +121,8 @@ export default function NewSongPage() {
             Carga repertorio con una vista más clara
           </h1>
           <p className="max-w-2xl text-sm leading-6 text-slate-300 sm:text-base">
-            Completa la versión original con letra y acordes. Después podrás
-            abrir el detalle para transponerla o preparar variantes.
+            Completa la versión original con letra y acordes. Después podrás abrir el detalle para
+            transponerla o preparar variantes.
           </p>
         </div>
       </section>
@@ -130,15 +131,18 @@ export default function NewSongPage() {
         <div className="card p-6 sm:p-8">
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             {error && (
-              <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-900 dark:bg-red-950 dark:text-red-200">
+              <div
+                role="alert"
+                className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-900 dark:bg-red-950 dark:text-red-200"
+              >
                 {error}
               </div>
             )}
 
             {hasSongsLimitReached && (
               <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:border-amber-900 dark:bg-amber-950/60 dark:text-amber-200">
-                Llegaste al límite de canciones para tu plan. Para cargar
-                nuevas, actualiza tu suscripción.
+                Llegaste al límite de canciones para tu plan. Para cargar nuevas, actualiza tu
+                suscripción.
                 <div className="mt-3 flex flex-wrap gap-2">
                   <Link href="/songs" className="btn-secondary">
                     Volver a canciones
@@ -159,44 +163,74 @@ export default function NewSongPage() {
 
             <div className="grid gap-5 md:grid-cols-2">
               <div className="md:col-span-2">
-                <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">
+                <label
+                  htmlFor="song-title"
+                  className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300"
+                >
                   Título
+                  <Tooltip text="Nombre de la canción tal como aparece en tu repertorio.">
+                    <></>
+                  </Tooltip>
                 </label>
                 <input
+                  id="song-title"
                   type="text"
                   placeholder="Sublime gracia"
                   className="input"
-                  {...register("title")}
+                  aria-describedby={errors.title ? 'song-title-error' : undefined}
+                  {...register('title')}
                 />
                 {errors.title && (
-                  <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                  <p
+                    id="song-title-error"
+                    role="alert"
+                    className="mt-1 text-sm text-red-600 dark:text-red-400"
+                  >
                     {errors.title.message}
                   </p>
                 )}
               </div>
 
               <div>
-                <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">
+                <label
+                  htmlFor="song-artist"
+                  className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300"
+                >
                   Artista o autor
+                  <Tooltip text="¿Quién compuso o popularizó la canción? Opcional.">
+                    <></>
+                  </Tooltip>
                 </label>
                 <input
+                  id="song-artist"
                   type="text"
                   placeholder="Tradicional"
                   className="input"
-                  {...register("artist")}
+                  aria-describedby={errors.artist ? 'song-artist-error' : undefined}
+                  {...register('artist')}
                 />
                 {errors.artist && (
-                  <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                  <p
+                    id="song-artist-error"
+                    role="alert"
+                    className="mt-1 text-sm text-red-600 dark:text-red-400"
+                  >
                     {errors.artist.message}
                   </p>
                 )}
               </div>
 
               <div>
-                <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">
+                <label
+                  htmlFor="song-originalKey"
+                  className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300"
+                >
                   Tonalidad original
+                  <Tooltip text="Clave musical en la que está originalmente la canción.">
+                    <></>
+                  </Tooltip>
                 </label>
-                <select className="input" {...register("originalKey")}>
+                <select id="song-originalKey" className="input" {...register('originalKey')}>
                   {KEYS.map((key) => (
                     <option key={key} value={key}>
                       {key}
@@ -206,62 +240,100 @@ export default function NewSongPage() {
               </div>
 
               <div>
-                <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">
+                <label
+                  htmlFor="song-bpm"
+                  className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300"
+                >
                   BPM
+                  <Tooltip text="Beats por minuto. Indica el tempo de la canción. Opcional.">
+                    <></>
+                  </Tooltip>
                 </label>
                 <input
+                  id="song-bpm"
                   type="number"
                   min={40}
                   max={300}
                   placeholder="72"
                   className="input"
-                  {...register("bpm")}
+                  aria-describedby={errors.bpm ? 'song-bpm-error' : undefined}
+                  {...register('bpm')}
                 />
                 {errors.bpm && (
-                  <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                  <p
+                    id="song-bpm-error"
+                    role="alert"
+                    className="mt-1 text-sm text-red-600 dark:text-red-400"
+                  >
                     {errors.bpm.message}
                   </p>
                 )}
               </div>
 
               <div>
-                <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">
+                <label
+                  htmlFor="song-tags"
+                  className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300"
+                >
                   Etiquetas
+                  <Tooltip text="Palabras clave separadas por coma para organizar y buscar más fácil.">
+                    <></>
+                  </Tooltip>
                 </label>
                 <input
+                  id="song-tags"
                   type="text"
                   placeholder="adoración, domingo, apertura"
                   className="input"
-                  {...register("tags")}
+                  {...register('tags')}
                 />
               </div>
 
               <div className="md:col-span-2">
-                <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">
+                <label
+                  htmlFor="song-lyricsChords"
+                  className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300"
+                >
                   Letra y acordes
+                  <Tooltip text="Pega aquí la letra con los acordes entre corchetes. Ejemplo: [C]Sublime [G]gracia...">
+                    <></>
+                  </Tooltip>
                 </label>
                 <textarea
+                  id="song-lyricsChords"
                   rows={12}
                   placeholder="[C]Sublime [G]gracia del [Am]Señor..."
                   className="input min-h-[280px] resize-y"
-                  {...register("lyricsChords")}
+                  aria-describedby={errors.lyricsChords ? 'song-lyricsChords-error' : undefined}
+                  {...register('lyricsChords')}
                 />
                 {errors.lyricsChords && (
-                  <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                  <p
+                    id="song-lyricsChords-error"
+                    role="alert"
+                    className="mt-1 text-sm text-red-600 dark:text-red-400"
+                  >
                     {errors.lyricsChords.message}
                   </p>
                 )}
               </div>
 
               <div className="md:col-span-2">
-                <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">
+                <label
+                  htmlFor="song-notes"
+                  className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300"
+                >
                   Notas internas
+                  <Tooltip text="Observaciones para tu equipo, no visibles en la proyección.">
+                    <></>
+                  </Tooltip>
                 </label>
                 <textarea
+                  id="song-notes"
                   rows={4}
                   placeholder="Intro libre, corte instrumental, observaciones del equipo..."
                   className="input resize-y"
-                  {...register("notes")}
+                  {...register('notes')}
                 />
               </div>
             </div>
@@ -271,11 +343,7 @@ export default function NewSongPage() {
                 Se guardará con una versión ORIGINAL lista para transposición.
               </p>
               <div className="flex gap-3">
-                <button
-                  type="button"
-                  onClick={() => router.back()}
-                  className="btn-secondary"
-                >
+                <button type="button" onClick={() => router.back()} className="btn-secondary">
                   Cancelar
                 </button>
                 <button
@@ -285,10 +353,10 @@ export default function NewSongPage() {
                 >
                   <Save className="h-4 w-4" />
                   {isSubmitting
-                    ? "Guardando..."
+                    ? 'Guardando...'
                     : hasSongsLimitReached
-                      ? "Límite alcanzado"
-                      : "Guardar canción"}
+                      ? 'Límite alcanzado'
+                      : 'Guardar canción'}
                 </button>
               </div>
             </div>
@@ -333,8 +401,7 @@ export default function NewSongPage() {
                 </pre>
               ) : (
                 <p className="text-slate-400 dark:text-slate-500">
-                  La vista previa aparecerá cuando empieces a escribir la letra
-                  con acordes.
+                  La vista previa aparecerá cuando empieces a escribir la letra con acordes.
                 </p>
               )}
             </div>
@@ -360,5 +427,5 @@ export default function NewSongPage() {
         </div>
       </div>
     </div>
-  );
+  )
 }

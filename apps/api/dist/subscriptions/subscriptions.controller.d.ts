@@ -1,9 +1,9 @@
-import { RawBodyRequest } from "@nestjs/common";
-import { ConfigService } from "@nestjs/config";
-import { PlanType } from "@prisma/client";
-import { Request } from "express";
-import { StripeService } from "./stripe.service";
-import { SubscriptionsService } from "./subscriptions.service";
+import { RawBodyRequest } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { PlanType } from '@prisma/client';
+import { Request } from 'express';
+import { StripeService } from './stripe.service';
+import { SubscriptionsService } from './subscriptions.service';
 export declare class SubscriptionsController {
     private readonly subscriptionsService;
     private readonly stripeService;
@@ -13,6 +13,8 @@ export declare class SubscriptionsController {
         message: string;
         result: {
             id: string;
+            createdAt: Date;
+            updatedAt: Date;
             churchId: string;
             plan: import(".prisma/client").$Enums.PlanType;
             status: import(".prisma/client").$Enums.SubscriptionStatus;
@@ -23,13 +25,13 @@ export declare class SubscriptionsController {
             cancelAtPeriodEnd: boolean;
             mpSubscriptionId: string | null;
             mpCustomerEmail: string | null;
-            createdAt: Date;
-            updatedAt: Date;
         };
     }>;
     getSubscription(churchId: string): Promise<{
         limits: import("./plan-limits").PlanLimits;
         id: string;
+        createdAt: Date;
+        updatedAt: Date;
         churchId: string;
         plan: import(".prisma/client").$Enums.PlanType;
         status: import(".prisma/client").$Enums.SubscriptionStatus;
@@ -40,8 +42,6 @@ export declare class SubscriptionsController {
         cancelAtPeriodEnd: boolean;
         mpSubscriptionId: string | null;
         mpCustomerEmail: string | null;
-        createdAt: Date;
-        updatedAt: Date;
     }>;
     getEntitlements(churchId: string): Promise<import("./entitlements.service").EntitlementsSnapshot>;
     createCheckout(churchId: string, email: string, plan: PlanType, frontendUrl: string): Promise<{

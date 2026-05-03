@@ -1,13 +1,9 @@
-import {
-  ForbiddenException,
-  Injectable,
-  NotFoundException,
-} from "@nestjs/common";
-import { VersionType } from "@prisma/client";
-import { PrismaService } from "../prisma/prisma.service";
-import { EntitlementsService } from "../subscriptions/entitlements.service";
-import { TranspositionService } from "../transposition/transposition.service";
-import { CreateSongDto } from "./dto/create-song.dto";
+import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common'
+import { Prisma, VersionType } from '@prisma/client'
+import { CreateSongDto } from '../domain/create-song.dto'
+import { PrismaService } from '../prisma/prisma.service'
+import { EntitlementsService } from '../subscriptions/entitlements.service'
+import { TranspositionService } from '../transposition/transposition.service'
 
 @Injectable()
 export class SongsService {
@@ -18,7 +14,7 @@ export class SongsService {
   ) {}
 
   async create(churchId: string, userId: string, dto: CreateSongDto) {
-    await this.entitlements.assertCanAddSong(churchId);
+    await this.entitlements.assertCanAddSong(churchId)
 
     const song = await this.prisma.song.create({
       data: {
@@ -41,39 +37,52 @@ export class SongsService {
           : undefined,
       },
       include: { versions: true },
-    });
+    })
 
-    return song;
+    return song
   }
 
-  async findAll(churchId: string, search?: string) {
-    return this.prisma.song.findMany({
-      where: {
-        churchId,
-        ...(search && {
-          OR: [
-            { title: { contains: search, mode: "insensitive" } },
-            { artist: { contains: search, mode: "insensitive" } },
-            { tags: { has: search.toLowerCase() } },
-          ],
-        }),
-      },
-      include: { _count: { select: { versions: true, meetingSongs: true } } },
-      orderBy: { title: "asc" },
-    });
+  async findAll(churchId: string, search?: string, page = 1, pageSize = 20) {
+    const where = {
+      churchId,
+      ...(search && {
+        OR: [
+          { title: { contains: search, mode: Prisma.QueryMode.insensitive } },
+          { artist: { contains: search, mode: Prisma.QueryMode.insensitive } },
+          { tags: { has: search.toLowerCase() } },
+        ],
+      }),
+    }
+    const [items, total] = await Promise.all([
+      this.prisma.song.findMany({
+        where,
+        include: { _count: { select: { versions: true, meetingSongs: true } } },
+        orderBy: { title: 'asc' },
+        skip: (page - 1) * pageSize,
+        take: pageSize,
+      }),
+      this.prisma.song.count({ where }),
+    ])
+    return {
+      items,
+      total,
+      page,
+      pageSize,
+      totalPages: Math.ceil(total / pageSize),
+    }
   }
 
   async findOne(churchId: string, songId: string) {
     const song = await this.prisma.song.findFirst({
       where: { id: songId, churchId },
-      include: { versions: { orderBy: { createdAt: "asc" } } },
-    });
-    if (!song) throw new NotFoundException("Canción no encontrada");
-    return song;
+      include: { versions: { orderBy: { createdAt: 'asc' } } },
+    })
+    if (!song) throw new NotFoundException('Canción no encontrada')
+    return song
   }
 
   async update(churchId: string, songId: string, dto: Partial<CreateSongDto>) {
-    await this.assertBelongsToChurch(songId, churchId);
+    await this.assertBelongsToChurch(songId, churchId)
     return this.prisma.song.update({
       where: { id: songId },
       data: {
@@ -83,12 +92,12 @@ export class SongsService {
         bpm: dto.bpm,
         tags: dto.tags,
       },
-    });
+    })
   }
 
   async remove(churchId: string, songId: string) {
-    await this.assertBelongsToChurch(songId, churchId);
-    return this.prisma.song.delete({ where: { id: songId } });
+    await this.assertBelongsToChurch(songId, churchId)
+    return this.prisma.song.delete({ where: { id: songId } })
   }
 
   // ── Versiones ────────────────────────────────────────────
@@ -100,20 +109,20 @@ export class SongsService {
     targetKey: string,
     notes?: string,
   ) {
-    const song = await this.findOne(churchId, songId);
-    const originalVersion = song.versions.find((v) => v.type === "ORIGINAL");
+    const song = await this.findOne(churchId, songId)
+    const originalVersion = song.versions.find((v) => v.type === 'ORIGINAL')
 
     if (!originalVersion) {
       throw new ForbiddenException(
-        "La canción necesita una versión ORIGINAL antes de crear variantes",
-      );
+        'La canción necesita una versión ORIGINAL antes de crear variantes',
+      )
     }
 
     // Transposición automática
-    const transposedLyrics = this.transposition.transposeLyrics(
-      originalVersion.lyricsChords,
-      { fromKey: originalVersion.key, toKey: targetKey },
-    );
+    const transposedLyrics = this.transposition.transposeLyrics(originalVersion.lyricsChords, {
+      fromKey: originalVersion.key,
+      toKey: targetKey,
+    })
 
     return this.prisma.songVersion.upsert({
       where: { songId_type: { songId, type } },
@@ -125,30 +134,21 @@ export class SongsService {
         notes,
       },
       update: { key: targetKey, lyricsChords: transposedLyrics, notes },
-    });
+    })
   }
 
-  async getLiveTransposition(
-    churchId: string,
-    songId: string,
-    targetKey: string,
-  ) {
-    const song = await this.findOne(churchId, songId);
-    const original = song.versions.find((v) => v.type === VersionType.ORIGINAL);
+  async getLiveTransposition(churchId: string, songId: string, targetKey: string) {
+    const song = await this.findOne(churchId, songId)
+    const original = song.versions.find((v) => v.type === VersionType.ORIGINAL)
 
     if (!original) {
-      throw new NotFoundException(
-        "Esta canción no tiene letra/acordes cargados",
-      );
+      throw new NotFoundException('Esta canción no tiene letra/acordes cargados')
     }
 
-    const transposed = this.transposition.transposeLyrics(
-      original.lyricsChords,
-      {
-        fromKey: original.key,
-        toKey: targetKey,
-      },
-    );
+    const transposed = this.transposition.transposeLyrics(original.lyricsChords, {
+      fromKey: original.key,
+      toKey: targetKey,
+    })
 
     return {
       songId,
@@ -156,13 +156,13 @@ export class SongsService {
       targetKey,
       lyricsChords: transposed,
       chords: this.transposition.extractChords(transposed),
-    };
+    }
   }
 
   private async assertBelongsToChurch(songId: string, churchId: string) {
     const song = await this.prisma.song.findFirst({
       where: { id: songId, churchId },
-    });
-    if (!song) throw new NotFoundException("Canción no encontrada");
+    })
+    if (!song) throw new NotFoundException('Canción no encontrada')
   }
 }

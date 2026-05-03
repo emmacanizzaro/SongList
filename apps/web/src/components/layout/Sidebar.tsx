@@ -1,106 +1,103 @@
-"use client";
+'use client'
 
-import { useAuth } from "@/hooks/useAuth";
-import { clsx } from "clsx";
+import { useAuth } from '@/hooks/useAuth'
+import { clsx } from 'clsx'
 import {
-  Calendar,
-  ChevronRight,
-  CreditCard,
-  LayoutDashboard,
-  LogOut,
-  Menu,
-  Music2,
-  Settings,
-  X,
-} from "lucide-react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+    Calendar,
+    ChevronRight,
+    CreditCard,
+    LayoutDashboard,
+    LogOut,
+    Menu,
+    Music2,
+    Settings,
+    X,
+} from 'lucide-react'
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
+import { useEffect, useState } from 'react'
 
 const NAV_ITEMS = [
-  { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-  { label: "Canciones", href: "/songs", icon: Music2 },
-  { label: "Reuniones", href: "/meetings", icon: Calendar },
-];
+  { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+  { label: 'Canciones', href: '/songs', icon: Music2 },
+  { label: 'Reuniones', href: '/meetings', icon: Calendar },
+]
 
 const BOTTOM_ITEMS = [
-  { label: "Suscripción", href: "/settings/billing", icon: CreditCard },
-  { label: "Configuración", href: "/settings", icon: Settings },
-];
+  { label: 'Suscripción', href: '/settings/billing', icon: CreditCard },
+  { label: 'Configuración', href: '/settings', icon: Settings },
+]
 
 function isItemActive(pathname: string, href: string) {
-  return pathname === href || pathname.startsWith(`${href}/`);
+  return pathname === href || pathname.startsWith(`${href}/`)
 }
 
 function getCurrentSectionLabel(pathname: string) {
-  const allItems = [...NAV_ITEMS, ...BOTTOM_ITEMS];
-  const current = allItems.find((item) => isItemActive(pathname, item.href));
-  return current?.label ?? "Panel";
+  const allItems = [...NAV_ITEMS, ...BOTTOM_ITEMS]
+  const current = allItems.find((item) => isItemActive(pathname, item.href))
+  return current?.label ?? 'Panel'
 }
 
-function NavigationLinks({
-  pathname,
-  onNavigate,
-}: {
-  pathname: string;
-  onNavigate?: () => void;
-}) {
+function NavigationLinks({ pathname, onNavigate }: { pathname: string; onNavigate?: () => void }) {
   return (
     <>
       <nav className="flex-1 space-y-1 px-4 py-6">
         {NAV_ITEMS.map(({ label, href, icon: Icon }) => {
-          const active = isItemActive(pathname, href);
+          const active = isItemActive(pathname, href)
           return (
             <Link
               key={href}
               href={href}
               onClick={onNavigate}
               className={clsx(
-                "flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition",
+                'flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition',
                 active
-                  ? "bg-white text-slate-950 shadow-lg shadow-black/10"
-                  : "text-slate-300 hover:bg-white/8 hover:text-white",
+                  ? 'bg-white text-slate-950 shadow-lg shadow-black/10'
+                  : 'text-slate-300 hover:bg-white/8 hover:text-white',
               )}
             >
               <Icon className="w-4 h-4 shrink-0" />
               {label}
               {active && <ChevronRight className="ml-auto w-3 h-3" />}
             </Link>
-          );
+          )
         })}
       </nav>
 
       <div className="space-y-1 border-t border-white/10 px-4 py-5">
         {BOTTOM_ITEMS.map(({ label, href, icon: Icon }) => {
-          const active = isItemActive(pathname, href);
+          const active = isItemActive(pathname, href)
           return (
             <Link
               key={href}
               href={href}
               onClick={onNavigate}
               className={clsx(
-                "flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition",
+                'flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition',
                 active
-                  ? "bg-white text-slate-950 shadow-lg shadow-black/10"
-                  : "text-slate-400 hover:bg-white/8 hover:text-white",
+                  ? 'bg-white text-slate-950 shadow-lg shadow-black/10'
+                  : 'text-slate-400 hover:bg-white/8 hover:text-white',
               )}
             >
               <Icon className="w-4 h-4 shrink-0" />
               {label}
             </Link>
-          );
+          )
         })}
       </div>
     </>
-  );
+  )
 }
 
 export function Sidebar() {
-  const pathname = usePathname();
-  const { user, logout } = useAuth();
+  const pathname = usePathname()
+  const { user, logout } = useAuth()
 
   return (
-    <aside className="relative z-10 hidden w-72 shrink-0 flex-col border-r border-white/10 bg-slate-950 text-slate-100 lg:flex">
+    <aside
+      data-tour="dashboard-sidebar"
+      className="relative z-10 hidden w-72 shrink-0 flex-col border-r border-white/10 bg-slate-950 text-slate-100 lg:flex"
+    >
       {/* Logo */}
       <div className="border-b border-white/10 px-6 py-6">
         <div className="flex items-center gap-3">
@@ -108,12 +105,8 @@ export function Sidebar() {
             <Music2 className="w-5 h-5 text-white" />
           </div>
           <div>
-            <span className="block font-semibold tracking-tight text-white">
-              SongList
-            </span>
-            <span className="text-xs text-slate-400">
-              Worship team workspace
-            </span>
+            <span className="block font-semibold tracking-tight text-white">SongList</span>
+            <span className="text-xs text-slate-400">Worship team workspace</span>
           </div>
         </div>
         {user && (
@@ -136,28 +129,28 @@ export function Sidebar() {
         </button>
       </div>
     </aside>
-  );
+  )
 }
 
 export function MobileNavigation() {
-  const pathname = usePathname();
-  const { user, logout } = useAuth();
-  const [isOpen, setIsOpen] = useState(false);
+  const pathname = usePathname()
+  const { user, logout } = useAuth()
+  const [isOpen, setIsOpen] = useState(false)
 
   useEffect(() => {
-    setIsOpen(false);
-  }, [pathname]);
+    setIsOpen(false)
+  }, [pathname])
 
   useEffect(() => {
-    if (!isOpen) return undefined;
+    if (!isOpen) return undefined
 
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
 
     return () => {
-      document.body.style.overflow = previousOverflow;
-    };
-  }, [isOpen]);
+      document.body.style.overflow = previousOverflow
+    }
+  }, [isOpen])
 
   return (
     <>
@@ -176,9 +169,7 @@ export function MobileNavigation() {
               </div>
               <div>
                 <p className="text-sm font-semibold text-slate-900">SongList</p>
-                <p className="text-xs text-slate-500 truncate">
-                  {user?.name ?? "Workspace"}
-                </p>
+                <p className="text-xs text-slate-500 truncate">{user?.name ?? 'Workspace'}</p>
               </div>
             </div>
           </div>
@@ -196,10 +187,8 @@ export function MobileNavigation() {
 
       <div
         className={clsx(
-          "fixed inset-0 z-40 bg-slate-950/45 backdrop-blur-sm transition lg:hidden",
-          isOpen
-            ? "pointer-events-auto opacity-100"
-            : "pointer-events-none opacity-0",
+          'fixed inset-0 z-40 bg-slate-950/45 backdrop-blur-sm transition lg:hidden',
+          isOpen ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0',
         )}
         onClick={() => setIsOpen(false)}
         aria-hidden="true"
@@ -207,8 +196,8 @@ export function MobileNavigation() {
 
       <aside
         className={clsx(
-          "fixed inset-y-0 left-0 z-50 flex w-[88vw] max-w-sm flex-col bg-slate-950 text-slate-100 shadow-2xl transition-transform duration-300 lg:hidden",
-          isOpen ? "translate-x-0" : "-translate-x-full",
+          'fixed inset-y-0 left-0 z-50 flex w-[88vw] max-w-sm flex-col bg-slate-950 text-slate-100 shadow-2xl transition-transform duration-300 lg:hidden',
+          isOpen ? 'translate-x-0' : '-translate-x-full',
         )}
         aria-hidden={!isOpen}
       >
@@ -219,12 +208,8 @@ export function MobileNavigation() {
                 <Music2 className="w-5 h-5 text-white" />
               </div>
               <div>
-                <span className="block font-semibold tracking-tight text-white">
-                  SongList
-                </span>
-                <span className="text-xs text-slate-400">
-                  Worship team workspace
-                </span>
+                <span className="block font-semibold tracking-tight text-white">SongList</span>
+                <span className="text-xs text-slate-400">Worship team workspace</span>
               </div>
             </div>
 
@@ -241,23 +226,18 @@ export function MobileNavigation() {
           {user && (
             <div className="mt-5 rounded-2xl border border-white/10 bg-white/5 p-4">
               <p className="text-sm font-medium text-white">{user.name}</p>
-              <p className="mt-1 text-xs text-slate-400 truncate">
-                {user.email}
-              </p>
+              <p className="mt-1 text-xs text-slate-400 truncate">{user.email}</p>
             </div>
           )}
         </div>
 
-        <NavigationLinks
-          pathname={pathname}
-          onNavigate={() => setIsOpen(false)}
-        />
+        <NavigationLinks pathname={pathname} onNavigate={() => setIsOpen(false)} />
 
         <div className="border-t border-white/10 px-4 py-5">
           <button
             onClick={async () => {
-              setIsOpen(false);
-              await logout();
+              setIsOpen(false)
+              await logout()
             }}
             className="flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium text-rose-300 transition hover:bg-rose-500/10 hover:text-rose-200"
           >
@@ -267,5 +247,5 @@ export function MobileNavigation() {
         </div>
       </aside>
     </>
-  );
+  )
 }

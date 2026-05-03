@@ -1,95 +1,108 @@
-"use client";
+'use client'
 
-import { useAuth } from "@/hooks/useAuth";
-import { useEntitlements } from "@/hooks/useEntitlements";
-import { songsApi } from "@/lib/api";
-import { Song } from "@/types";
-import { useQuery } from "@tanstack/react-query";
-import { ArrowRight, Crown, Music2, Plus, Search, Tag, X } from "lucide-react";
-import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useAuth } from '@/hooks/useAuth'
+import { useEntitlements } from '@/hooks/useEntitlements'
+import { songsApi } from '@/lib/api'
+import { Song } from '@/types'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
+import { ArrowRight, Crown, Music2, Plus, Search, Tag, X } from 'lucide-react'
+import Link from 'next/link'
+import { useMemo, useState } from 'react'
+
+type SongsListResponse = {
+  items: Song[]
+  total: number
+  page: number
+  pageSize: number
+  totalPages: number
+}
 
 // Orden cromático para mostrar las tonalidades ordenadas musicalmente
 const KEY_ORDER = [
-  "C",
-  "C#",
-  "Db",
-  "D",
-  "D#",
-  "Eb",
-  "E",
-  "F",
-  "F#",
-  "Gb",
-  "G",
-  "G#",
-  "Ab",
-  "A",
-  "A#",
-  "Bb",
-  "B",
-  "Cm",
-  "C#m",
-  "Dbm",
-  "Dm",
-  "D#m",
-  "Ebm",
-  "Em",
-  "Fm",
-  "F#m",
-  "Gbm",
-  "Gm",
-  "G#m",
-  "Abm",
-  "Am",
-  "A#m",
-  "Bbm",
-  "Bm",
-];
+  'C',
+  'C#',
+  'Db',
+  'D',
+  'D#',
+  'Eb',
+  'E',
+  'F',
+  'F#',
+  'Gb',
+  'G',
+  'G#',
+  'Ab',
+  'A',
+  'A#',
+  'Bb',
+  'B',
+  'Cm',
+  'C#m',
+  'Dbm',
+  'Dm',
+  'D#m',
+  'Ebm',
+  'Em',
+  'Fm',
+  'F#m',
+  'Gbm',
+  'Gm',
+  'G#m',
+  'Abm',
+  'Am',
+  'A#m',
+  'Bbm',
+  'Bm',
+]
 
 function sortKeys(keys: string[]): string[] {
   return [...keys].sort((a, b) => {
-    const ai = KEY_ORDER.indexOf(a);
-    const bi = KEY_ORDER.indexOf(b);
-    if (ai === -1 && bi === -1) return a.localeCompare(b);
-    if (ai === -1) return 1;
-    if (bi === -1) return -1;
-    return ai - bi;
-  });
+    const ai = KEY_ORDER.indexOf(a)
+    const bi = KEY_ORDER.indexOf(b)
+    if (ai === -1 && bi === -1) return a.localeCompare(b)
+    if (ai === -1) return 1
+    if (bi === -1) return -1
+    return ai - bi
+  })
 }
 
 export default function SongsPage() {
-  const { user } = useAuth();
-  const [search, setSearch] = useState("");
-  const [keyFilter, setKeyFilter] = useState("");
-  const isAdmin = user?.currentRole === "ADMIN";
-  const { entitlements } = useEntitlements(Boolean(user));
+  const { user } = useAuth()
+  const [search, setSearch] = useState('')
+  const [keyFilter, setKeyFilter] = useState('')
+  const [page, setPage] = useState(1)
+  const pageSize = 20
+  const isAdmin = user?.currentRole === 'ADMIN'
+  const { entitlements } = useEntitlements(Boolean(user))
 
-  const songsQuota = entitlements?.quotas.songs;
+  const songsQuota = entitlements?.quotas.songs
   const hasSongsLimitReached = Boolean(
     songsQuota && !songsQuota.unlimited && (songsQuota.remaining ?? 0) <= 0,
-  );
-  const createSongHref = hasSongsLimitReached
-    ? "/settings/billing"
-    : "/songs/new";
+  )
+  const createSongHref = hasSongsLimitReached ? '/settings/billing' : '/songs/new'
 
-  const { data: songs = [], isLoading } = useQuery<Song[]>({
-    queryKey: ["songs", search],
-    queryFn: () => songsApi.list(search || undefined).then((r) => r.data),
-  });
+  const { data, isLoading } = useQuery<SongsListResponse>({
+    queryKey: ['songs', search, page],
+    queryFn: () =>
+      songsApi.list({ search: search || undefined, page, pageSize }).then((r) => r.data),
+    placeholderData: keepPreviousData,
+  })
+
+  const songs = useMemo(() => data?.items ?? [], [data?.items])
+  const totalPages = data?.totalPages ?? 1
+  const total = data?.total ?? 0
 
   // Tonalidades únicas presentes en el repertorio
   const availableKeys = useMemo(
     () => sortKeys([...new Set(songs.map((s) => s.originalKey))]),
     [songs],
-  );
+  )
 
   // Canciones visibles aplicando el filtro de tonalidad
   const visibleSongs = useMemo(
-    () =>
-      keyFilter ? songs.filter((s) => s.originalKey === keyFilter) : songs,
+    () => (keyFilter ? songs.filter((s) => s.originalKey === keyFilter) : songs),
     [songs, keyFilter],
-  );
+  )
 
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-6">
@@ -100,18 +113,13 @@ export default function SongsPage() {
           <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
             <div className="max-w-2xl">
               <p className="eyebrow bg-white/10 text-slate-200">Biblioteca</p>
-              <h1 className="mt-5 text-3xl font-semibold tracking-tight sm:text-4xl">
-                Canciones
-              </h1>
+              <h1 className="mt-5 text-3xl font-semibold tracking-tight sm:text-4xl">Canciones</h1>
               <p className="mt-3 text-sm leading-6 text-slate-300 sm:text-base">
-                Mantén tu repertorio ordenado en un espacio visualmente más
-                limpio, con los controles arriba y el contenido centrado.
+                Mantén tu repertorio ordenado en un espacio visualmente más limpio, con los
+                controles arriba y el contenido centrado.
               </p>
             </div>
-            <Link
-              href={createSongHref}
-              className="btn-primary self-start lg:self-auto"
-            >
+            <Link href={createSongHref} className="btn-primary self-start lg:self-auto">
               {hasSongsLimitReached ? (
                 <>
                   <Crown className="h-4 w-4" />
@@ -157,7 +165,7 @@ export default function SongsPage() {
                   </select>
                   {keyFilter && (
                     <button
-                      onClick={() => setKeyFilter("")}
+                      onClick={() => setKeyFilter('')}
                       className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-0.5 text-slate-400 hover:text-slate-700"
                       aria-label="Limpiar filtro de tonalidad"
                     >
@@ -168,19 +176,16 @@ export default function SongsPage() {
 
                 {/* Contador */}
                 <div className="rounded-2xl border border-white/10 bg-white/6 px-4 py-3 text-sm text-slate-200 shrink-0">
-                  {visibleSongs.length}{" "}
-                  {visibleSongs.length === 1 ? "canción" : "canciones"}
+                  {visibleSongs.length} {visibleSongs.length === 1 ? 'canción' : 'canciones'}
                   {keyFilter && (
-                    <span className="ml-1 font-semibold text-accent-300">
-                      en {keyFilter}
-                    </span>
+                    <span className="ml-1 font-semibold text-accent-300">en {keyFilter}</span>
                   )}
                 </div>
 
                 {songsQuota && (
                   <div className="rounded-2xl border border-white/10 bg-white/6 px-4 py-3 text-sm text-slate-200 shrink-0">
                     {songsQuota.unlimited
-                      ? "Sin límite"
+                      ? 'Sin límite'
                       : `${songsQuota.used}/${songsQuota.limit} canciones`}
                   </div>
                 )}
@@ -192,16 +197,14 @@ export default function SongsPage() {
                 Flujo recomendado
               </p>
               <p className="mt-3 text-sm leading-6 text-slate-200">
-                Carga primero la letra con acordes en versión original. Desde el
-                detalle luego podrás transponer y generar variantes.
+                Carga primero la letra con acordes en versión original. Desde el detalle luego
+                podrás transponer y generar variantes.
               </p>
               <Link
                 href={createSongHref}
                 className="mt-4 inline-flex items-center gap-2 text-sm font-medium text-accent-300 transition-colors hover:text-accent-200"
               >
-                {hasSongsLimitReached
-                  ? "Ver planes para agregar más"
-                  : "Abrir alta de canción"}
+                {hasSongsLimitReached ? 'Ver planes para agregar más' : 'Abrir alta de canción'}
                 <ArrowRight className="h-4 w-4" />
               </Link>
             </div>
@@ -211,10 +214,14 @@ export default function SongsPage() {
 
       {hasSongsLimitReached && (
         <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:border-amber-900 dark:bg-amber-950/60 dark:text-amber-200">
-          Alcanzaste el límite de canciones del plan actual.
-          {isAdmin
-            ? " Actualiza en billing para seguir cargando repertorio."
-            : " Pide a un Admin actualizar el plan para seguir cargando repertorio."}
+          Alcanzaste el límite de canciones del plan actual.{' '}
+          {isAdmin ? (
+            <Link href="/settings/billing" className="font-semibold underline">
+              Ver planes
+            </Link>
+          ) : (
+            'Pide a un admin que actualice la suscripción.'
+          )}
         </div>
       )}
 
@@ -233,31 +240,23 @@ export default function SongsPage() {
             <Music2 className="h-8 w-8 text-brand-600 dark:text-brand-300" />
           </div>
           <h3 className="font-semibold text-slate-700 dark:text-slate-100">
-            {search || keyFilter
-              ? "No se encontraron resultados"
-              : "Aún no hay canciones"}
+            {search || keyFilter ? 'No se encontraron resultados' : 'Aún no hay canciones'}
           </h3>
           <p className="mt-1 text-sm text-slate-400">
             {keyFilter
               ? `No hay canciones en tonalidad ${keyFilter}`
               : search
-                ? "Intenta otra búsqueda"
-                : "Agrega tu primera canción para comenzar"}
+                ? 'Intenta otra búsqueda'
+                : 'Agrega tu primera canción para comenzar'}
           </p>
           {keyFilter ? (
-            <button
-              onClick={() => setKeyFilter("")}
-              className="btn-secondary mt-5 inline-flex"
-            >
+            <button onClick={() => setKeyFilter('')} className="btn-secondary mt-5 inline-flex">
               <X className="h-4 w-4" />
               Limpiar filtro
             </button>
           ) : (
             !search && (
-              <Link
-                href={createSongHref}
-                className="btn-primary mt-5 inline-flex"
-              >
+              <Link href={createSongHref} className="btn-primary mt-5 inline-flex">
                 {hasSongsLimitReached ? (
                   <>
                     <Crown className="h-4 w-4" />
@@ -283,9 +282,7 @@ export default function SongsPage() {
             >
               <div className="flex items-center gap-4">
                 <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-brand-700">
-                  <span className="text-xs font-bold text-white">
-                    {song.originalKey}
-                  </span>
+                  <span className="text-xs font-bold text-white">{song.originalKey}</span>
                 </div>
                 <div>
                   <p className="font-semibold text-slate-900 transition-colors group-hover:text-brand-700 dark:text-white dark:group-hover:text-brand-300">
@@ -318,6 +315,29 @@ export default function SongsPage() {
           ))}
         </div>
       )}
+
+      {/* Paginación */}
+      {totalPages > 1 && (
+        <div className="mt-4 flex items-center justify-center gap-4">
+          <button
+            className="btn-secondary px-4 py-2"
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+            disabled={page <= 1}
+          >
+            Anterior
+          </button>
+          <span className="text-sm text-slate-600 dark:text-slate-300">
+            Página {page} de {totalPages} ({total} canciones)
+          </span>
+          <button
+            className="btn-secondary px-4 py-2"
+            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+            disabled={page >= totalPages}
+          >
+            Siguiente
+          </button>
+        </div>
+      )}
     </div>
-  );
+  )
 }

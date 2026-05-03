@@ -1,67 +1,66 @@
-"use client";
+'use client'
 
-import { useAuth } from "@/hooks/useAuth";
-import { churchApi } from "@/lib/api";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useQuery } from "@tanstack/react-query";
-import { CheckCircle2, Music2 } from "lucide-react";
-import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
+import { useAuth } from '@/hooks/useAuth'
+import { churchApi } from '@/lib/api'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useQuery } from '@tanstack/react-query'
+import { Music2 } from 'lucide-react'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { Suspense, useEffect, useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { z } from 'zod'
 
 const schema = z.object({
-  name: z.string().min(2, "Mínimo 2 caracteres").max(100),
-  email: z.string().email("Email inválido"),
+  name: z.string().min(2, 'Mínimo 2 caracteres').max(100),
+  email: z.string().email('Email inválido'),
   password: z
     .string()
-    .min(8, "Mínimo 8 caracteres")
-    .regex(/[A-Z]/, "Debe contener al menos una mayúscula")
-    .regex(/[0-9]/, "Debe contener al menos un número"),
-  churchName: z.string().min(2, "Mínimo 2 caracteres").max(100).optional(),
-});
+    .min(8, 'Mínimo 8 caracteres')
+    .regex(/[A-Z]/, 'Debe contener al menos una mayúscula')
+    .regex(/[0-9]/, 'Debe contener al menos un número'),
+  churchName: z.string().min(2, 'Mínimo 2 caracteres').max(100).optional(),
+})
 
-type RegisterForm = z.infer<typeof schema>;
+type RegisterForm = z.infer<typeof schema>
 
 const FEATURES = [
-  "Gestión de canciones con acordes",
-  "Transposición automática de tonalidad",
-  "Programación de reuniones semanales",
-  "Asignación de músicos por instrumento",
-  "14 días de prueba Pro gratis",
-];
+  'Gestión de canciones con acordes',
+  'Transposición automática de tonalidad',
+  'Programación de reuniones semanales',
+  'Asignación de músicos por instrumento',
+  '14 días de prueba Pro gratis',
+]
 
 function RegisterPageContent() {
-  const { register: authRegister } = useAuth();
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const [error, setError] = useState("");
-  const inviteToken = searchParams.get("invite") ?? "";
+  const { register: authRegister } = useAuth()
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const [error, setError] = useState('')
+  const inviteToken = searchParams.get('invite') ?? ''
 
   const { data: inviteData, isLoading: loadingInvite } = useQuery({
-    queryKey: ["public-invite", inviteToken],
+    queryKey: ['public-invite', inviteToken],
     queryFn: () => churchApi.getInvitePublic(inviteToken).then((r) => r.data),
     enabled: Boolean(inviteToken),
     retry: false,
-  });
+  })
 
   const {
     register,
     handleSubmit,
     setValue,
     formState: { errors, isSubmitting },
-  } = useForm<RegisterForm>({ resolver: zodResolver(schema) });
+  } = useForm<RegisterForm>({ resolver: zodResolver(schema) })
 
   useEffect(() => {
-    if (!inviteData?.email) return;
+    if (!inviteData?.email) return
 
-    setValue("email", inviteData.email);
-    setValue("churchName", inviteData.churchName);
-  }, [inviteData, setValue]);
+    setValue('email', inviteData.email)
+    setValue('churchName', inviteData.churchName)
+  }, [inviteData, setValue])
 
   const onSubmit = async (data: RegisterForm) => {
-    setError("");
+    setError('')
 
     // Si hay token de invitación, nunca enviar churchName
     const payload = inviteToken
@@ -71,22 +70,20 @@ function RegisterPageContent() {
           password: data.password,
           inviteToken,
         }
-      : data;
+      : data
 
     if (!inviteToken && !data.churchName) {
-      setError("Debes indicar el nombre de la iglesia.");
-      return;
+      setError('Debes indicar el nombre de la iglesia.')
+      return
     }
 
     try {
-      await authRegister(payload);
-      router.push("/dashboard");
+      await authRegister(payload)
+      router.push('/dashboard')
     } catch {
-      setError(
-        "No se pudo crear la cuenta. Verifica los datos e intenta nuevamente.",
-      );
+      setError('No se pudo crear la cuenta. Verifica los datos e intenta nuevamente.')
     }
-  };
+  }
 
   return (
     <div className="relative flex min-h-screen overflow-hidden dark:bg-slate-950">
@@ -110,19 +107,22 @@ function RegisterPageContent() {
 
           <span className="eyebrow">Comienza gratis</span>
           <h1 className="mb-1 mt-5 text-3xl font-semibold tracking-tight text-slate-900 dark:text-white">
-            {inviteToken ? "Activa tu invitación" : "Crea tu cuenta"}
+            {inviteToken ? 'Activa tu invitación' : 'Crea tu cuenta'}
           </h1>
           <p className="mb-8 text-sm leading-6 text-slate-500 dark:text-slate-400">
             {inviteToken
               ? loadingInvite
-                ? "Verificando invitación..."
-                : `Te unirás a ${inviteData?.churchName ?? "la iglesia invitada"}`
-              : "Registra tu iglesia y empieza en minutos"}
+                ? 'Verificando invitación...'
+                : `Te unirás a ${inviteData?.churchName ?? 'la iglesia invitada'}`
+              : 'Registra tu iglesia y empieza en minutos'}
           </p>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             {error && (
-              <div className="bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-900 text-red-700 dark:text-red-200 text-sm rounded-lg px-4 py-3">
+              <div
+                role="alert"
+                className="bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-900 text-red-700 dark:text-red-200 text-sm rounded-lg px-4 py-3"
+              >
                 {error}
               </div>
             )}
@@ -132,13 +132,15 @@ function RegisterPageContent() {
                 Tu nombre
               </label>
               <input
+                id="register-name"
                 type="text"
                 placeholder="Juan García"
                 className="input"
-                {...register("name")}
+                aria-describedby={errors.name ? 'register-name-error' : undefined}
+                {...register('name')}
               />
               {errors.name && (
-                <p className="text-xs text-red-600 mt-1">
+                <p id="register-name-error" role="alert" className="text-xs text-red-600 mt-1">
                   {errors.name.message}
                 </p>
               )}
@@ -152,7 +154,7 @@ function RegisterPageContent() {
                 <input
                   type="text"
                   className="input"
-                  value={inviteData?.churchName ?? "Invitación"}
+                  value={inviteData?.churchName ?? 'Invitación'}
                   disabled
                 />
               </div>
@@ -162,13 +164,19 @@ function RegisterPageContent() {
                   Nombre de la iglesia
                 </label>
                 <input
+                  id="register-churchName"
                   type="text"
                   placeholder="Iglesia Casa de Gracia"
                   className="input"
-                  {...register("churchName")}
+                  aria-describedby={errors.churchName ? 'register-churchName-error' : undefined}
+                  {...register('churchName')}
                 />
                 {errors.churchName && (
-                  <p className="text-xs text-red-600 mt-1">
+                  <p
+                    id="register-churchName-error"
+                    role="alert"
+                    className="text-xs text-red-600 mt-1"
+                  >
                     {errors.churchName.message}
                   </p>
                 )}
@@ -180,102 +188,55 @@ function RegisterPageContent() {
                 Email
               </label>
               <input
+                id="register-email"
                 type="email"
                 autoComplete="email"
                 placeholder="juan@iglesia.com"
                 className="input"
                 disabled={Boolean(inviteToken)}
-                {...register("email")}
+                aria-describedby={errors.email ? 'register-email-error' : undefined}
+                {...register('email')}
               />
               {errors.email && (
-                <p className="text-xs text-red-600 mt-1">
-                  return (
-                    <div className="mx-auto flex w-full max-w-md flex-col gap-8 py-12">
-                      <h1 className="text-2xl font-bold">Crear cuenta</h1>
-                      <form
-                        className="flex flex-col gap-4"
-                        onSubmit={handleSubmit(onSubmit)}
-                        autoComplete="off"
-                      >
-                        <div>
-                          <label className="label">Nombre completo</label>
-                          <input
-                            type="text"
-                            className="input"
-                            {...register("name")}
-                            disabled={isSubmitting}
-                          />
-                          {errors.name && (
-                            <span className="text-xs text-red-500">{errors.name.message}</span>
-                          )}
-                        </div>
-                        <div>
-                          <label className="label">Email</label>
-                          <input
-                            type="email"
-                            className="input"
-                            {...register("email")}
-                            disabled={isSubmitting || Boolean(inviteToken)}
-                          />
-                          {errors.email && (
-                            <span className="text-xs text-red-500">{errors.email.message}</span>
-                          )}
-                        </div>
-                        <div>
-                          <label className="label">Contraseña</label>
-                          <input
-                            type="password"
-                            className="input"
-                            {...register("password")}
-                            disabled={isSubmitting}
-                          />
-                          {errors.password && (
-                            <span className="text-xs text-red-500">{errors.password.message}</span>
-                          )}
-                        </div>
-                        {/* Solo mostrar el campo churchName si NO hay inviteToken */}
-                        {!inviteToken && (
-                          <div>
-                            <label className="label">Nombre de la iglesia</label>
-                            <input
-                              type="text"
-                              className="input"
-                              {...register("churchName")}
-                              disabled={isSubmitting}
-                            />
-                            {errors.churchName && (
-                              <span className="text-xs text-red-500">{errors.churchName.message}</span>
-                            )}
-                          </div>
-                        )}
-          <p className="mb-8 text-sm leading-6 text-slate-300">
-            SongList es la herramienta que faltaba para organizar tu equipo de
-            alabanza.
-          </p>
-          <ul className="space-y-4">
-            {FEATURES.map((feature) => (
-              <li key={feature} className="flex items-center gap-3">
-                <CheckCircle2 className="w-5 h-5 text-accent-300 shrink-0" />
-                <span className="text-sm">{feature}</span>
-              </li>
-            ))}
-          </ul>
-          <div className="mt-10 rounded-2xl border border-white/10 bg-white/5 p-5 text-sm text-slate-200">
-            <strong className="text-white">Plan Free:</strong> 5 usuarios, 50
-            canciones, sin tarjeta de crédito.
-          </div>
+                <p id="register-email-error" role="alert" className="text-xs text-red-600 mt-1">
+                  {errors.email.message}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">
+                Contraseña
+              </label>
+              <input
+                id="register-password"
+                type="password"
+                placeholder="********"
+                className="input"
+                aria-describedby={errors.password ? 'register-password-error' : undefined}
+                {...register('password')}
+              />
+              {errors.password && (
+                <p id="register-password-error" role="alert" className="text-xs text-red-600 mt-1">
+                  {errors.password.message}
+                </p>
+              )}
+            </div>
+
+            <button type="submit" className="btn btn-primary w-full mt-4" disabled={isSubmitting}>
+              {isSubmitting ? 'Creando cuenta...' : 'Crear cuenta'}
+            </button>
+          </form>
         </div>
       </div>
     </div>
-  );
+  )
 }
 
 export default function RegisterPage() {
   return (
-    <Suspense
-      fallback={<div className="min-h-screen bg-slate-50 dark:bg-slate-950" />}
-    >
+    <Suspense fallback={<div className="min-h-screen bg-slate-50 dark:bg-slate-950" />}>
       <RegisterPageContent />
     </Suspense>
-  );
+  )
 }

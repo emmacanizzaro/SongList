@@ -1,20 +1,20 @@
 import {
-  ConflictException,
-  ForbiddenException,
-  Injectable,
-  Logger,
-  NotFoundException,
-} from "@nestjs/common";
-import { MemberRole } from "@prisma/client";
-import * as crypto from "crypto";
-import { PrismaService } from "../prisma/prisma.service";
-import { EntitlementsService } from "../subscriptions/entitlements.service";
-import { CreateChurchDto } from "./dto/create-church.dto";
-import { InviteEmailService } from "./invite-email.service";
+    ConflictException,
+    ForbiddenException,
+    Injectable,
+    Logger,
+    NotFoundException,
+} from '@nestjs/common'
+import { MemberRole } from '@prisma/client'
+import * as crypto from 'crypto'
+import { CreateChurchDto } from '../domain/create-church.dto'
+import { PrismaService } from '../prisma/prisma.service'
+import { EntitlementsService } from '../subscriptions/entitlements.service'
+import { InviteEmailService } from './invite-email.service'
 
 @Injectable()
 export class ChurchesService {
-  private readonly logger = new Logger(ChurchesService.name);
+  private readonly logger = new Logger(ChurchesService.name)
 
   constructor(
     private prisma: PrismaService,
@@ -29,16 +29,16 @@ export class ChurchesService {
         subscription: true,
         _count: { select: { memberships: true, songs: true, meetings: true } },
       },
-    });
-    if (!church) throw new NotFoundException("Iglesia no encontrada");
-    return church;
+    })
+    if (!church) throw new NotFoundException('Iglesia no encontrada')
+    return church
   }
 
   async update(churchId: string, dto: Partial<CreateChurchDto>) {
     return this.prisma.church.update({
       where: { id: churchId },
       data: dto,
-    });
+    })
   }
 
   // ── Gestión de miembros ──────────────────────────────────
@@ -51,8 +51,8 @@ export class ChurchesService {
           select: { id: true, name: true, email: true, avatarUrl: true },
         },
       },
-      orderBy: { joinedAt: "asc" },
-    });
+      orderBy: { joinedAt: 'asc' },
+    })
   }
 
   async inviteMember(
@@ -62,40 +62,37 @@ export class ChurchesService {
     requestingRole: MemberRole,
   ) {
     if (requestingRole !== MemberRole.ADMIN) {
-      throw new ForbiddenException(
-        "Solo los administradores pueden invitar miembros",
-      );
+      throw new ForbiddenException('Solo los administradores pueden invitar miembros')
     }
 
-    await this.entitlements.assertCanAddMember(churchId);
+    await this.entitlements.assertCanAddMember(churchId)
 
-    const normalizedEmail = email.toLowerCase();
+    const normalizedEmail = email.toLowerCase()
     let user = await this.prisma.user.findUnique({
       where: { email: normalizedEmail },
-    });
+    })
 
     if (!user) {
       // Invitación pendiente: se crea usuario placeholder para reservar email y rol.
-      const temporaryPassword = crypto.randomBytes(32).toString("hex");
+      const temporaryPassword = crypto.randomBytes(32).toString('hex')
       user = await this.prisma.user.create({
         data: {
           email: normalizedEmail,
           name: `Invitado ${normalizedEmail}`,
           passwordHash: temporaryPassword,
         },
-      });
+      })
     }
 
     const existing = await this.prisma.membership.findUnique({
       where: { userId_churchId: { userId: user.id, churchId } },
-    });
-    if (existing)
-      throw new ConflictException("El usuario ya es miembro de esta iglesia");
+    })
+    if (existing) throw new ConflictException('El usuario ya es miembro de esta iglesia')
 
     return this.prisma.membership.create({
       data: { userId: user.id, churchId, role },
       include: { user: { select: { id: true, name: true, email: true } } },
-    });
+    })
   }
 
   async createInviteLink(
@@ -106,29 +103,27 @@ export class ChurchesService {
     requestingRole: MemberRole,
   ) {
     if (requestingRole !== MemberRole.ADMIN) {
-      throw new ForbiddenException(
-        "Solo los administradores pueden crear invitaciones",
-      );
+      throw new ForbiddenException('Solo los administradores pueden crear invitaciones')
     }
 
-    await this.entitlements.assertCanAddMember(churchId);
+    await this.entitlements.assertCanAddMember(churchId)
 
-    const normalizedEmail = email.toLowerCase();
-    const token = crypto.randomBytes(24).toString("hex");
-    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+    const normalizedEmail = email.toLowerCase()
+    const token = crypto.randomBytes(24).toString('hex')
+    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
 
     const existingUser = await this.prisma.user.findUnique({
       where: { email: normalizedEmail },
-    });
+    })
 
     if (existingUser) {
       const existingMembership = await this.prisma.membership.findUnique({
         where: {
           userId_churchId: { userId: existingUser.id, churchId },
         },
-      });
+      })
       if (existingMembership) {
-        throw new ConflictException("Ese email ya pertenece a esta iglesia");
+        throw new ConflictException('Ese email ya pertenece a esta iglesia')
       }
     }
 
@@ -139,7 +134,7 @@ export class ChurchesService {
         acceptedAt: null,
       },
       data: { expiresAt: new Date(Date.now() - 1000) },
-    });
+    })
 
     const invite = await this.prisma.churchInvite.create({
       data: {
@@ -153,16 +148,16 @@ export class ChurchesService {
       include: {
         church: { select: { name: true, slug: true } },
       },
-    });
+    })
 
-    this.logger.warn("Voy a llamar a sendInviteEmail", invite);
+    this.logger.warn('Voy a llamar a sendInviteEmail', invite)
     const { emailSent, inviteUrl } = await this.inviteEmail.sendInviteEmail({
       email: invite.email,
       churchName: invite.church.name,
       role: invite.role,
       token: invite.token,
       expiresAt: invite.expiresAt,
-    });
+    })
 
     return {
       token: invite.token,
@@ -172,25 +167,25 @@ export class ChurchesService {
       expiresAt: invite.expiresAt,
       inviteUrl,
       emailSent,
-    };
+    }
   }
 
   async getInviteByToken(token: string) {
     const invite = await this.prisma.churchInvite.findUnique({
       where: { token },
       include: { church: { select: { id: true, name: true, slug: true } } },
-    });
+    })
 
     if (!invite) {
-      throw new NotFoundException("Invitación no encontrada");
+      throw new NotFoundException('Invitación no encontrada')
     }
 
     if (invite.acceptedAt) {
-      throw new ConflictException("Esta invitación ya fue utilizada");
+      throw new ConflictException('Esta invitación ya fue utilizada')
     }
 
     if (invite.expiresAt < new Date()) {
-      throw new ConflictException("Esta invitación ha expirado");
+      throw new ConflictException('Esta invitación ha expirado')
     }
 
     return {
@@ -200,39 +195,33 @@ export class ChurchesService {
       churchSlug: invite.church.slug,
       expiresAt: invite.expiresAt,
       token: invite.token,
-    };
+    }
   }
 
   async updateMemberRole(churchId: string, memberId: string, role: MemberRole) {
     const membership = await this.prisma.membership.findFirst({
       where: { id: memberId, churchId },
-    });
-    if (!membership) throw new NotFoundException("Membresía no encontrada");
+    })
+    if (!membership) throw new NotFoundException('Membresía no encontrada')
 
     return this.prisma.membership.update({
       where: { id: memberId },
       data: { role },
-    });
+    })
   }
 
-  async removeMember(
-    churchId: string,
-    memberId: string,
-    requestingUserId: string,
-  ) {
+  async removeMember(churchId: string, memberId: string, requestingUserId: string) {
     const membership = await this.prisma.membership.findFirst({
       where: { id: memberId, churchId },
-    });
-    if (!membership) throw new NotFoundException("Membresía no encontrada");
+    })
+    if (!membership) throw new NotFoundException('Membresía no encontrada')
 
     // No se puede expulsar al propio administrador
     if (membership.userId === requestingUserId) {
-      throw new ForbiddenException(
-        "No puedes eliminarte a ti mismo de la iglesia",
-      );
+      throw new ForbiddenException('No puedes eliminarte a ti mismo de la iglesia')
     }
 
-    return this.prisma.membership.delete({ where: { id: memberId } });
+    return this.prisma.membership.delete({ where: { id: memberId } })
   }
 
   // ── Dashboard stats ──────────────────────────────────────
@@ -245,15 +234,15 @@ export class ChurchesService {
         this.prisma.meeting.count({ where: { churchId } }),
         this.prisma.meeting.findMany({
           where: { churchId, date: { gte: new Date() } },
-          orderBy: { date: "asc" },
+          orderBy: { date: 'asc' },
           take: 5,
           include: {
             meetingSongs: { include: { song: { select: { title: true } } } },
             _count: { select: { assignments: true } },
           },
         }),
-      ]);
+      ])
 
-    return { membersCount, songsCount, meetingsCount, upcomingMeetings };
+    return { membersCount, songsCount, meetingsCount, upcomingMeetings }
   }
 }

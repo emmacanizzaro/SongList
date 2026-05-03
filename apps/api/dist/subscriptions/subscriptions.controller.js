@@ -18,11 +18,11 @@ const common_1 = require("@nestjs/common");
 const config_1 = require("@nestjs/config");
 const swagger_1 = require("@nestjs/swagger");
 const client_1 = require("@prisma/client");
+const tenant_decorator_1 = require("../utils/tenant.decorator");
 const current_user_decorator_1 = require("../auth/decorators/current-user.decorator");
 const roles_decorator_1 = require("../auth/decorators/roles.decorator");
 const jwt_auth_guard_1 = require("../auth/guards/jwt-auth.guard");
 const roles_guard_1 = require("../auth/guards/roles.guard");
-const tenant_decorator_1 = require("../common/decorators/tenant.decorator");
 const stripe_service_1 = require("./stripe.service");
 const subscriptions_service_1 = require("./subscriptions.service");
 let SubscriptionsController = class SubscriptionsController {
@@ -49,16 +49,16 @@ let SubscriptionsController = class SubscriptionsController {
 };
 exports.SubscriptionsController = SubscriptionsController;
 __decorate([
-    (0, common_1.Post)("upgrade-to-pro-temporal"),
+    (0, common_1.Post)('upgrade-to-pro-temporal'),
     openapi.ApiResponse({ status: 201 }),
-    __param(0, (0, common_1.Body)("churchId")),
+    __param(0, (0, common_1.Body)('churchId')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
 ], SubscriptionsController.prototype, "upgradeToProTemporal", null);
 __decorate([
     (0, common_1.Get)(),
-    (0, swagger_1.ApiOperation)({ summary: "Obtener plan y estado de suscripción" }),
+    (0, swagger_1.ApiOperation)({ summary: 'Obtener plan y estado de suscripción' }),
     openapi.ApiResponse({ status: 200 }),
     __param(0, (0, tenant_decorator_1.CurrentTenant)()),
     __metadata("design:type", Function),
@@ -66,8 +66,8 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], SubscriptionsController.prototype, "getSubscription", null);
 __decorate([
-    (0, common_1.Get)("entitlements"),
-    (0, swagger_1.ApiOperation)({ summary: "Obtener entitlements efectivos del tenant" }),
+    (0, common_1.Get)('entitlements'),
+    (0, swagger_1.ApiOperation)({ summary: 'Obtener entitlements efectivos del tenant' }),
     openapi.ApiResponse({ status: 200, type: Object }),
     __param(0, (0, tenant_decorator_1.CurrentTenant)()),
     __metadata("design:type", Function),
@@ -75,34 +75,34 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], SubscriptionsController.prototype, "getEntitlements", null);
 __decorate([
-    (0, common_1.Post)("checkout"),
+    (0, common_1.Post)('checkout'),
     (0, roles_decorator_1.Roles)(client_1.MemberRole.ADMIN),
-    (0, swagger_1.ApiOperation)({ summary: "Crear sesión de checkout para upgradar plan" }),
+    (0, swagger_1.ApiOperation)({ summary: 'Crear sesión de checkout para upgradar plan' }),
     openapi.ApiResponse({ status: 201 }),
     __param(0, (0, tenant_decorator_1.CurrentTenant)()),
-    __param(1, (0, current_user_decorator_1.CurrentUser)("email")),
-    __param(2, (0, common_1.Body)("plan")),
-    __param(3, (0, common_1.Headers)("origin")),
+    __param(1, (0, current_user_decorator_1.CurrentUser)('email')),
+    __param(2, (0, common_1.Body)('plan')),
+    __param(3, (0, common_1.Headers)('origin')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, String, String, String]),
     __metadata("design:returntype", void 0)
 ], SubscriptionsController.prototype, "createCheckout", null);
 __decorate([
-    (0, common_1.Post)("portal-session"),
+    (0, common_1.Post)('portal-session'),
     (0, roles_decorator_1.Roles)(client_1.MemberRole.ADMIN),
-    (0, swagger_1.ApiOperation)({ summary: "Crear sesión de portal de Stripe" }),
+    (0, swagger_1.ApiOperation)({ summary: 'Crear sesión de portal de Stripe' }),
     openapi.ApiResponse({ status: 201 }),
     __param(0, (0, tenant_decorator_1.CurrentTenant)()),
-    __param(1, (0, common_1.Headers)("origin")),
+    __param(1, (0, common_1.Headers)('origin')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, String]),
     __metadata("design:returntype", void 0)
 ], SubscriptionsController.prototype, "createPortalSession", null);
 exports.SubscriptionsController = SubscriptionsController = __decorate([
-    (0, swagger_1.ApiTags)("subscriptions"),
-    (0, swagger_1.ApiBearerAuth)("JWT"),
+    (0, swagger_1.ApiTags)('subscriptions'),
+    (0, swagger_1.ApiBearerAuth)('JWT'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
-    (0, common_1.Controller)("subscriptions"),
+    (0, common_1.Controller)('subscriptions'),
     __metadata("design:paramtypes", [subscriptions_service_1.SubscriptionsService,
         stripe_service_1.StripeService,
         config_1.ConfigService])
@@ -122,18 +122,18 @@ __decorate([
     (0, common_1.Post)(),
     (0, common_1.HttpCode)(common_1.HttpStatus.OK),
     (0, swagger_1.ApiOperation)({
-        summary: "Webhook Stripe (no requiere auth, verificado por firma)",
+        summary: 'Webhook Stripe (no requiere auth, verificado por firma)',
     }),
     openapi.ApiResponse({ status: common_1.HttpStatus.OK }),
     __param(0, (0, common_1.Req)()),
-    __param(1, (0, common_1.Headers)("stripe-signature")),
+    __param(1, (0, common_1.Headers)('stripe-signature')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object, String]),
     __metadata("design:returntype", Promise)
 ], StripeWebhookController.prototype, "handleWebhook", null);
 exports.StripeWebhookController = StripeWebhookController = __decorate([
-    (0, swagger_1.ApiTags)("subscriptions"),
-    (0, common_2.Controller)("webhooks/stripe"),
+    (0, swagger_1.ApiTags)('subscriptions'),
+    (0, common_2.Controller)('webhooks/stripe'),
     __metadata("design:paramtypes", [stripe_service_1.StripeService])
 ], StripeWebhookController);
 //# sourceMappingURL=subscriptions.controller.js.map

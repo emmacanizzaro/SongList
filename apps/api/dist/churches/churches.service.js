@@ -1,29 +1,13 @@
 "use strict";
-var __decorate =
-  (this && this.__decorate) ||
-  function (decorators, target, key, desc) {
-    var c = arguments.length,
-      r =
-        c < 3
-          ? target
-          : desc === null
-            ? (desc = Object.getOwnPropertyDescriptor(target, key))
-            : desc,
-      d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function")
-      r = Reflect.decorate(decorators, target, key, desc);
-    else
-      for (var i = decorators.length - 1; i >= 0; i--)
-        if ((d = decorators[i]))
-          r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return (c > 3 && r && Object.defineProperty(target, key, r), r);
-  };
-var __metadata =
-  (this && this.__metadata) ||
-  function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function")
-      return Reflect.metadata(k, v);
-  };
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
 var ChurchesService_1;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ChurchesService = void 0;
@@ -33,223 +17,199 @@ const crypto = require("crypto");
 const prisma_service_1 = require("../prisma/prisma.service");
 const entitlements_service_1 = require("../subscriptions/entitlements.service");
 const invite_email_service_1 = require("./invite-email.service");
-let ChurchesService = (ChurchesService_1 = class ChurchesService {
-  constructor(prisma, entitlements, inviteEmail) {
-    this.prisma = prisma;
-    this.entitlements = entitlements;
-    this.inviteEmail = inviteEmail;
-    this.logger = new common_1.Logger(ChurchesService_1.name);
-  }
-  async findById(churchId) {
-    const church = await this.prisma.church.findUnique({
-      where: { id: churchId },
-      include: {
-        subscription: true,
-        _count: { select: { memberships: true, songs: true, meetings: true } },
-      },
-    });
-    if (!church) throw new common_1.NotFoundException("Iglesia no encontrada");
-    return church;
-  }
-  async update(churchId, dto) {
-    return this.prisma.church.update({
-      where: { id: churchId },
-      data: dto,
-    });
-  }
-  async getMembers(churchId) {
-    return this.prisma.membership.findMany({
-      where: { churchId },
-      include: {
-        user: {
-          select: { id: true, name: true, email: true, avatarUrl: true },
-        },
-      },
-      orderBy: { joinedAt: "asc" },
-    });
-  }
-  async inviteMember(churchId, email, role, requestingRole) {
-    if (requestingRole !== client_1.MemberRole.ADMIN) {
-      throw new common_1.ForbiddenException(
-        "Solo los administradores pueden invitar miembros",
-      );
+let ChurchesService = ChurchesService_1 = class ChurchesService {
+    constructor(prisma, entitlements, inviteEmail) {
+        this.prisma = prisma;
+        this.entitlements = entitlements;
+        this.inviteEmail = inviteEmail;
+        this.logger = new common_1.Logger(ChurchesService_1.name);
     }
-    await this.entitlements.assertCanAddMember(churchId);
-    const normalizedEmail = email.toLowerCase();
-    let user = await this.prisma.user.findUnique({
-      where: { email: normalizedEmail },
-    });
-    if (!user) {
-      const temporaryPassword = crypto.randomBytes(32).toString("hex");
-      user = await this.prisma.user.create({
-        data: {
-          email: normalizedEmail,
-          name: `Invitado ${normalizedEmail}`,
-          passwordHash: temporaryPassword,
-        },
-      });
+    async findById(churchId) {
+        const church = await this.prisma.church.findUnique({
+            where: { id: churchId },
+            include: {
+                subscription: true,
+                _count: { select: { memberships: true, songs: true, meetings: true } },
+            },
+        });
+        if (!church)
+            throw new common_1.NotFoundException('Iglesia no encontrada');
+        return church;
     }
-    const existing = await this.prisma.membership.findUnique({
-      where: { userId_churchId: { userId: user.id, churchId } },
-    });
-    if (existing)
-      throw new common_1.ConflictException(
-        "El usuario ya es miembro de esta iglesia",
-      );
-    return this.prisma.membership.create({
-      data: { userId: user.id, churchId, role },
-      include: { user: { select: { id: true, name: true, email: true } } },
-    });
-  }
-  async createInviteLink(
-    churchId,
-    invitedByUserId,
-    email,
-    role,
-    requestingRole,
-  ) {
-    if (requestingRole !== client_1.MemberRole.ADMIN) {
-      throw new common_1.ForbiddenException(
-        "Solo los administradores pueden crear invitaciones",
-      );
+    async update(churchId, dto) {
+        return this.prisma.church.update({
+            where: { id: churchId },
+            data: dto,
+        });
     }
-    await this.entitlements.assertCanAddMember(churchId);
-    const normalizedEmail = email.toLowerCase();
-    const token = crypto.randomBytes(24).toString("hex");
-    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
-    const existingUser = await this.prisma.user.findUnique({
-      where: { email: normalizedEmail },
-    });
-    if (existingUser) {
-      const existingMembership = await this.prisma.membership.findUnique({
-        where: {
-          userId_churchId: { userId: existingUser.id, churchId },
-        },
-      });
-      if (existingMembership) {
-        throw new common_1.ConflictException(
-          "Ese email ya pertenece a esta iglesia",
-        );
-      }
+    async getMembers(churchId) {
+        return this.prisma.membership.findMany({
+            where: { churchId },
+            include: {
+                user: {
+                    select: { id: true, name: true, email: true, avatarUrl: true },
+                },
+            },
+            orderBy: { joinedAt: 'asc' },
+        });
     }
-    await this.prisma.churchInvite.updateMany({
-      where: {
-        churchId,
-        email: normalizedEmail,
-        acceptedAt: null,
-      },
-      data: { expiresAt: new Date(Date.now() - 1000) },
-    });
-    const invite = await this.prisma.churchInvite.create({
-      data: {
-        churchId,
-        email: normalizedEmail,
-        role,
-        token,
-        invitedByUserId,
-        expiresAt,
-      },
-      include: {
-        church: { select: { name: true, slug: true } },
-      },
-    });
-    this.logger.warn("Voy a llamar a sendInviteEmail", invite);
-    const { emailSent, inviteUrl } = await this.inviteEmail.sendInviteEmail({
-      email: invite.email,
-      churchName: invite.church.name,
-      role: invite.role,
-      token: invite.token,
-      expiresAt: invite.expiresAt,
-    });
-    return {
-      token: invite.token,
-      email: invite.email,
-      role: invite.role,
-      churchName: invite.church.name,
-      expiresAt: invite.expiresAt,
-      inviteUrl,
-      emailSent,
-    };
-  }
-  async getInviteByToken(token) {
-    const invite = await this.prisma.churchInvite.findUnique({
-      where: { token },
-      include: { church: { select: { id: true, name: true, slug: true } } },
-    });
-    if (!invite) {
-      throw new common_1.NotFoundException("Invitación no encontrada");
+    async inviteMember(churchId, email, role, requestingRole) {
+        if (requestingRole !== client_1.MemberRole.ADMIN) {
+            throw new common_1.ForbiddenException('Solo los administradores pueden invitar miembros');
+        }
+        await this.entitlements.assertCanAddMember(churchId);
+        const normalizedEmail = email.toLowerCase();
+        let user = await this.prisma.user.findUnique({
+            where: { email: normalizedEmail },
+        });
+        if (!user) {
+            const temporaryPassword = crypto.randomBytes(32).toString('hex');
+            user = await this.prisma.user.create({
+                data: {
+                    email: normalizedEmail,
+                    name: `Invitado ${normalizedEmail}`,
+                    passwordHash: temporaryPassword,
+                },
+            });
+        }
+        const existing = await this.prisma.membership.findUnique({
+            where: { userId_churchId: { userId: user.id, churchId } },
+        });
+        if (existing)
+            throw new common_1.ConflictException('El usuario ya es miembro de esta iglesia');
+        return this.prisma.membership.create({
+            data: { userId: user.id, churchId, role },
+            include: { user: { select: { id: true, name: true, email: true } } },
+        });
     }
-    if (invite.acceptedAt) {
-      throw new common_1.ConflictException("Esta invitación ya fue utilizada");
+    async createInviteLink(churchId, invitedByUserId, email, role, requestingRole) {
+        if (requestingRole !== client_1.MemberRole.ADMIN) {
+            throw new common_1.ForbiddenException('Solo los administradores pueden crear invitaciones');
+        }
+        await this.entitlements.assertCanAddMember(churchId);
+        const normalizedEmail = email.toLowerCase();
+        const token = crypto.randomBytes(24).toString('hex');
+        const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+        const existingUser = await this.prisma.user.findUnique({
+            where: { email: normalizedEmail },
+        });
+        if (existingUser) {
+            const existingMembership = await this.prisma.membership.findUnique({
+                where: {
+                    userId_churchId: { userId: existingUser.id, churchId },
+                },
+            });
+            if (existingMembership) {
+                throw new common_1.ConflictException('Ese email ya pertenece a esta iglesia');
+            }
+        }
+        await this.prisma.churchInvite.updateMany({
+            where: {
+                churchId,
+                email: normalizedEmail,
+                acceptedAt: null,
+            },
+            data: { expiresAt: new Date(Date.now() - 1000) },
+        });
+        const invite = await this.prisma.churchInvite.create({
+            data: {
+                churchId,
+                email: normalizedEmail,
+                role,
+                token,
+                invitedByUserId,
+                expiresAt,
+            },
+            include: {
+                church: { select: { name: true, slug: true } },
+            },
+        });
+        this.logger.warn('Voy a llamar a sendInviteEmail', invite);
+        const { emailSent, inviteUrl } = await this.inviteEmail.sendInviteEmail({
+            email: invite.email,
+            churchName: invite.church.name,
+            role: invite.role,
+            token: invite.token,
+            expiresAt: invite.expiresAt,
+        });
+        return {
+            token: invite.token,
+            email: invite.email,
+            role: invite.role,
+            churchName: invite.church.name,
+            expiresAt: invite.expiresAt,
+            inviteUrl,
+            emailSent,
+        };
     }
-    if (invite.expiresAt < new Date()) {
-      throw new common_1.ConflictException("Esta invitación ha expirado");
+    async getInviteByToken(token) {
+        const invite = await this.prisma.churchInvite.findUnique({
+            where: { token },
+            include: { church: { select: { id: true, name: true, slug: true } } },
+        });
+        if (!invite) {
+            throw new common_1.NotFoundException('Invitación no encontrada');
+        }
+        if (invite.acceptedAt) {
+            throw new common_1.ConflictException('Esta invitación ya fue utilizada');
+        }
+        if (invite.expiresAt < new Date()) {
+            throw new common_1.ConflictException('Esta invitación ha expirado');
+        }
+        return {
+            email: invite.email,
+            role: invite.role,
+            churchName: invite.church.name,
+            churchSlug: invite.church.slug,
+            expiresAt: invite.expiresAt,
+            token: invite.token,
+        };
     }
-    return {
-      email: invite.email,
-      role: invite.role,
-      churchName: invite.church.name,
-      churchSlug: invite.church.slug,
-      expiresAt: invite.expiresAt,
-      token: invite.token,
-    };
-  }
-  async updateMemberRole(churchId, memberId, role) {
-    const membership = await this.prisma.membership.findFirst({
-      where: { id: memberId, churchId },
-    });
-    if (!membership)
-      throw new common_1.NotFoundException("Membresía no encontrada");
-    return this.prisma.membership.update({
-      where: { id: memberId },
-      data: { role },
-    });
-  }
-  async removeMember(churchId, memberId, requestingUserId) {
-    const membership = await this.prisma.membership.findFirst({
-      where: { id: memberId, churchId },
-    });
-    if (!membership)
-      throw new common_1.NotFoundException("Membresía no encontrada");
-    if (membership.userId === requestingUserId) {
-      throw new common_1.ForbiddenException(
-        "No puedes eliminarte a ti mismo de la iglesia",
-      );
+    async updateMemberRole(churchId, memberId, role) {
+        const membership = await this.prisma.membership.findFirst({
+            where: { id: memberId, churchId },
+        });
+        if (!membership)
+            throw new common_1.NotFoundException('Membresía no encontrada');
+        return this.prisma.membership.update({
+            where: { id: memberId },
+            data: { role },
+        });
     }
-    return this.prisma.membership.delete({ where: { id: memberId } });
-  }
-  async getDashboardStats(churchId) {
-    const [membersCount, songsCount, meetingsCount, upcomingMeetings] =
-      await this.prisma.$transaction([
-        this.prisma.membership.count({ where: { churchId } }),
-        this.prisma.song.count({ where: { churchId } }),
-        this.prisma.meeting.count({ where: { churchId } }),
-        this.prisma.meeting.findMany({
-          where: { churchId, date: { gte: new Date() } },
-          orderBy: { date: "asc" },
-          take: 5,
-          include: {
-            meetingSongs: { include: { song: { select: { title: true } } } },
-            _count: { select: { assignments: true } },
-          },
-        }),
-      ]);
-    return { membersCount, songsCount, meetingsCount, upcomingMeetings };
-  }
-});
+    async removeMember(churchId, memberId, requestingUserId) {
+        const membership = await this.prisma.membership.findFirst({
+            where: { id: memberId, churchId },
+        });
+        if (!membership)
+            throw new common_1.NotFoundException('Membresía no encontrada');
+        if (membership.userId === requestingUserId) {
+            throw new common_1.ForbiddenException('No puedes eliminarte a ti mismo de la iglesia');
+        }
+        return this.prisma.membership.delete({ where: { id: memberId } });
+    }
+    async getDashboardStats(churchId) {
+        const [membersCount, songsCount, meetingsCount, upcomingMeetings] = await this.prisma.$transaction([
+            this.prisma.membership.count({ where: { churchId } }),
+            this.prisma.song.count({ where: { churchId } }),
+            this.prisma.meeting.count({ where: { churchId } }),
+            this.prisma.meeting.findMany({
+                where: { churchId, date: { gte: new Date() } },
+                orderBy: { date: 'asc' },
+                take: 5,
+                include: {
+                    meetingSongs: { include: { song: { select: { title: true } } } },
+                    _count: { select: { assignments: true } },
+                },
+            }),
+        ]);
+        return { membersCount, songsCount, meetingsCount, upcomingMeetings };
+    }
+};
 exports.ChurchesService = ChurchesService;
-exports.ChurchesService =
-  ChurchesService =
-  ChurchesService_1 =
-    __decorate(
-      [
-        (0, common_1.Injectable)(),
-        __metadata("design:paramtypes", [
-          prisma_service_1.PrismaService,
-          entitlements_service_1.EntitlementsService,
-          invite_email_service_1.InviteEmailService,
-        ]),
-      ],
-      ChurchesService,
-    );
+exports.ChurchesService = ChurchesService = ChurchesService_1 = __decorate([
+    (0, common_1.Injectable)(),
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
+        entitlements_service_1.EntitlementsService,
+        invite_email_service_1.InviteEmailService])
+], ChurchesService);
 //# sourceMappingURL=churches.service.js.map

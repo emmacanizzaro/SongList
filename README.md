@@ -7,6 +7,8 @@
 
 ## Estado actual
 
+> ¿Nuevo en el proyecto? Lee primero [ONBOARDING.md](./ONBOARDING.md) para setup y mejores prácticas.
+
 - Monorepo publicado y versionado en GitHub
 - Frontend con UI moderna, dark mode y flujos de canciones/reuniones
 - Backend NestJS con multi-tenant, roles e invitaciones por enlace
