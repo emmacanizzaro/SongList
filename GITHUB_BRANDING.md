@@ -26,6 +26,32 @@ I design and build modern websites that look great, load fast, and convert visit
 
 Clear message, strong UX, high performance, and measurable business outcomes.
 
+## Version Final En Espanol
+
+### Bio de GitHub
+
+Frontend Developer que crea sitios web modernos y orientados a conversion para negocios, emprendedores e iglesias.
+
+### Titular de LinkedIn
+
+Frontend Developer | Sitios Web que Convierten | Next.js, TypeScript, UX
+
+### About de LinkedIn
+
+Soy Frontend Developer y me enfoco en crear sitios web y productos digitales claros, rapidos y pensados para convertir.
+
+Trabajo con negocios, emprendedores e iglesias que necesitan una presencia digital profesional, atractiva y orientada a resultados reales.
+
+Mi stack principal incluye React, Next.js y TypeScript, con un enfoque fuerte en experiencia de usuario, rendimiento y escalabilidad.
+
+### Tagline para Portfolio
+
+Diseno y desarrollo sitios web modernos que se ven bien, cargan rapido y convierten visitas en clientes.
+
+### Mensaje Central
+
+Mensaje claro, buena experiencia de usuario, alto rendimiento y resultados medibles.
+
 ## Pinned Repositories (Recommended Order)
 
 1. SongList
