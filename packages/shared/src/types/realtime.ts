@@ -18,12 +18,12 @@ export type MeetingPresenceEvent = {
 }
 export type MeetingUpdateEvent = {
   meetingId: string
-  changes: Record<string, any>
+  changes: Record<string, unknown>
   userId: string
 }
 export type SongUpdateEvent = {
   songId: string
-  changes: Record<string, any>
+  changes: Record<string, unknown>
   userId: string
 }
 

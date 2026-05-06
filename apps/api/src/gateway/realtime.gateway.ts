@@ -13,6 +13,13 @@ import { Server, Socket } from 'socket.io';
 const meetingPresence: Record<string, { userId: string; name: string; socketId: string }[]> = {}
 const songPresence: Record<string, { userId: string; name: string; socketId: string }[]> = {}
 
+type PresenceUser = { userId: string; name: string }
+type SongPresencePayload = { songId: string; user: PresenceUser }
+type MeetingPresencePayload = { meetingId: string; user: PresenceUser }
+type RealtimeUpdatePayload = {
+  [key: string]: unknown
+}
+
 @WebSocketGateway({ cors: true })
 export class RealtimeGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
@@ -51,7 +58,7 @@ export class RealtimeGateway implements OnGatewayConnection, OnGatewayDisconnect
   }
 
   @SubscribeMessage('song:join')
-  handleSongJoin(@MessageBody() data: any, @ConnectedSocket() client: Socket) {
+  handleSongJoin(@MessageBody() data: SongPresencePayload, @ConnectedSocket() client: Socket) {
     const { songId, user } = data
     if (!songPresence[songId]) songPresence[songId] = []
     if (!songPresence[songId].some((u) => u.userId === user.userId)) {
@@ -64,7 +71,7 @@ export class RealtimeGateway implements OnGatewayConnection, OnGatewayDisconnect
   }
 
   @SubscribeMessage('song:leave')
-  handleSongLeave(@MessageBody() data: any, @ConnectedSocket() client: Socket) {
+  handleSongLeave(@MessageBody() data: SongPresencePayload) {
     const { songId, user } = data
     if (songPresence[songId]) {
       songPresence[songId] = songPresence[songId].filter((u) => u.userId !== user.userId)
@@ -76,7 +83,10 @@ export class RealtimeGateway implements OnGatewayConnection, OnGatewayDisconnect
   }
 
   @SubscribeMessage('meeting:join')
-  handleMeetingJoin(@MessageBody() data: any, @ConnectedSocket() client: Socket) {
+  handleMeetingJoin(
+    @MessageBody() data: MeetingPresencePayload,
+    @ConnectedSocket() client: Socket,
+  ) {
     const { meetingId, user } = data
     if (!meetingPresence[meetingId]) meetingPresence[meetingId] = []
     if (!meetingPresence[meetingId].some((u) => u.userId === user.userId)) {
@@ -89,7 +99,7 @@ export class RealtimeGateway implements OnGatewayConnection, OnGatewayDisconnect
   }
 
   @SubscribeMessage('meeting:leave')
-  handleMeetingLeave(@MessageBody() data: any, @ConnectedSocket() client: Socket) {
+  handleMeetingLeave(@MessageBody() data: MeetingPresencePayload) {
     const { meetingId, user } = data
     if (meetingPresence[meetingId]) {
       meetingPresence[meetingId] = meetingPresence[meetingId].filter(
@@ -103,7 +113,7 @@ export class RealtimeGateway implements OnGatewayConnection, OnGatewayDisconnect
   }
 
   @SubscribeMessage('song:update')
-  handleSongUpdate(@MessageBody() data: any) {
+  handleSongUpdate(@MessageBody() data: RealtimeUpdatePayload) {
     // Implementar lógica de actualización de canción si es necesario
     // Por ahora solo re-emite el evento a todos los clientes
     this.server.emit('song:update', data)
