@@ -42,10 +42,31 @@ Monorepo checks (pass):
 - `npm run build` ✅
 - `npm run test` ✅
 
+## Phase 3 Update (Prisma 5 -> 7)
+
+Prisma was upgraded in `apps/api` from v5 to v7.
+
+Applied changes:
+
+- Upgraded `prisma` and `@prisma/client` to `7.8.0`.
+- Added `apps/api/prisma.config.ts` using Prisma 7 config format.
+- Removed `url = env("DATABASE_URL")` from `prisma/schema.prisma` and moved datasource URL to Prisma config.
+- Scoped TypeScript build in `apps/api/tsconfig.build.json` to `src/**/*.ts` so root-level Prisma config is not compiled by Nest build.
+
+Validation after migration (pass):
+
+- `npm run db:generate -w apps/api` ✅
+- `npm run lint -w apps/api` ✅
+- `npm run build -w apps/api` ✅
+- `npm run test -w apps/api` ✅
+- `npm run lint` ✅
+- `npm run build` ✅
+- `npm run test` ✅
+
 ## Recommended Next Step
 
 Continue with:
 
-1. Start Prisma major migration planning (`5 -> 7`) in isolated commits.
-2. Re-run full monorepo checks after each migration chunk.
-3. Keep dependency upgrades scoped by subsystem (API/Web/Shared) to reduce rollback risk.
+1. Run DB migration smoke checks against a staging database (`prisma migrate status`, one create/update/delete flow per critical model).
+2. Keep dependency upgrades scoped by subsystem (API/Web/Shared) to reduce rollback risk.
+3. Proceed with next major candidates (React/Next ecosystem or payment SDKs) in isolated commits.
