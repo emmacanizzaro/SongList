@@ -7,9 +7,8 @@ node_modules/
 build/
 .next/
 out/
-apps/api/dist/**/*.spec.js
-apps/api/dist/**/*.spec.js.map
-apps/api/dist/**/*.spec.d.ts
+apps/api/dist/
+packages/shared/dist/
 
 # Environment variables
 .env
