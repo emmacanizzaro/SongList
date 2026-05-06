@@ -39,16 +39,16 @@ docs/images/mobile-share-view.png
 
 ## Tech Stack
 
-| Layer | Technology |
-| --- | --- |
+| Layer    | Technology                                     |
+| -------- | ---------------------------------------------- |
 | Frontend | Next.js 14, React 18, TypeScript, Tailwind CSS |
-| Backend | NestJS, TypeScript |
-| Database | PostgreSQL |
-| ORM | Prisma |
-| Auth | JWT + refresh token rotation |
-| Realtime | Socket.IO |
-| Payments | Stripe |
-| Tooling | Turborepo, ESLint, Jest |
+| Backend  | NestJS, TypeScript                             |
+| Database | PostgreSQL                                     |
+| ORM      | Prisma                                         |
+| Auth     | JWT + refresh token rotation                   |
+| Realtime | Socket.IO                                      |
+| Payments | Stripe                                         |
+| Tooling  | Turborepo, ESLint, Jest                        |
 
 ## Monorepo Structure
 
@@ -78,14 +78,14 @@ Admins invite members with a unique tokenized link. Registrations made through t
 
 ## API Snapshot
 
-| Method | Endpoint | Description |
-| --- | --- | --- |
-| POST | `/api/v1/auth/register` | Register user + tenant |
-| POST | `/api/v1/auth/login` | Sign in |
-| POST | `/api/v1/auth/refresh` | Rotate tokens |
-| GET | `/api/v1/songs` | List songs |
-| POST | `/api/v1/meetings` | Create meeting |
-| GET | `/api/v1/public/meetings/:token` | Public share view |
+| Method | Endpoint                         | Description            |
+| ------ | -------------------------------- | ---------------------- |
+| POST   | `/api/v1/auth/register`          | Register user + tenant |
+| POST   | `/api/v1/auth/login`             | Sign in                |
+| POST   | `/api/v1/auth/refresh`           | Rotate tokens          |
+| GET    | `/api/v1/songs`                  | List songs             |
+| POST   | `/api/v1/meetings`               | Create meeting         |
+| GET    | `/api/v1/public/meetings/:token` | Public share view      |
 
 ## Local Setup
 
