@@ -28,6 +28,7 @@
     "@typescript-eslint/eslint-plugin": "^8.59.2",
     "@typescript-eslint/parser": "^8.59.2",
     "eslint": "^8.57.0",
+    "next": "^14.2.35",
     "prettier": "^3.8.3",
     "ts-node": "^10.9.2",
     "turbo": "^2.9.9",

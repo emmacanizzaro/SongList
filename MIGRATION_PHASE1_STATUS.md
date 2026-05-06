@@ -32,21 +32,20 @@ API workspace checks (pass):
 - `npm run build -w apps/api` ✅
 - `npm run test -w apps/api` ✅
 
-## Known Blocker (Web Lint in Fresh Lockfile)
+## Phase 2 Update (Toolchain Stabilization)
 
-In this migration clone, `apps/web` lint reports:
+Web lint/build resolution was stabilized in this branch by aligning lockfile and root toolchain dependency resolution used during monorepo execution.
 
-- `Cannot find module 'next/dist/compiled/babel/eslint-parser'`
+Monorepo checks (pass):
 
-Context:
-
-- This appears linked to lockfile/package resolution behavior in the regenerated install state.
-- It does not block API migration validation, but it blocks full monorepo lint in this clone.
+- `npm run lint` ✅
+- `npm run build` ✅
+- `npm run test` ✅
 
 ## Recommended Next Step
 
-Phase 2 should proceed with:
+Continue with:
 
-1. Stabilize web lint/toolchain resolution in migration branch.
-2. Start Prisma major migration planning (`5 -> 7`) in isolated commits.
-3. Re-run full monorepo checks once web lint resolution is fixed.
+1. Start Prisma major migration planning (`5 -> 7`) in isolated commits.
+2. Re-run full monorepo checks after each migration chunk.
+3. Keep dependency upgrades scoped by subsystem (API/Web/Shared) to reduce rollback risk.
