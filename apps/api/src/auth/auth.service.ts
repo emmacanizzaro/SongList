@@ -4,15 +4,16 @@ import {
     Logger,
     NotFoundException,
     UnauthorizedException,
-} from '@nestjs/common'
-import { ConfigService } from '@nestjs/config'
-import { JwtService } from '@nestjs/jwt'
-import * as bcrypt from 'bcryptjs'
-import * as crypto from 'crypto'
-import { LoginDto } from '../domain/login.dto'
-import { RegisterDto } from '../domain/register.dto'
-import { PrismaService } from '../prisma/prisma.service'
-import { WelcomeEmailService } from './welcome-email.service'
+} from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
+import { PlanType } from '@prisma/client';
+import * as bcrypt from 'bcryptjs';
+import * as crypto from 'crypto';
+import { LoginDto } from '../domain/login.dto';
+import { RegisterDto } from '../domain/register.dto';
+import { PrismaService } from '../prisma/prisma.service';
+import { WelcomeEmailService } from './welcome-email.service';
 
 @Injectable()
 export class AuthService {
@@ -179,6 +180,7 @@ export class AuthService {
 
     const passwordHash = await bcrypt.hash(dto.password, 12)
     const slug = this.generateSlug(dto.churchName)
+    const initialPlan = this.resolveInitialPlanForEmail(normalizedEmail)
 
     // Transacción: crear usuario + iglesia + membresía + suscripción FREE
     const result = await this.prisma.$transaction(async (tx) => {
@@ -200,7 +202,7 @@ export class AuthService {
         data: {
           name: dto.churchName!,
           slug: finalSlug,
-          subscription: { create: { plan: 'FREE', status: 'ACTIVE' } },
+          subscription: { create: { plan: initialPlan, status: 'ACTIVE' } },
           instruments: {
             createMany: {
               data: [
@@ -228,6 +230,9 @@ export class AuthService {
       email: result.user.email,
       name: userNameForWelcome,
     })
+    if (initialPlan === PlanType.PRO) {
+      this.logger.log(`Founder PRO applied for ${normalizedEmail} (${result.church.id})`)
+    }
     return this.issueTokens(result.user.id, result.user.email, result.church.id, 'ADMIN')
   }
 
@@ -355,5 +360,19 @@ export class AuthService {
       .replace(/\s+/g, '-')
       .replace(/-+/g, '-')
       .slice(0, 50)
+  }
+
+  private resolveInitialPlanForEmail(email: string): PlanType {
+    const founderEmailsRaw = this.config.get<string>('FOUNDER_PRO_EMAILS', '')
+    const founderEmails = founderEmailsRaw
+      .split(',')
+      .map((item) => item.trim().toLowerCase())
+      .filter(Boolean)
+
+    if (founderEmails.includes(email.toLowerCase())) {
+      return PlanType.PRO
+    }
+
+    return PlanType.FREE
   }
 }
