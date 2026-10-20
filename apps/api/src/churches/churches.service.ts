@@ -8,6 +8,7 @@ import {
 import { MemberRole } from '@prisma/client'
 import * as crypto from 'crypto'
 import { CreateChurchDto } from '../domain/create-church.dto'
+import { isPendingInviteName, PENDING_INVITE_NAME_PREFIX } from '../common/utils/pending-invite'
 import { PrismaService } from '../prisma/prisma.service'
 import { EntitlementsService } from '../subscriptions/entitlements.service'
 import { InviteEmailService } from './invite-email.service'
@@ -57,6 +58,7 @@ export class ChurchesService {
 
   async inviteMember(
     churchId: string,
+    invitedByUserId: string,
     email: string,
     role: MemberRole,
     requestingRole: MemberRole,
@@ -71,6 +73,7 @@ export class ChurchesService {
     let user = await this.prisma.user.findUnique({
       where: { email: normalizedEmail },
     })
+    const isNewPlaceholder = !user
 
     if (!user) {
       // Invitación pendiente: se crea usuario placeholder para reservar email y rol.
@@ -78,7 +81,7 @@ export class ChurchesService {
       user = await this.prisma.user.create({
         data: {
           email: normalizedEmail,
-          name: `Invitado ${normalizedEmail}`,
+          name: `${PENDING_INVITE_NAME_PREFIX}${normalizedEmail}`,
           passwordHash: temporaryPassword,
         },
       })
@@ -89,10 +92,19 @@ export class ChurchesService {
     })
     if (existing) throw new ConflictException('El usuario ya es miembro de esta iglesia')
 
-    return this.prisma.membership.create({
+    const membership = await this.prisma.membership.create({
       data: { userId: user.id, churchId, role },
       include: { user: { select: { id: true, name: true, email: true } } },
     })
+
+    if (!isNewPlaceholder) {
+      return membership
+    }
+
+    // The invitee has no account yet: they can only activate it through an
+    // invite link, so send one right away.
+    const invite = await this.issueInvite(churchId, invitedByUserId, normalizedEmail, role)
+    return { ...membership, inviteUrl: invite.inviteUrl, emailSent: invite.emailSent }
   }
 
   async createInviteLink(
@@ -106,27 +118,46 @@ export class ChurchesService {
       throw new ForbiddenException('Solo los administradores pueden crear invitaciones')
     }
 
-    await this.entitlements.assertCanAddMember(churchId)
-
     const normalizedEmail = email.toLowerCase()
-    const token = crypto.randomBytes(24).toString('hex')
-    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
 
     const existingUser = await this.prisma.user.findUnique({
       where: { email: normalizedEmail },
     })
 
-    if (existingUser) {
-      const existingMembership = await this.prisma.membership.findUnique({
-        where: {
-          userId_churchId: { userId: existingUser.id, churchId },
-        },
-      })
-      if (existingMembership) {
-        throw new ConflictException('Ese email ya pertenece a esta iglesia')
-      }
+    const existingMembership = existingUser
+      ? await this.prisma.membership.findUnique({
+          where: {
+            userId_churchId: { userId: existingUser.id, churchId },
+          },
+        })
+      : null
+
+    // A pending invitee already holds a seat, so re-sending their link must not
+    // count against the member limit. A real member cannot be invited again.
+    const isResendForPendingInvite =
+      Boolean(existingMembership) && isPendingInviteName(existingUser!.name)
+
+    if (existingMembership && !isResendForPendingInvite) {
+      throw new ConflictException('Ese email ya pertenece a esta iglesia')
     }
 
+    if (!isResendForPendingInvite) {
+      await this.entitlements.assertCanAddMember(churchId)
+    }
+
+    return this.issueInvite(churchId, invitedByUserId, normalizedEmail, role)
+  }
+
+  private async issueInvite(
+    churchId: string,
+    invitedByUserId: string,
+    normalizedEmail: string,
+    role: MemberRole,
+  ) {
+    const token = crypto.randomBytes(24).toString('hex')
+    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+
+    // Invalidate any previous unused link for the same email.
     await this.prisma.churchInvite.updateMany({
       where: {
         churchId,
@@ -150,7 +181,6 @@ export class ChurchesService {
       },
     })
 
-    this.logger.warn('Voy a llamar a sendInviteEmail', invite)
     const { emailSent, inviteUrl } = await this.inviteEmail.sendInviteEmail({
       email: invite.email,
       churchName: invite.church.name,

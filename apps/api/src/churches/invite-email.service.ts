@@ -1,6 +1,7 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { MemberRole } from "@prisma/client";
+import { escapeHtml } from "../common/utils/escape-html";
 
 interface SendInviteEmailParams {
   email: string;
@@ -66,7 +67,7 @@ export class InviteEmailService {
           </div>
           <h1 style="margin: 0 0 18px; font-size: 26px; line-height: 1.15; font-family: Inter, Arial, sans-serif; color: #132033;">¡Bienvenido a SongList!</h1>
           <p style="margin: 0 0 20px; font-size: 16px; line-height: 1.7; color: #475569; font-family: Inter, Arial, sans-serif;">
-            Has sido invitado a unirte a <strong>${churchName}</strong> como <strong>${this.getRoleLabel(role)}</strong>.<br />
+            Has sido invitado a unirte a <strong>${escapeHtml(churchName)}</strong> como <strong>${this.getRoleLabel(role)}</strong>.<br />
             Tu registro a SongList se confirmó con éxito.<br />
             Accede a tu equipo usando el siguiente enlace:
           </p>

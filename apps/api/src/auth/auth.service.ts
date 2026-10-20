@@ -12,6 +12,7 @@ import * as bcrypt from 'bcryptjs';
 import * as crypto from 'crypto';
 import { LoginDto } from '../domain/login.dto';
 import { RegisterDto } from '../domain/register.dto';
+import { isPendingInviteName } from '../common/utils/pending-invite';
 import { PrismaService } from '../prisma/prisma.service';
 import { WelcomeEmailService } from './welcome-email.service';
 
@@ -66,7 +67,7 @@ export class AuthService {
       if (existingInvitedUser) {
         const existingMembership = existingInvitedUser.memberships[0]
         const isPendingInvite =
-          existingInvitedUser.name.startsWith('Invitado ') && Boolean(existingMembership)
+          isPendingInviteName(existingInvitedUser.name) && Boolean(existingMembership)
 
         if (!isPendingInvite) {
           throw new ConflictException('El email ya está registrado')
@@ -135,47 +136,21 @@ export class AuthService {
     }
 
     const existing = await this.prisma.user.findUnique({
-      where: { email: dto.email.toLowerCase() },
-      include: {
-        memberships: {
-          orderBy: { joinedAt: 'asc' },
-          take: 1,
-        },
-      },
+      where: { email: normalizedEmail },
+      select: { name: true },
     })
 
-    // Activación de invitación pendiente para usuario no registrado previamente.
     if (existing) {
-      const isPendingInvite =
-        existing.name.startsWith('Invitado ') && existing.memberships.length > 0
-
-      if (!isPendingInvite) {
-        throw new ConflictException('El email ya está registrado')
+      // A pending invite can only be claimed with its invite link: the token
+      // proves the person controls the invited email. Claiming it here would
+      // let anyone who knows the email take over the invited role.
+      if (isPendingInviteName(existing.name)) {
+        throw new ConflictException(
+          'Este email tiene una invitación pendiente. Usa el enlace que te llegó por email para unirte.',
+        )
       }
 
-      const passwordHash = await bcrypt.hash(dto.password, 12)
-      const updatedUser = await this.prisma.user.update({
-        where: { id: existing.id },
-        data: {
-          name: dto.name,
-          passwordHash,
-          email: normalizedEmail,
-        },
-      })
-
-      const membership = existing.memberships[0]
-      userNameForWelcome = updatedUser.name
-
-      await this.welcomeEmail.sendWelcomeEmail({
-        email: updatedUser.email,
-        name: userNameForWelcome,
-      })
-      return this.issueTokens(
-        updatedUser.id,
-        updatedUser.email,
-        membership.churchId,
-        membership.role,
-      )
+      throw new ConflictException('El email ya está registrado')
     }
 
     const passwordHash = await bcrypt.hash(dto.password, 12)

@@ -1,6 +1,6 @@
 import { Body, Controller, HttpCode, HttpStatus, Post, UseGuards } from '@nestjs/common'
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger'
-import { Throttle } from '@nestjs/throttler'
+import { Throttle, ThrottlerGuard } from '@nestjs/throttler'
 import { LoginDto } from '../domain/login.dto'
 import { RegisterDto } from '../domain/register.dto'
 import { AuthService } from './auth.service'
@@ -9,6 +9,10 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard'
 
 @ApiTags('auth')
 @Controller('auth')
+// The @Throttle limits below only take effect when ThrottlerGuard runs.
+// It is scoped to auth (not global) so teams sharing one church Wi-Fi IP
+// are not rate-limited during normal app use.
+@UseGuards(ThrottlerGuard)
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
