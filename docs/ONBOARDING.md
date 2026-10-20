@@ -65,7 +65,7 @@
 
 ## 7. Recursos y documentación
 
-- [README.md](./README.md) — Arquitectura, endpoints, stack
+- [README.md](../README.md) — Arquitectura, endpoints, stack
 - [QUALITY_CHECKLIST.md](./QUALITY_CHECKLIST.md) — Checklist de calidad
 - [RELEASE_CHECKLIST.md](./RELEASE_CHECKLIST.md) — Checklist de release
 - [DEPLOY_ENV.md](./DEPLOY_ENV.md) — Variables de entorno

@@ -43,3 +43,7 @@ apps/api/prisma/migrations/
 # Type checking
 *.tsbuildinfo
 .vercel
+
+# Generated audit outputs
+audit*.json
+.audit_fix_*

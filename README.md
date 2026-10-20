@@ -26,17 +26,6 @@ It helps churches plan meetings, organize songs, assign musicians, and share set
 - Public share links for meetings.
 - Subscription-ready backend with Stripe support.
 
-## Product Preview
-
-Add screenshots or gifs here to increase conversion on your profile:
-
-```
-docs/images/dashboard.png
-docs/images/song-editor.png
-docs/images/meeting-planner.png
-docs/images/mobile-share-view.png
-```
-
 ## Tech Stack
 
 | Layer    | Technology                                     |
@@ -113,10 +102,10 @@ Local services:
 
 ## Quality and Operations
 
-- Onboarding: [ONBOARDING.md](ONBOARDING.md)
-- Quality checklist: [QUALITY_CHECKLIST.md](QUALITY_CHECKLIST.md)
-- Release checklist: [RELEASE_CHECKLIST.md](RELEASE_CHECKLIST.md)
-- Deployment notes: [DEPLOY_ENV.md](DEPLOY_ENV.md)
+- Onboarding: [ONBOARDING.md](docs/ONBOARDING.md)
+- Quality checklist: [QUALITY_CHECKLIST.md](docs/QUALITY_CHECKLIST.md)
+- Release checklist: [RELEASE_CHECKLIST.md](docs/RELEASE_CHECKLIST.md)
+- Deployment notes: [DEPLOY_ENV.md](docs/DEPLOY_ENV.md)
 
 ## Roadmap
 
