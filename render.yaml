@@ -4,7 +4,9 @@ services:
     runtime: node
     region: oregon
     plan: free
-    buildCommand: npm install --workspaces --include-workspace-root --omit=dev && npm run db:generate
+    # Debe coincidir con Settings > Build & Deploy en el panel de Render.
+    # db:deploy aplica las migraciones pendientes antes de compilar.
+    buildCommand: npm ci --include=dev && npm run db:deploy --workspace=@songlist/api && npm run build --workspace=@songlist/api
     startCommand: npm run start --workspace=@songlist/api
     healthCheckPath: /health
     envVars:
