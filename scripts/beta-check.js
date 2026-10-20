@@ -8,7 +8,7 @@ const root = path.resolve(__dirname, "..");
 const runFull = process.argv.includes("--full");
 
 const requiredFiles = [
-  "BETA_LAUNCH.md",
+  "docs/BETA_LAUNCH.md",
   "railway.json",
   "vercel.json",
   "apps/api/prisma/schema.prisma",
