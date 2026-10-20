@@ -38,7 +38,6 @@ coverage/
 .turbo/
 
 # Prisma
-apps/api/prisma/migrations/
 
 # Type checking
 *.tsbuildinfo
