@@ -3,6 +3,7 @@
 import { useAuth } from '@/hooks/useAuth'
 import { churchApi } from '@/lib/api'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { isAxiosError } from 'axios'
 import { useQuery } from '@tanstack/react-query'
 import { Music2 } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -80,8 +81,16 @@ function RegisterPageContent() {
     try {
       await authRegister(payload)
       router.push('/dashboard')
-    } catch {
-      setError('No se pudo crear la cuenta. Verifica los datos e intenta nuevamente.')
+    } catch (err) {
+      // 409 carries a specific, user-safe reason (email already registered,
+      // pending invite that must be accepted through its link).
+      const apiMessage =
+        isAxiosError(err) && err.response?.status === 409 ? err.response.data?.message : null
+      setError(
+        typeof apiMessage === 'string'
+          ? apiMessage
+          : 'No se pudo crear la cuenta. Verifica los datos e intenta nuevamente.',
+      )
     }
   }
 

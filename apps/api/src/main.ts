@@ -1,12 +1,13 @@
 import { ValidationPipe, VersioningType } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { NestFactory } from "@nestjs/core";
+import { NestExpressApplication } from "@nestjs/platform-express";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import helmet from "helmet";
 import { AppModule } from "./app.module";
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
   const config = app.get(ConfigService);
   const canUseTransform = await (async () => {
     try {
@@ -31,6 +32,11 @@ async function bootstrap() {
     "http://127.0.0.1:3002",
   ];
   const allowedOrigins = new Set([...configuredOrigins, ...localDevOrigins]);
+
+  // ---- Proxy de la plataforma (Railway/Render) ----
+  // Sin esto, req.ip es la IP del proxy y el rate limiting trataría a todos
+  // los usuarios como uno solo. TRUST_PROXY_HOPS = cantidad de proxies delante.
+  app.set("trust proxy", Number(config.get<string>("TRUST_PROXY_HOPS") ?? 1));
 
   // ---- Helmet (headers de seguridad HTTP) ----
   app.use(helmet());

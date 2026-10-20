@@ -1,5 +1,6 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
+import { escapeHtml } from "../common/utils/escape-html";
 
 interface SendWelcomeEmailParams {
   email: string;
@@ -41,7 +42,7 @@ export class WelcomeEmailService {
           </div>
           <h1 style="margin: 0 0 18px; font-size: 26px; line-height: 1.15; font-family: Inter, Arial, sans-serif; color: #132033;">Tu registro a SongList se confirmó con éxito</h1>
           <p style="margin: 0 0 20px; font-size: 16px; line-height: 1.7; color: #475569; font-family: Inter, Arial, sans-serif;">
-            Hola <strong>${name}</strong>,<br />
+            Hola <strong>${escapeHtml(name)}</strong>,<br />
             ¡Bienvenido a <span style='color:#1d4ed8;font-weight:700;'>SongList</span>!<br />
             Tu registro se confirmó correctamente.<br />
             Ya puedes comenzar a organizar tu equipo de alabanza, cargar canciones y programar reuniones.

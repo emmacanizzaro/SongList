@@ -46,11 +46,12 @@ export class ChurchesController {
   @ApiOperation({ summary: 'Invitar miembro (solo ADMIN)' })
   inviteMember(
     @CurrentTenant() churchId: string,
+    @CurrentUser('id') invitedByUserId: string,
     @CurrentUser('currentRole') role: MemberRole,
     @Body('email') email: string,
     @Body('role') memberRole: MemberRole,
   ) {
-    return this.churchesService.inviteMember(churchId, email, memberRole, role)
+    return this.churchesService.inviteMember(churchId, invitedByUserId, email, memberRole, role)
   }
 
   @Post('me/invites')
