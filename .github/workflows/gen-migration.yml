@@ -1,0 +1,21 @@
+name: Generate baseline migration (temporary)
+on:
+  push:
+    branches: [chore/prisma-migrations-baseline]
+jobs:
+  diff:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm ci
+      - run: npx prisma --version
+        working-directory: apps/api
+      - run: npx prisma migrate diff --from-empty --to-schema-datamodel prisma/schema.prisma --script > init.sql
+        working-directory: apps/api
+      - uses: actions/upload-artifact@v4
+        with:
+          name: init-sql
+          path: apps/api/init.sql
