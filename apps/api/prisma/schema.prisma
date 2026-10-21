@@ -44,6 +44,8 @@ model User {
   passwordHash String
   name         String
   avatarUrl    String?
+  // Administrador de la plataforma (dueño de SongList): gestiona planes de todas las iglesias
+  isPlatformAdmin Boolean @default(false)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
@@ -210,9 +212,10 @@ model Team {
 // =================== SUSCRIPCIONES & PLANES ===================
 
 enum PlanType {
-  FREE        // Gratuito: hasta 5 usuarios, 50 canciones
-  PRO         // $9.99/mes: usuarios ilimitados, historial, export PDF
-  ENTERPRISE  // $29.99/mes: multi-equipos, soporte prioritario
+  FREE        // Prueba: hasta 10 integrantes, 20 canciones, 30 días
+  PRO         // USD 9.99/mes: hasta 30 integrantes, 50 canciones
+  ENTERPRISE  // USD 19.99/mes: hasta 60 integrantes, 150 canciones
+  UNLIMITED   // Interno: sin límites ni vencimiento (asignado por el admin de la plataforma)
 }
 
 enum SubscriptionStatus {
@@ -235,6 +238,9 @@ model Subscription {
   currentPeriodStart   DateTime?
   currentPeriodEnd     DateTime?
   cancelAtPeriodEnd    Boolean            @default(false)
+
+  // Prueba gratuita (plan FREE). Al vencer, la iglesia queda en solo lectura.
+  trialEndsAt          DateTime?
 
   // Mercado Pago (LATAM)
   mpSubscriptionId     String?

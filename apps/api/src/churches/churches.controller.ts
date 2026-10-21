@@ -7,11 +7,12 @@ import { CurrentUser } from '../auth/decorators/current-user.decorator'
 import { Roles } from '../auth/decorators/roles.decorator'
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard'
 import { RolesGuard } from '../auth/guards/roles.guard'
+import { ActiveSubscriptionGuard } from '../subscriptions/active-subscription.guard'
 import { ChurchesService } from './churches.service'
 
 @ApiTags('churches')
 @ApiBearerAuth('JWT')
-@UseGuards(JwtAuthGuard, RolesGuard)
+@UseGuards(JwtAuthGuard, RolesGuard, ActiveSubscriptionGuard)
 @Controller('churches')
 export class ChurchesController {
   constructor(private readonly churchesService: ChurchesService) {}

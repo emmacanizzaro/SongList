@@ -4,7 +4,8 @@
 
 export type MemberRole = "ADMIN" | "EDITOR" | "READER";
 export type VersionType = "ORIGINAL" | "MALE_KEY" | "FEMALE_KEY" | "CUSTOM";
-export type PlanType = "FREE" | "PRO" | "ENTERPRISE";
+export type PlanType = "FREE" | "PRO" | "ENTERPRISE" | "UNLIMITED";
+export type AccessState = "active" | "trial_expired" | "period_expired";
 export type SubscriptionStatus =
   | "ACTIVE"
   | "TRIALING"
@@ -19,6 +20,8 @@ export interface User {
   avatarUrl?: string;
   churchId: string;
   currentRole: MemberRole;
+  /** Solo para mostrar el panel de administrador; la API lo verifica siempre. */
+  isPlatformAdmin?: boolean;
 }
 
 export interface Church {
@@ -118,7 +121,10 @@ export interface EntitlementQuota {
 export interface SubscriptionEntitlements {
   plan: PlanType;
   status: SubscriptionStatus;
-  currentPeriodEnd?: string;
+  currentPeriodEnd?: string | null;
+  trialEndsAt?: string | null;
+  access: AccessState;
+  priceUsd: number | null;
   cancelAtPeriodEnd: boolean;
   limits: PlanLimits;
   features: {
@@ -154,4 +160,20 @@ export interface TranspositionResult {
   targetKey: string;
   lyricsChords: string;
   chords: string[];
+}
+
+export interface AdminChurch {
+  id: string;
+  name: string;
+  createdAt: string;
+  owner: { name: string; email: string } | null;
+  subscription: {
+    plan: PlanType;
+    status: SubscriptionStatus;
+    trialEndsAt: string | null;
+    currentPeriodEnd: string | null;
+    access: AccessState;
+    priceUsd: number | null;
+  } | null;
+  _count: { memberships: number; songs: number; meetings: number };
 }
