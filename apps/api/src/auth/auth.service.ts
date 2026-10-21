@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { PlanType } from '@prisma/client';
+import { AuthTokenType, PlanType } from '@prisma/client';
 import * as bcrypt from 'bcryptjs';
 import * as crypto from 'crypto';
 import { LoginDto } from '../domain/login.dto';
@@ -15,6 +15,8 @@ import { RegisterDto } from '../domain/register.dto';
 import { isPendingInviteName } from '../common/utils/pending-invite';
 import { PrismaService } from '../prisma/prisma.service';
 import { trialEndDate } from '../subscriptions/plan-limits';
+import { AuthEmailService } from './auth-email.service';
+import { AuthTokensService } from './auth-tokens.service';
 import { WelcomeEmailService } from './welcome-email.service';
 
 @Injectable()
@@ -24,6 +26,8 @@ export class AuthService {
     private prisma: PrismaService,
     private jwt: JwtService,
     private welcomeEmail: WelcomeEmailService,
+    private authEmail: AuthEmailService,
+    private authTokens: AuthTokensService,
     private config: ConfigService,
   ) {}
 
@@ -80,6 +84,8 @@ export class AuthService {
           data: {
             name: dto.name,
             passwordHash,
+            // The invite link arrived at this email, so it is verified.
+            emailVerifiedAt: new Date(),
           },
         })
         userNameForWelcome = updatedUser.name
@@ -105,6 +111,7 @@ export class AuthService {
             email: normalizedEmail,
             passwordHash,
             name: dto.name,
+            emailVerifiedAt: new Date(),
           },
         })
 
@@ -204,10 +211,17 @@ export class AuthService {
       return { user, church, membership }
     })
 
-    await this.welcomeEmail.sendWelcomeEmail({
-      email: result.user.email,
-      name: userNameForWelcome,
-    })
+    // New accounts confirm their email with a link; until email delivery is
+    // configured, fall back to the plain welcome email.
+    if (this.authEmail.isEnabled()) {
+      const token = await this.authTokens.issue(result.user.id, AuthTokenType.EMAIL_VERIFICATION)
+      await this.authEmail.sendEmailVerification(result.user.email, userNameForWelcome, token)
+    } else {
+      await this.welcomeEmail.sendWelcomeEmail({
+        email: result.user.email,
+        name: userNameForWelcome,
+      })
+    }
     return this.issueTokens(result.user.id, result.user.email, result.church.id, 'ADMIN')
   }
 

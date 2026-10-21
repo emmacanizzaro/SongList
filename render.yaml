@@ -25,6 +25,11 @@ services:
         generateValue: true
       - key: REFRESH_TOKEN_SECRET
         generateValue: true
+      # Email (Resend). Sin estas variables no se envían emails:
+      - key: RESEND_API_KEY
+        sync: false
+      - key: EMAIL_FROM
+        sync: false
       # Opcionales (solo si activás pagos con Stripe):
       # - key: STRIPE_SECRET_KEY
       #   sync: false

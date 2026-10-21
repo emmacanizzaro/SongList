@@ -1,3 +1,4 @@
+import { EmailVerificationBanner } from "@/components/layout/EmailVerificationBanner";
 import { PlanStatusBanner } from "@/components/layout/PlanStatusBanner";
 import { MobileNavigation, Sidebar } from "@/components/layout/Sidebar";
 
@@ -14,6 +15,7 @@ export default function DashboardLayout({
         <MobileNavigation />
         <div className="mx-auto max-w-7xl px-3 py-3 sm:px-6 sm:py-4 lg:px-8">
           <div className="page-section min-h-[calc(100vh-5.5rem)] px-4 py-6 sm:px-8 sm:py-8 lg:min-h-[calc(100vh-2rem)] lg:px-10">
+            <EmailVerificationBanner />
             <PlanStatusBanner />
             {children}
           </div>

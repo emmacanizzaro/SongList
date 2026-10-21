@@ -1,6 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const PUBLIC_PREFIXES = ["/login", "/register", "/public"];
+const PUBLIC_PREFIXES = [
+  "/login",
+  "/register",
+  "/public",
+  "/forgot-password",
+  "/reset-password",
+  "/verify-email",
+];
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;

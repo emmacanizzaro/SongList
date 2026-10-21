@@ -3,6 +3,7 @@ import { ConfigModule } from "@nestjs/config";
 import { ThrottlerModule } from "@nestjs/throttler";
 import { AdminModule } from "./admin/admin.module";
 import { AuthModule } from "./auth/auth.module";
+import { MailModule } from "./common/services/mail.module";
 import { ChurchesModule } from "./churches/churches.module";
 import { InstrumentsModule } from "./instruments/instruments.module";
 import { MeetingsModule } from "./meetings/meetings.module";
@@ -27,6 +28,7 @@ import { TranspositionModule } from "./transposition/transposition.module";
 
     // ---- Módulos de la app ----
     PrismaModule,
+    MailModule,
     AuthModule,
     ChurchesModule,
     SongsModule,

@@ -2,6 +2,9 @@ import { Module } from "@nestjs/common";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { JwtModule } from "@nestjs/jwt";
 import { PassportModule } from "@nestjs/passport";
+import { AccountService } from "./account.service";
+import { AuthEmailService } from "./auth-email.service";
+import { AuthTokensService } from "./auth-tokens.service";
 import { AuthController } from "./auth.controller";
 import { AuthService } from "./auth.service";
 import { JwtStrategy } from "./strategies/jwt.strategy";
@@ -20,7 +23,14 @@ import { WelcomeEmailService } from "./welcome-email.service";
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy, WelcomeEmailService],
+  providers: [
+    AuthService,
+    AccountService,
+    AuthEmailService,
+    AuthTokensService,
+    JwtStrategy,
+    WelcomeEmailService,
+  ],
   exports: [JwtModule, PassportModule],
 })
 export class AuthModule {}

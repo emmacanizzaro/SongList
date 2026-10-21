@@ -7,6 +7,7 @@ import { CurrentUser } from '../auth/decorators/current-user.decorator'
 import { Roles } from '../auth/decorators/roles.decorator'
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard'
 import { RolesGuard } from '../auth/guards/roles.guard'
+import { VerifiedEmailGuard } from '../auth/guards/verified-email.guard'
 import { ActiveSubscriptionGuard } from '../subscriptions/active-subscription.guard'
 import { ChurchesService } from './churches.service'
 
@@ -43,6 +44,7 @@ export class ChurchesController {
   }
 
   @Post('me/members')
+  @UseGuards(VerifiedEmailGuard)
   @Roles(MemberRole.ADMIN)
   @ApiOperation({ summary: 'Invitar miembro (solo ADMIN)' })
   inviteMember(
@@ -56,6 +58,7 @@ export class ChurchesController {
   }
 
   @Post('me/invites')
+  @UseGuards(VerifiedEmailGuard)
   @Roles(MemberRole.ADMIN)
   @ApiOperation({ summary: 'Generar enlace de invitación (solo ADMIN)' })
   createInviteLink(

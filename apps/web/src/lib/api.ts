@@ -107,6 +107,15 @@ export const authApi = {
   }) => api.post('/api/v1/auth/register', data),
   login: (data: { email: string; password: string }) => api.post('/api/v1/auth/login', data),
   logout: (refreshToken: string) => api.post('/api/v1/auth/logout', { refreshToken }),
+  forgotPassword: (email: string) => api.post('/api/v1/auth/forgot-password', { email }),
+  resetPassword: (token: string, password: string) =>
+    api.post('/api/v1/auth/reset-password', { token, password }),
+  verifyEmail: (token: string) => api.post('/api/v1/auth/verify-email', { token }),
+  resendVerification: () => api.post('/api/v1/auth/resend-verification'),
+  accountStatus: () =>
+    api.get<{ emailVerified: boolean; emailDeliveryEnabled: boolean }>(
+      '/api/v1/auth/account-status',
+    ),
 }
 
 export const songsApi = {
