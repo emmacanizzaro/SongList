@@ -6,6 +6,8 @@ import { ThrottlerGuard } from '@nestjs/throttler'
 import { PrismaService } from '../prisma/prisma.service'
 import { AuthController } from './auth.controller'
 import { AuthService } from './auth.service'
+import { AuthEmailService } from './auth-email.service'
+import { AuthTokensService } from './auth-tokens.service'
 import { WelcomeEmailService } from './welcome-email.service'
 
 const PENDING_EMAIL = 'invitado@iglesia.org'
@@ -31,14 +33,22 @@ function createMocks() {
     getOrThrow: jest.fn(() => 'test-secret'),
   }
 
+  const authEmail = {
+    isEnabled: jest.fn().mockReturnValue(false),
+    sendEmailVerification: jest.fn().mockResolvedValue(true),
+  }
+  const authTokens = { issue: jest.fn().mockResolvedValue('a'.repeat(64)) }
+
   const service = new AuthService(
     prisma as unknown as PrismaService,
     jwt as unknown as JwtService,
     welcomeEmail as unknown as WelcomeEmailService,
+    authEmail as unknown as AuthEmailService,
+    authTokens as unknown as AuthTokensService,
     config as unknown as ConfigService,
   )
 
-  return { service, prisma, jwt }
+  return { service, prisma, jwt, welcomeEmail, authEmail, authTokens }
 }
 
 describe('AuthService.register', () => {
@@ -95,7 +105,11 @@ describe('AuthService.register', () => {
       inviteToken: 'valid-token',
     })
 
-    expect(prisma.user.update).toHaveBeenCalledTimes(1)
+    expect(prisma.user.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ emailVerifiedAt: expect.any(Date) }),
+      }),
+    )
     expect(prisma.churchInvite.update).toHaveBeenCalledWith({
       where: { token: 'valid-token' },
       data: { acceptedAt: expect.any(Date) },
@@ -112,5 +126,37 @@ describe('AuthController rate limiting', () => {
   it('runs ThrottlerGuard so the @Throttle limits are enforced', () => {
     const guards = Reflect.getMetadata(GUARDS_METADATA, AuthController) ?? []
     expect(guards).toContain(ThrottlerGuard)
+  })
+})
+
+describe('AuthService.register (new church)', () => {
+  function newChurchMocks(emailEnabled: boolean) {
+    const mocks = createMocks()
+    mocks.authEmail.isEnabled.mockReturnValue(emailEnabled)
+    mocks.prisma.user.findUnique.mockResolvedValue(null)
+    mocks.prisma.$transaction.mockResolvedValue({
+      user: { id: 'u1', email: 'ana@iglesia.org', name: 'Ana' },
+      church: { id: 'c1' },
+      membership: { role: 'ADMIN' },
+    })
+    return mocks
+  }
+  const dto = { email: 'ana@iglesia.org', password: 'password-123', name: 'Ana', churchName: 'Iglesia' }
+
+  it('sends a verification link when email delivery is configured', async () => {
+    const { service, authEmail, authTokens, welcomeEmail } = newChurchMocks(true)
+    await service.register(dto)
+
+    expect(authTokens.issue).toHaveBeenCalledWith('u1', 'EMAIL_VERIFICATION')
+    expect(authEmail.sendEmailVerification).toHaveBeenCalledWith('ana@iglesia.org', 'Ana', 'a'.repeat(64))
+    expect(welcomeEmail.sendWelcomeEmail).not.toHaveBeenCalled()
+  })
+
+  it('falls back to the welcome email while delivery is off', async () => {
+    const { service, authEmail, welcomeEmail } = newChurchMocks(false)
+    await service.register(dto)
+
+    expect(authEmail.sendEmailVerification).not.toHaveBeenCalled()
+    expect(welcomeEmail.sendWelcomeEmail).toHaveBeenCalled()
   })
 })

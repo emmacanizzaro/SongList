@@ -46,6 +46,8 @@ model User {
   avatarUrl    String?
   // Administrador de la plataforma (dueño de SongList): gestiona planes de todas las iglesias
   isPlatformAdmin Boolean @default(false)
+  // Fecha en que confirmó su email (null = sin verificar)
+  emailVerifiedAt DateTime?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
@@ -53,6 +55,7 @@ model User {
   memberships   Membership[]
   assignments   Assignment[]
   refreshTokens RefreshToken[]
+  authTokens    AuthToken[]
   sentInvites   ChurchInvite[] @relation("InviteSender")
 
   @@map("users")
@@ -287,4 +290,27 @@ model ChurchInvite {
   @@index([email])
   @@index([token, expiresAt])
   @@map("church_invites")
+}
+
+// =================== TOKENS DE UN SOLO USO (EMAIL) ===================
+
+enum AuthTokenType {
+  EMAIL_VERIFICATION
+  PASSWORD_RESET
+}
+
+// Links enviados por email. Solo se guarda el hash SHA-256 del token.
+model AuthToken {
+  id        String        @id @default(cuid())
+  userId    String
+  type      AuthTokenType
+  tokenHash String        @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime      @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, type])
+  @@map("auth_tokens")
 }
