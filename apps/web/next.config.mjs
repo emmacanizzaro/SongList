@@ -12,7 +12,6 @@ const nextConfig = {
   },
   images: {
     remotePatterns: [
-      { protocol: "https", hostname: "**.songlist.app" },
       { protocol: "https", hostname: "storage.googleapis.com" },
     ],
   },

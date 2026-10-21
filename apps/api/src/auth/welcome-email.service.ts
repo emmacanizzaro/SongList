@@ -1,5 +1,6 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
+import { getAppUrl } from "../common/utils/app-url";
 import { escapeHtml } from "../common/utils/escape-html";
 
 interface SendWelcomeEmailParams {
@@ -47,7 +48,7 @@ export class WelcomeEmailService {
             Tu registro se confirmó correctamente.<br />
             Ya puedes comenzar a organizar tu equipo de alabanza, cargar canciones y programar reuniones.
           </p>
-          <a href="https://songlist.app" style="display: inline-block; padding: 14px 20px; border-radius: 14px; background: #1d4ed8; color: #ffffff; text-decoration: none; font-weight: 700; font-family: Inter, Arial, sans-serif;">Ir a SongList</a>
+          <a href="${getAppUrl(this.config)}/dashboard" style="display: inline-block; padding: 14px 20px; border-radius: 14px; background: #1d4ed8; color: #ffffff; text-decoration: none; font-weight: 700; font-family: Inter, Arial, sans-serif;">Ir a SongList</a>
           <p style="margin: 32px 0 0; font-size: 15px; line-height: 1.6; color: #64748b; font-family: Inter, Arial, sans-serif;">
             Si tienes dudas o necesitas ayuda, responde a este correo.<br />
             <span style="display:block;margin-top:18px;font-size:15px;color:#1d4ed8;font-weight:700;">Emmanuel Canizzaro - Product Manager</span>

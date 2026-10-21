@@ -1,6 +1,7 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { MemberRole } from "@prisma/client";
+import { getAppUrl } from "../common/utils/app-url";
 import { escapeHtml } from "../common/utils/escape-html";
 
 interface SendInviteEmailParams {
@@ -27,12 +28,7 @@ export class InviteEmailService {
     emailSent: boolean;
     inviteUrl: string;
   }> {
-    this.logger.warn("Entrando a sendInviteEmail");
-    const frontendUrl = this.config.get<string>(
-      "FRONTEND_URL",
-      "http://localhost:3000",
-    );
-    const inviteUrl = `${frontendUrl.replace(/\/$/, "")}/register?invite=${token}`;
+    const inviteUrl = `${getAppUrl(this.config)}/register?invite=${token}`;
 
     const apiKey = this.config.get<string>("RESEND_API_KEY");
     const from =
