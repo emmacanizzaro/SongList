@@ -5,11 +5,12 @@ import { CurrentTenant } from '../utils/tenant.decorator'
 import { Roles } from '../auth/decorators/roles.decorator'
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard'
 import { RolesGuard } from '../auth/guards/roles.guard'
+import { ActiveSubscriptionGuard } from '../subscriptions/active-subscription.guard'
 import { InstrumentsService } from './instruments.service'
 
 @ApiTags('instruments')
 @ApiBearerAuth('JWT')
-@UseGuards(JwtAuthGuard, RolesGuard)
+@UseGuards(JwtAuthGuard, RolesGuard, ActiveSubscriptionGuard)
 @Controller('instruments')
 export class InstrumentsController {
   constructor(private readonly instrumentsService: InstrumentsService) {}

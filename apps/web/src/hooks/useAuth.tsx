@@ -50,6 +50,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           name: payload.name ?? payload.email,
           churchId: payload.churchId,
           currentRole: payload.role,
+          isPlatformAdmin: payload.isPlatformAdmin === true,
         });
       } else {
         Cookies.remove("accessToken");
@@ -79,6 +80,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       name: payload.name ?? email,
       churchId: payload.churchId,
       currentRole: payload.role,
+      isPlatformAdmin: payload.isPlatformAdmin === true,
     });
   }, []);
 
@@ -107,6 +109,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         name: formData.name,
         churchId: payload.churchId,
         currentRole: payload.role,
+        isPlatformAdmin: payload.isPlatformAdmin === true,
       });
     },
     [],

@@ -14,6 +14,7 @@ import { LoginDto } from '../domain/login.dto';
 import { RegisterDto } from '../domain/register.dto';
 import { isPendingInviteName } from '../common/utils/pending-invite';
 import { PrismaService } from '../prisma/prisma.service';
+import { trialEndDate } from '../subscriptions/plan-limits';
 import { WelcomeEmailService } from './welcome-email.service';
 
 @Injectable()
@@ -155,7 +156,6 @@ export class AuthService {
 
     const passwordHash = await bcrypt.hash(dto.password, 12)
     const slug = this.generateSlug(dto.churchName)
-    const initialPlan = this.resolveInitialPlanForEmail(normalizedEmail)
 
     // Transacción: crear usuario + iglesia + membresía + suscripción FREE
     const result = await this.prisma.$transaction(async (tx) => {
@@ -177,7 +177,10 @@ export class AuthService {
         data: {
           name: dto.churchName!,
           slug: finalSlug,
-          subscription: { create: { plan: initialPlan, status: 'ACTIVE' } },
+          // Toda iglesia nueva arranca en FREE con prueba de 30 días.
+          subscription: {
+            create: { plan: PlanType.FREE, status: 'ACTIVE', trialEndsAt: trialEndDate() },
+          },
           instruments: {
             createMany: {
               data: [
@@ -205,9 +208,6 @@ export class AuthService {
       email: result.user.email,
       name: userNameForWelcome,
     })
-    if (initialPlan === PlanType.PRO) {
-      this.logger.log(`Founder PRO applied for ${normalizedEmail} (${result.church.id})`)
-    }
     return this.issueTokens(result.user.id, result.user.email, result.church.id, 'ADMIN')
   }
 
@@ -304,7 +304,19 @@ export class AuthService {
   // HELPERS PRIVADOS
   // ──────────────────────────────────────────────
   private async issueTokens(userId: string, email: string, churchId: string, role: string) {
-    const payload = { sub: userId, email, churchId, role }
+    // isPlatformAdmin only drives UI (showing the admin link); the API always
+    // re-checks it from the database in PlatformAdminGuard.
+    const flags = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { isPlatformAdmin: true },
+    })
+    const payload = {
+      sub: userId,
+      email,
+      churchId,
+      role,
+      ...(flags?.isPlatformAdmin ? { isPlatformAdmin: true } : {}),
+    }
 
     const accessToken = await this.jwt.signAsync(payload, {
       secret: this.config.getOrThrow('JWT_SECRET'),
@@ -335,19 +347,5 @@ export class AuthService {
       .replace(/\s+/g, '-')
       .replace(/-+/g, '-')
       .slice(0, 50)
-  }
-
-  private resolveInitialPlanForEmail(email: string): PlanType {
-    const founderEmailsRaw = this.config.get<string>('FOUNDER_PRO_EMAILS', '')
-    const founderEmails = founderEmailsRaw
-      .split(',')
-      .map((item) => item.trim().toLowerCase())
-      .filter(Boolean)
-
-    if (founderEmails.includes(email.toLowerCase())) {
-      return PlanType.PRO
-    }
-
-    return PlanType.FREE
   }
 }

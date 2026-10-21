@@ -1,6 +1,7 @@
 import { Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
 import { ThrottlerModule } from "@nestjs/throttler";
+import { AdminModule } from "./admin/admin.module";
 import { AuthModule } from "./auth/auth.module";
 import { ChurchesModule } from "./churches/churches.module";
 import { InstrumentsModule } from "./instruments/instruments.module";
@@ -33,6 +34,7 @@ import { TranspositionModule } from "./transposition/transposition.module";
     InstrumentsModule,
     TranspositionModule,
     SubscriptionsModule,
+    AdminModule,
   ],
 })
 export class AppModule {}

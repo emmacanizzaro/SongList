@@ -169,3 +169,11 @@ export const instrumentsApi = {
 export const publicMeetingsApi = {
   getByToken: (token: string) => api.get(`/api/v1/public/meetings/${token}`),
 }
+
+export const adminApi = {
+  listChurches: () => api.get('/api/v1/admin/churches'),
+  updateSubscription: (
+    churchId: string,
+    data: { plan: string; trialEndsAt?: string | null; currentPeriodEnd?: string | null },
+  ) => api.patch(`/api/v1/admin/churches/${churchId}/subscription`, data),
+}

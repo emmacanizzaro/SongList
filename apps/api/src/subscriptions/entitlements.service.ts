@@ -5,7 +5,13 @@ import {
 } from "@nestjs/common";
 import { PlanType, SubscriptionStatus } from "@prisma/client";
 import { PrismaService } from "../prisma/prisma.service";
-import { getPlanLimits, PlanLimits } from "./plan-limits";
+import {
+  AccessState,
+  getAccessState,
+  getPlanLimits,
+  PlanLimits,
+  PLAN_PRICES_USD,
+} from "./plan-limits";
 
 interface QuotaSnapshot {
   used: number;
@@ -19,6 +25,10 @@ export interface EntitlementsSnapshot {
   status: SubscriptionStatus;
   cancelAtPeriodEnd: boolean;
   currentPeriodEnd: Date | null;
+  trialEndsAt: Date | null;
+  /** "active", or why the church is read-only. */
+  access: AccessState;
+  priceUsd: number | null;
   limits: PlanLimits;
   features: {
     canExportPdf: boolean;
@@ -53,6 +63,7 @@ export class EntitlementsService {
         status: true,
         cancelAtPeriodEnd: true,
         currentPeriodEnd: true,
+        trialEndsAt: true,
       },
     });
 
@@ -74,6 +85,9 @@ export class EntitlementsService {
       status: sub.status,
       cancelAtPeriodEnd: sub.cancelAtPeriodEnd,
       currentPeriodEnd: sub.currentPeriodEnd,
+      trialEndsAt: sub.trialEndsAt,
+      access: getAccessState(sub),
+      priceUsd: PLAN_PRICES_USD[sub.plan],
       limits,
       features: {
         canExportPdf: limits.canExportPdf,

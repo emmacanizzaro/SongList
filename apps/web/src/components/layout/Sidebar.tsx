@@ -11,6 +11,7 @@ import {
     Menu,
     Music2,
     Settings,
+    ShieldCheck,
     X,
 } from 'lucide-react'
 import Link from 'next/link'
@@ -28,17 +29,23 @@ const BOTTOM_ITEMS = [
   { label: 'Configuración', href: '/settings', icon: Settings },
 ]
 
+// Solo visible para el dueño de la plataforma; la API lo verifica igual.
+const ADMIN_ITEM = { label: 'Administración', href: '/admin', icon: ShieldCheck }
+
 function isItemActive(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(`${href}/`)
 }
 
 function getCurrentSectionLabel(pathname: string) {
-  const allItems = [...NAV_ITEMS, ...BOTTOM_ITEMS]
+  const allItems = [...NAV_ITEMS, ...BOTTOM_ITEMS, ADMIN_ITEM]
   const current = allItems.find((item) => isItemActive(pathname, item.href))
   return current?.label ?? 'Panel'
 }
 
 function NavigationLinks({ pathname, onNavigate }: { pathname: string; onNavigate?: () => void }) {
+  const { user } = useAuth()
+  const bottomItems = user?.isPlatformAdmin ? [...BOTTOM_ITEMS, ADMIN_ITEM] : BOTTOM_ITEMS
+
   return (
     <>
       <nav className="flex-1 space-y-1 px-4 py-6">
@@ -65,7 +72,7 @@ function NavigationLinks({ pathname, onNavigate }: { pathname: string; onNavigat
       </nav>
 
       <div className="space-y-1 border-t border-white/10 px-4 py-5">
-        {BOTTOM_ITEMS.map(({ label, href, icon: Icon }) => {
+        {bottomItems.map(({ label, href, icon: Icon }) => {
           const active = isItemActive(pathname, href)
           return (
             <Link

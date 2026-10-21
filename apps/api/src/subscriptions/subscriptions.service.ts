@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { PlanType } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { EntitlementsService } from './entitlements.service';
@@ -34,6 +34,10 @@ export class SubscriptionsService {
   }
 
   async createCheckout(churchId: string, plan: PlanType, userEmail: string, frontendUrl: string) {
+    // Only paid public plans can be purchased; UNLIMITED is assigned by the platform admin.
+    if (plan !== PlanType.PRO && plan !== PlanType.ENTERPRISE) {
+      throw new BadRequestException('Plan no disponible para compra')
+    }
     const session = await this.stripe.createCheckoutSession(
       churchId,
       plan,
