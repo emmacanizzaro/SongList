@@ -23,7 +23,7 @@ export class CreateChurchDto {
   description?: string;
 
   @ApiPropertyOptional({
-    example: "https://storage.songlist.app/logos/abc.png",
+    example: "https://example.com/logos/abc.png",
   })
   @IsOptional()
   @IsUrl()
