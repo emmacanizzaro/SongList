@@ -1,0 +1,32 @@
+name: Verify migrations match schema (temporary)
+on:
+  push:
+    branches: [feat/plans-and-platform-admin]
+    paths: [.github/workflows/verify-migrations.yml]
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports: ["5432:5432"]
+        options: --health-cmd pg_isready --health-interval 5s --health-timeout 5s --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm ci
+      - name: Apply migrations and diff against schema
+        working-directory: apps/api
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/app
+        run: |
+          npx prisma migrate deploy
+          set +e
+          npx prisma migrate diff --from-url "$DATABASE_URL" --to-schema-datamodel prisma/schema.prisma --script > drift.sql
+          lines=$(grep -cv '^--\|^$' drift.sql)
+          echo "::notice title=drift-lines::$lines"
+          echo "::notice title=drift-sql::$(head -c 3000 drift.sql | base64 -w0)"
