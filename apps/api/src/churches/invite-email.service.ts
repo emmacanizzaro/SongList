@@ -3,6 +3,7 @@ import { ConfigService } from "@nestjs/config";
 import { MemberRole } from "@prisma/client";
 import { getAppUrl } from "../common/utils/app-url";
 import { escapeHtml } from "../common/utils/escape-html";
+import { APP_NAME } from '../common/constants/brand'
 
 interface SendInviteEmailParams {
   email: string;
@@ -45,11 +46,11 @@ export class InviteEmailService {
       timeStyle: "short",
     }).format(expiresAt);
 
-    const subject = `¡Bienvenido a SongList! Tu acceso está listo`;
+    const subject = `¡Bienvenido a ${APP_NAME}! Tu acceso está listo`;
     const text = [
-      `¡Bienvenido a SongList!`,
+      `¡Bienvenido a ${APP_NAME}!`,
       `Has sido invitado a unirte a ${churchName} como ${this.getRoleLabel(role)}.`,
-      `Tu registro a SongList se confirmó con éxito.`,
+      `Tu registro a ${APP_NAME} se confirmó con éxito.`,
       `Accede a tu equipo usando este enlace: ${inviteUrl}`,
       `La invitación expira el ${expiresAtText}.`,
       `\n\nEmmanuel Canizzaro - Product Manager`,
@@ -59,12 +60,12 @@ export class InviteEmailService {
       <div style="font-family: Inter, Arial, sans-serif; background: #f6f4ef; padding: 24px; color: #132033;">
         <div style="max-width: 560px; margin: 0 auto; background: #ffffff; border-radius: 20px; padding: 32px; border: 1px solid #e5e7eb; box-shadow: 0 18px 40px rgba(22, 43, 73, 0.08);">
           <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 18px;">
-            <div style="font-size: 28px; font-weight: 800; color: #1d4ed8; font-family: Inter, Arial, sans-serif; letter-spacing: 0.12em;">SongList</div>
+            <div style="font-size: 28px; font-weight: 800; color: #1d4ed8; font-family: Inter, Arial, sans-serif; letter-spacing: 0.12em;">${APP_NAME}</div>
           </div>
-          <h1 style="margin: 0 0 18px; font-size: 26px; line-height: 1.15; font-family: Inter, Arial, sans-serif; color: #132033;">¡Bienvenido a SongList!</h1>
+          <h1 style="margin: 0 0 18px; font-size: 26px; line-height: 1.15; font-family: Inter, Arial, sans-serif; color: #132033;">¡Bienvenido a ${APP_NAME}!</h1>
           <p style="margin: 0 0 20px; font-size: 16px; line-height: 1.7; color: #475569; font-family: Inter, Arial, sans-serif;">
             Has sido invitado a unirte a <strong>${escapeHtml(churchName)}</strong> como <strong>${this.getRoleLabel(role)}</strong>.<br />
-            Tu registro a SongList se confirmó con éxito.<br />
+            Tu registro a ${APP_NAME} se confirmó con éxito.<br />
             Accede a tu equipo usando el siguiente enlace:
           </p>
           <a href="${inviteUrl}" style="display: inline-block; padding: 14px 20px; border-radius: 14px; background: #1d4ed8; color: #ffffff; text-decoration: none; font-weight: 700; font-family: Inter, Arial, sans-serif;">Aceptar invitación</a>

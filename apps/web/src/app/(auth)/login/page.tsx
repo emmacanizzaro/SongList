@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
+import { APP_NAME } from '@/constants/brand'
 
 const schema = z.object({
   email: z.string().email('Email inválido'),
@@ -43,7 +44,7 @@ export default function LoginPage() {
       <div className="relative w-full max-w-5xl overflow-hidden rounded-[32px] border border-white/50 dark:border-slate-700 bg-white/70 dark:bg-slate-900 shadow-[0_30px_80px_rgba(22,43,73,0.16)] dark:shadow-[0_30px_80px_rgba(0,0,0,0.4)] backdrop-blur-xl lg:grid lg:grid-cols-[1.1fr_0.9fr]">
         <div className="hidden bg-slate-950 p-10 text-white lg:flex lg:flex-col lg:justify-between">
           <div>
-            <span className="eyebrow bg-white/10 text-slate-200">SongList Platform</span>
+            <span className="eyebrow bg-white/10 text-slate-200">{APP_NAME}</span>
             <h2 className="mt-6 text-4xl font-semibold leading-tight">
               Ordena a tu equipo para servir con calma y claridad.
             </h2>

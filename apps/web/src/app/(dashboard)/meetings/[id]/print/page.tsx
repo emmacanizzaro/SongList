@@ -12,6 +12,7 @@ import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, Crown, Loader2, Music2, Printer } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { APP_NAME } from "@/constants/brand";
 
 export default function MeetingPrintPage() {
   const { user } = useAuth();
@@ -108,7 +109,7 @@ export default function MeetingPrintPage() {
               <Music2 className="h-4 w-4 text-white" />
             </div>
             <span className="text-xs font-bold uppercase tracking-[0.22em] text-slate-400">
-              SongList
+              {APP_NAME}
             </span>
           </div>
           <h1 className="text-3xl font-bold tracking-tight text-slate-900">
@@ -225,7 +226,7 @@ export default function MeetingPrintPage() {
 
         {/* Footer */}
         <footer className="border-t border-slate-200 pt-4 text-xs text-slate-400">
-          Generado con SongList · {formatShortSpanishDayMonth(new Date())}
+          Generado con {APP_NAME} · {formatShortSpanishDayMonth(new Date())}
         </footer>
       </div>
     </>

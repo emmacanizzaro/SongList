@@ -1,6 +1,6 @@
-# SongList
+# Tona
 
-SongList is a multi-tenant SaaS platform for worship teams.
+Tona (formerly SongList) is a multi-tenant SaaS platform for worship teams.
 It helps churches plan meetings, organize songs, assign musicians, and share setlists from one place.
 
 [![Frontend](https://img.shields.io/badge/Frontend-Next.js%2014-black)](#tech-stack)
@@ -9,7 +9,7 @@ It helps churches plan meetings, organize songs, assign musicians, and share set
 [![ORM](https://img.shields.io/badge/ORM-Prisma-2D3748)](#tech-stack)
 [![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
 
-## Why SongList
+## Why Tona
 
 - Keeps worship planning centralized and easy to share.
 - Supports multi-church membership with tenant-safe data isolation.

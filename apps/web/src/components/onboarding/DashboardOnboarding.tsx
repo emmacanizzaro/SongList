@@ -1,10 +1,11 @@
 import { useState } from 'react'
 import { EventData, Joyride, STATUS, Step } from 'react-joyride'
+import { APP_NAME } from '@/constants/brand'
 
 const steps: Step[] = [
   {
     target: "[data-tour='dashboard-welcome']",
-    content: '¡Bienvenido a SongList! Aquí verás el resumen de tu equipo y tus próximas reuniones.',
+    content: `¡Bienvenido a ${APP_NAME}! Aquí verás el resumen de tu equipo y tus próximas reuniones.`,
   },
   {
     target: "[data-tour='dashboard-new-song']",

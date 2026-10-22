@@ -5,6 +5,7 @@ import { NestExpressApplication } from "@nestjs/platform-express";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import helmet from "helmet";
 import { AppModule } from "./app.module";
+import { APP_NAME } from "./common/constants/brand";
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -81,9 +82,9 @@ async function bootstrap() {
   // ---- Swagger (solo en desarrollo) ----
   if (config.get("NODE_ENV") !== "production") {
     const swaggerConfig = new DocumentBuilder()
-      .setTitle("SongList API")
+      .setTitle(`${APP_NAME} API`)
       .setDescription(
-        "API REST para la plataforma SaaS SongList - Equipos de Alabanza",
+        `API REST para la plataforma SaaS ${APP_NAME} - Equipos de Alabanza`,
       )
       .setVersion("1.0")
       .addBearerAuth(
@@ -116,7 +117,7 @@ async function bootstrap() {
   );
   await app.listen(port, "0.0.0.0");
 
-  console.log(`🎵 SongList API running on: http://localhost:${port}/api/v1`);
+  console.log(`🎵 ${APP_NAME} API running on: http://localhost:${port}/api/v1`);
   console.log(`📚 Swagger docs: http://localhost:${port}/docs`);
 }
 

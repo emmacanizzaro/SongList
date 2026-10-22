@@ -10,6 +10,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { Suspense, useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
+import { APP_NAME } from '@/constants/brand'
 
 const schema = z.object({
   name: z.string().min(2, 'Mínimo 2 caracteres').max(100),
@@ -106,7 +107,7 @@ function RegisterPageContent() {
             </div>
             <div>
               <span className="block text-xl font-semibold text-slate-900 dark:text-white">
-                SongList
+                {APP_NAME}
               </span>
               <span className="text-xs text-slate-500 dark:text-slate-400">
                 Workspace para alabanza
