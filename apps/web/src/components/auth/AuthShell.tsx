@@ -1,5 +1,6 @@
 import { Music2 } from 'lucide-react'
 import type { ReactNode } from 'react'
+import { APP_NAME } from '@/constants/brand'
 
 /** Centered card used by the account recovery and verification pages. */
 export function AuthShell({ title, children }: { title: string; children: ReactNode }) {
@@ -11,7 +12,7 @@ export function AuthShell({ title, children }: { title: string; children: ReactN
           <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-500 to-brand-700">
             <Music2 className="h-5 w-5 text-white" aria-hidden />
           </span>
-          <span className="text-lg font-semibold text-slate-900 dark:text-white">SongList</span>
+          <span className="text-lg font-semibold text-slate-900 dark:text-white">{APP_NAME}</span>
         </div>
         <h1 className="text-2xl font-semibold text-slate-900 dark:text-white">{title}</h1>
         <div className="mt-4">{children}</div>

@@ -1,5 +1,5 @@
 // ============================================================
-// TIPOS COMPARTIDOS - SongList SaaS
+// TIPOS COMPARTIDOS - Tona SaaS
 // ============================================================
 
 export type MemberRole = "ADMIN" | "EDITOR" | "READER";

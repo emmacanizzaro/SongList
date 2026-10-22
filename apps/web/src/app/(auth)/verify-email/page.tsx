@@ -5,6 +5,7 @@ import { authApi } from '@/lib/api'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { Suspense, useEffect, useRef, useState } from 'react'
+import { APP_NAME } from '@/constants/brand'
 
 type State = { status: 'loading' | 'ok' | 'error'; message: string }
 
@@ -42,7 +43,7 @@ function VerifyEmail() {
       )}
       {state.status !== 'loading' && (
         <Link href="/dashboard" className="btn-primary w-full">
-          Ir a SongList
+          Ir a {APP_NAME}
         </Link>
       )}
     </div>

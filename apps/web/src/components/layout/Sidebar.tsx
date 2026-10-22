@@ -17,6 +17,7 @@ import {
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
+import { APP_NAME } from '@/constants/brand'
 
 const NAV_ITEMS = [
   { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
@@ -112,7 +113,7 @@ export function Sidebar() {
             <Music2 className="w-5 h-5 text-white" />
           </div>
           <div>
-            <span className="block font-semibold tracking-tight text-white">SongList</span>
+            <span className="block font-semibold tracking-tight text-white">{APP_NAME}</span>
             <span className="text-xs text-slate-400">Worship team workspace</span>
           </div>
         </div>
@@ -175,7 +176,7 @@ export function MobileNavigation() {
                 <Music2 className="h-4 w-4 text-white" />
               </div>
               <div>
-                <p className="text-sm font-semibold text-slate-900">SongList</p>
+                <p className="text-sm font-semibold text-slate-900">{APP_NAME}</p>
                 <p className="text-xs text-slate-500 truncate">{user?.name ?? 'Workspace'}</p>
               </div>
             </div>
@@ -215,7 +216,7 @@ export function MobileNavigation() {
                 <Music2 className="w-5 h-5 text-white" />
               </div>
               <div>
-                <span className="block font-semibold tracking-tight text-white">SongList</span>
+                <span className="block font-semibold tracking-tight text-white">{APP_NAME}</span>
                 <span className="text-xs text-slate-400">Worship team workspace</span>
               </div>
             </div>

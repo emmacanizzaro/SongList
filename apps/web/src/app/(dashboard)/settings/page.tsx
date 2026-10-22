@@ -17,6 +17,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import { APP_NAME } from "@/constants/brand";
 
 interface ChurchStats {
   membersCount: number;
@@ -338,7 +339,7 @@ export default function SettingsPage() {
                 )}
 
                 <p className="text-xs text-slate-500 dark:text-slate-400">
-                  Si el backend tiene correo configurado, SongList enviará la
+                  Si el backend tiene correo configurado, {APP_NAME} enviará la
                   invitación automáticamente. Si no, puedes compartir el enlace
                   manualmente y seguirá funcionando igual.
                 </p>

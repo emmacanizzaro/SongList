@@ -7,6 +7,7 @@ import { useQuery } from "@tanstack/react-query";
 import { AlertCircle, Calendar, Music2, Users2 } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { APP_NAME } from "@/constants/brand";
 
 export default function PublicMeetingPage() {
   const { token } = useParams<{ token: string }>();
@@ -85,7 +86,7 @@ export default function PublicMeetingPage() {
             <Music2 className="w-4 h-4 text-white" />
           </div>
           <span className="font-semibold text-slate-900 dark:text-white text-sm">
-            SongList
+            {APP_NAME}
           </span>
         </Link>
         <Link href="/login" className="btn-secondary text-xs px-3 py-1.5">
@@ -181,7 +182,7 @@ export default function PublicMeetingPage() {
             href="/login"
             className="text-brand-600 font-medium hover:underline"
           >
-            SongList
+            {APP_NAME}
           </Link>{" "}
           · Plataforma para equipos de alabanza
         </p>

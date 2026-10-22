@@ -7,6 +7,7 @@ import { useQuery } from "@tanstack/react-query";
 import { AlertTriangle, Check, MessageCircle, Sparkles } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { APP_NAME } from "@/constants/brand";
 
 // Cobro manual: la iglesia contacta al administrador, paga por transferencia o
 // Mercado Pago y el administrador activa el plan desde /admin.
@@ -31,7 +32,7 @@ const PLAN_CARDS: Array<{
   {
     plan: "FREE",
     title: "Prueba gratuita",
-    description: "Para conocer SongList con tu equipo.",
+    description: `Para conocer ${APP_NAME} con tu equipo.`,
     price: "Gratis",
     priceNote: "30 días",
     features: [
@@ -74,7 +75,7 @@ const PLAN_CARDS: Array<{
 ];
 
 function contactHref(plan: PlanType, churchName?: string) {
-  const text = `Hola, quiero activar el plan ${PLAN_LABELS[plan]} de SongList${
+  const text = `Hola, quiero activar el plan ${PLAN_LABELS[plan]} de ${APP_NAME}${
     churchName ? ` para ${churchName}` : ""
   }.`;
   if (SALES_WHATSAPP) {
@@ -82,7 +83,7 @@ function contactHref(plan: PlanType, churchName?: string) {
   }
   if (SALES_EMAIL) {
     return `mailto:${SALES_EMAIL}?subject=${encodeURIComponent(
-      "Plan de SongList",
+      `Plan de ${APP_NAME}`,
     )}&body=${encodeURIComponent(text)}`;
   }
   return null;
@@ -303,7 +304,7 @@ export default function BillingPage() {
                     ) : (
                       <p className="text-center text-xs text-slate-500 dark:text-slate-400">
                         {isAdmin
-                          ? "Contacta al equipo de SongList para activarlo."
+                          ? `Contacta al equipo de ${APP_NAME} para activarlo.`
                           : "Solo un administrador de tu iglesia puede cambiar el plan."}
                       </p>
                     )}

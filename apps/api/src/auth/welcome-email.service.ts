@@ -2,6 +2,7 @@ import { Injectable, Logger } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { getAppUrl } from "../common/utils/app-url";
 import { escapeHtml } from "../common/utils/escape-html";
+import { APP_NAME } from '../common/constants/brand'
 
 interface SendWelcomeEmailParams {
   email: string;
@@ -27,10 +28,10 @@ export class WelcomeEmailService {
       return { emailSent: false };
     }
 
-    const subject = `Tu registro a SongList se confirmó con éxito`;
+    const subject = `Tu registro a ${APP_NAME} se confirmó con éxito`;
     const text = [
       `Hola ${name},`,
-      `Tu registro a SongList se confirmó con éxito.`,
+      `Tu registro a ${APP_NAME} se confirmó con éxito.`,
       `¡Comienza a organizar tu equipo de alabanza hoy mismo!`,
       `\n\nEmmanuel Canizzaro - Product Manager`,
     ].join("\n\n");
@@ -39,16 +40,16 @@ export class WelcomeEmailService {
       <div style="font-family: Inter, Arial, sans-serif; background: #f6f4ef; padding: 24px; color: #132033;">
         <div style="max-width: 560px; margin: 0 auto; background: #ffffff; border-radius: 20px; padding: 32px; border: 1px solid #e5e7eb; box-shadow: 0 18px 40px rgba(22, 43, 73, 0.08);">
           <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 18px;">
-            <div style="font-size: 28px; font-weight: 800; color: #1d4ed8; font-family: Inter, Arial, sans-serif; letter-spacing: 0.12em;">SongList</div>
+            <div style="font-size: 28px; font-weight: 800; color: #1d4ed8; font-family: Inter, Arial, sans-serif; letter-spacing: 0.12em;">${APP_NAME}</div>
           </div>
-          <h1 style="margin: 0 0 18px; font-size: 26px; line-height: 1.15; font-family: Inter, Arial, sans-serif; color: #132033;">Tu registro a SongList se confirmó con éxito</h1>
+          <h1 style="margin: 0 0 18px; font-size: 26px; line-height: 1.15; font-family: Inter, Arial, sans-serif; color: #132033;">Tu registro a ${APP_NAME} se confirmó con éxito</h1>
           <p style="margin: 0 0 20px; font-size: 16px; line-height: 1.7; color: #475569; font-family: Inter, Arial, sans-serif;">
             Hola <strong>${escapeHtml(name)}</strong>,<br />
-            ¡Bienvenido a <span style='color:#1d4ed8;font-weight:700;'>SongList</span>!<br />
+            ¡Bienvenido a <span style='color:#1d4ed8;font-weight:700;'>${APP_NAME}</span>!<br />
             Tu registro se confirmó correctamente.<br />
             Ya puedes comenzar a organizar tu equipo de alabanza, cargar canciones y programar reuniones.
           </p>
-          <a href="${getAppUrl(this.config)}/dashboard" style="display: inline-block; padding: 14px 20px; border-radius: 14px; background: #1d4ed8; color: #ffffff; text-decoration: none; font-weight: 700; font-family: Inter, Arial, sans-serif;">Ir a SongList</a>
+          <a href="${getAppUrl(this.config)}/dashboard" style="display: inline-block; padding: 14px 20px; border-radius: 14px; background: #1d4ed8; color: #ffffff; text-decoration: none; font-weight: 700; font-family: Inter, Arial, sans-serif;">Ir a ${APP_NAME}</a>
           <p style="margin: 32px 0 0; font-size: 15px; line-height: 1.6; color: #64748b; font-family: Inter, Arial, sans-serif;">
             Si tienes dudas o necesitas ayuda, responde a este correo.<br />
             <span style="display:block;margin-top:18px;font-size:15px;color:#1d4ed8;font-weight:700;">Emmanuel Canizzaro - Product Manager</span>

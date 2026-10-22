@@ -3,6 +3,7 @@ import { JetBrains_Mono, Plus_Jakarta_Sans } from "next/font/google";
 import { Toaster } from "react-hot-toast";
 import "./globals.css";
 import { Providers } from "./providers";
+import { APP_NAME } from "@/constants/brand";
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -15,10 +16,10 @@ const jetBrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: { default: "SongList", template: "%s | SongList" },
+  title: { default: APP_NAME, template: `%s | ${APP_NAME}` },
   description: "Plataforma SaaS para equipos de alabanza de iglesias",
   openGraph: {
-    title: "SongList",
+    title: APP_NAME,
     description:
       "Gestiona canciones, reuniones y músicos de tu equipo de alabanza",
     type: "website",
